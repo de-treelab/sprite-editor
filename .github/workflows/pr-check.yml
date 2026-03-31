@@ -15,6 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Compute semantic version
+        id: version
+        uses: paulhatch/semantic-version@v5.4.0
+
+      - name: Print version
+        run: echo "PR version ${{ steps.version.outputs.version }}"
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -23,7 +30,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install Rust stable
