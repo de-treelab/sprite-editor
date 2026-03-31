@@ -1,0 +1,58 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "load": "Load",
+    "error": "Error"
+  },
+  "new_project": {
+    "title": "Create New Project",
+    "default_name": "New Project",
+    "project_name": "Project Name",
+    "width": "Width (px)",
+    "height": "Height (px)",
+    "location": "Location",
+    "select_location": "Select parent folder...",
+    "browse": "Browse",
+    "will_be_created_at": "Project will be created at:",
+    "error_no_location": "Please select a location for the project.",
+    "error_save_failed": "Could not save to the selected folder."
+  },
+  "no_project": {
+    "title": "No Project Open",
+    "description": "Create a new project or load an existing one from the File menu to start animating.",
+    "create_button": "Create New Project"
+  },
+  "topbar": {
+    "file": {
+      "menu": "File",
+      "new": "New Project",
+      "open": "Open Project",
+      "save": "Save Project"
+    },
+    "edit": {
+      "menu": "Edit",
+      "undo": "Undo",
+      "redo": "Redo"
+    },
+    "git": {
+      "menu": "Git",
+      "init": "Init Repository",
+      "commit": "Commit Changes"
+    },
+    "view": {
+      "menu": "View",
+      "zoom_in": "Zoom In",
+      "zoom_out": "Zoom Out",
+      "fit_screen": "Fit to Screen"
+    }
+  },
+  "sidebar": {
+    "layers": "Layers"
+  },
+  "error_boundary": {
+    "title": "Something went wrong.",
+    "reload": "Reload Application"
+  }
+}

@@ -1,0 +1,3 @@
+// Add to Sidebar.tsx
+<button onClick={() => setActiveTool('line')} className={`... ${activeTool === 'line' ? 'bg-indigo-600' : 'hover:bg-gray-700'}`}>Line</button>
+<button onClick={() => setActiveTool('rectangle')} className={`... ${activeTool === 'rectangle' ? 'bg-indigo-600' : 'hover:bg-gray-700'}`}>Rect</button>
