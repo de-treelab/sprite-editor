@@ -227,6 +227,35 @@ fn png_file_to_data_url(path: &Path) -> Result<String, String> {
     Ok(format!("data:image/png;base64,{}", b64))
 }
 
+/// Reads an image file (PNG, JPEG, BMP, WebP, GIF), converts it to a PNG data-URL,
+/// and returns `{ dataUrl, width, height }`.
+#[derive(Serialize)]
+struct ImportedImage {
+    data_url: String,
+    width: u32,
+    height: u32,
+}
+
+#[tauri::command]
+fn import_image(path: String) -> Result<ImportedImage, String> {
+    let img = image::open(&path).map_err(|e| format!("Failed to open image: {}", e))?;
+    let rgba = img.to_rgba8();
+    let (width, height) = rgba.dimensions();
+
+    let mut png_bytes = Vec::new();
+    let encoder = image::codecs::png::PngEncoder::new(&mut png_bytes);
+    encoder
+        .write_image(rgba.as_raw(), width, height, image::ExtendedColorType::Rgba8)
+        .map_err(|e| format!("PNG encode error: {}", e))?;
+
+    let b64 = BASE64.encode(&png_bytes);
+    Ok(ImportedImage {
+        data_url: format!("data:image/png;base64,{}", b64),
+        width,
+        height,
+    })
+}
+
 // ── Existing commands (kept for backward compatibility) ──
 
 #[tauri::command]
@@ -1357,6 +1386,7 @@ pub fn run() {
             git_resolve_ours,
             git_resolve_theirs,
             git_branch_exists,
+            import_image,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

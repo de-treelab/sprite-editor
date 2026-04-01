@@ -116,6 +116,18 @@ export async function gitBranchExists(path: string, branch: string): Promise<boo
   return await invoke('git_branch_exists', { path, branch });
 }
 
+// ── Image import ──
+
+export interface ImportedImage {
+  data_url: string;
+  width: number;
+  height: number;
+}
+
+export async function importImage(path: string): Promise<ImportedImage> {
+  return await invoke('import_image', { path });
+}
+
 // ── Export commands ──
 
 export async function exportWriteBytes(path: string, dataBase64: string): Promise<void> {
