@@ -5,6 +5,7 @@ import { TaskSuggestions } from './Task/TaskSuggestions';
 
 interface Props {
   onClose: () => void;
+  onSkip?: () => void;
 }
 
 /** Simple word-overlap similarity score (0–1) */
@@ -19,7 +20,7 @@ function similarity(a: string, b: string): number {
   return overlap / Math.max(wordsA.size, wordsB.size);
 }
 
-export const StartTaskModal: React.FC<Props> = ({ onClose }) => {
+export const StartTaskModal: React.FC<Props> = ({ onClose, onSkip }) => {
   const [name, setName] = useState('');
   const [taskId, setTaskId] = useState('');
   const startTask = useTaskStore((s) => s.startTask);
@@ -96,8 +97,9 @@ export const StartTaskModal: React.FC<Props> = ({ onClose }) => {
       size="md"
       footer={
         <ModalFooter
-          onCancel={onClose}
+          onCancel={onSkip || onClose}
           onConfirm={handleStart}
+          cancelText={onSkip ? 'Save without task' : 'Cancel'}
           confirmText="Start New Task"
           confirmDisabled={!name.trim() || !taskId.trim()}
         />

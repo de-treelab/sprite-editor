@@ -14,6 +14,7 @@ export function useGlobalCommands(handlers: {
   onNewProject?: () => void;
   onOpen?: () => void;
   onSave?: () => void;
+  onSaveWithoutTask?: () => void;
   onOpenCommandPalette?: () => void;
 }) {
   const setFocusedView = useEditorStore((s) => s.setFocusedView);
@@ -122,6 +123,12 @@ export function useGlobalCommands(handlers: {
       handler: () => handlers.onSave?.(),
     });
     registerCommand({
+      key: 'global.saveProjectWithoutTask',
+      view: 'global',
+      icon: IconRegistry.Save,
+      handler: () => handlers.onSaveWithoutTask?.(),
+    });
+    registerCommand({
       key: 'global.openProject',
       view: 'global',
       icon: IconRegistry.FolderOpen,
@@ -155,11 +162,12 @@ export function useGlobalCommands(handlers: {
 
     return () => {
       unregisterCommand('global.saveProject');
+      unregisterCommand('global.saveProjectWithoutTask');
       unregisterCommand('global.openProject');
       unregisterCommand('global.newProject');
       unregisterCommand('global.undo');
       unregisterCommand('global.redo');
       unregisterCommand('global.openCommandPalette');
     };
-  }, [handlers.onSave, handlers.onOpen, handlers.onNewProject, handlers.onOpenCommandPalette]);
+  }, [handlers.onSave, handlers.onSaveWithoutTask, handlers.onOpen, handlers.onNewProject, handlers.onOpenCommandPalette]);
 }

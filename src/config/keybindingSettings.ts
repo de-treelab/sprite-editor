@@ -27,6 +27,7 @@ export const keybindingSettings: SettingDefinition[] = [
   kb('global', 'fullscreenPreview', 'Fullscreen Preview', defaultKeybindings.global.fullscreenPreview),
   kb('global', 'fullscreenNavigator', 'Fullscreen Navigator', defaultKeybindings.global.fullscreenNavigator),
   kb('global', 'saveProject', 'Save Project', defaultKeybindings.global.saveProject),
+  kb('global', 'saveProjectWithoutTask', 'Save Without Task', defaultKeybindings.global.saveProjectWithoutTask),
   kb('global', 'openProject', 'Open Project', defaultKeybindings.global.openProject),
   kb('global', 'newProject', 'New Project', defaultKeybindings.global.newProject),
   kb('global', 'undo', 'Undo', defaultKeybindings.global.undo),

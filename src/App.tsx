@@ -85,6 +85,7 @@ function App() {
     onOpen: handleLoadProject,
     onOpenCommandPalette: toggleCommandPalette,
     onSave: saveCurrentProject,
+    onSaveWithoutTask: () => saveCurrentProject({ skipTaskCheck: true }),
   });
 
   // Register dynamic project commands (open spritesheet/animation)
@@ -114,7 +115,15 @@ function App() {
       {conflict && <ConflictResolver />}
       {showTaskHistory && <GitHistoryPage onClose={() => setShowTaskHistory(false)} />}
       {showCommandPalette && <CommandPalette onClose={() => setShowCommandPalette(false)} />}
-      {showStartTaskPrompt && <StartTaskModal onClose={dismissStartTaskPrompt} />}
+      {showStartTaskPrompt && (
+        <StartTaskModal
+          onClose={dismissStartTaskPrompt}
+          onSkip={() => {
+            dismissStartTaskPrompt();
+            saveCurrentProject({ skipTaskCheck: true });
+          }}
+        />
+      )}
 
       <TopBar
         onRequestNewProject={() => setShowNewProjectModal(true)}

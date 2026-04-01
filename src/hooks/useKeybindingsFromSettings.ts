@@ -32,6 +32,7 @@ export function useKeybindingsFromSettings() {
         fullscreenPreview: get('editor.keybindings.global.fullscreenPreview', defaultKeybindings.global.fullscreenPreview),
         fullscreenNavigator: get('editor.keybindings.global.fullscreenNavigator', defaultKeybindings.global.fullscreenNavigator),
         saveProject: get('editor.keybindings.global.saveProject', defaultKeybindings.global.saveProject),
+        saveProjectWithoutTask: get('editor.keybindings.global.saveProjectWithoutTask', defaultKeybindings.global.saveProjectWithoutTask),
         openProject: get('editor.keybindings.global.openProject', defaultKeybindings.global.openProject),
         newProject: get('editor.keybindings.global.newProject', defaultKeybindings.global.newProject),
         undo: get('editor.keybindings.global.undo', defaultKeybindings.global.undo),

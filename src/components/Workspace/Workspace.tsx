@@ -45,8 +45,8 @@ export const Workspace: React.FC = () => {
             )
           )}
           {fullscreenView === 'preview' && (
-            !activeItemId ? (
-              <EmptyState icon={<IconRegistry.Play />} title="Select an animation or image" />
+            !activeItemId || activeItemType === 'image' ? (
+              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? 'Preview disabled for images' : 'Select an animation'} />
             ) : (
               <PreviewPlayer />
             )
@@ -95,8 +95,8 @@ export const Workspace: React.FC = () => {
               <div className="p-2 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-800 border-b border-slate-700 text-center">
                 Preview
               </div>
-              {!activeItemId ? (
-                <EmptyState icon={<IconRegistry.Play />} title="Select an animation or image" />
+              {!activeItemId || activeItemType === 'image' ? (
+                <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? 'Preview disabled for images' : 'Select an animation'} />
               ) : (
                 <PreviewPlayer />
               )}

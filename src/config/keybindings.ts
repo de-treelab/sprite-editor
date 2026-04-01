@@ -25,6 +25,7 @@ export interface GlobalKeybindings {
 
   // File operations
   saveProject: string;
+  saveProjectWithoutTask: string;
   openProject: string;
   newProject: string;
 
@@ -117,6 +118,7 @@ export const defaultKeybindings: KeybindingsConfig = {
     fullscreenPreview: 'ctrl+alt+3',
     fullscreenNavigator: 'ctrl+alt+4',
     saveProject: 'ctrl+s',
+    saveProjectWithoutTask: 'ctrl+shift+s',
     openProject: 'ctrl+o',
     newProject: 'ctrl+n',
     undo: 'ctrl+z',

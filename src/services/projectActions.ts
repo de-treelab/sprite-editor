@@ -35,12 +35,12 @@ export function resolveProjectPath(): string | null {
  * Save the current project to disk using v2 multi-file format,
  * auto-commit with a descriptive message, and push if remote exists.
  */
-export async function saveCurrentProject(): Promise<void> {
+export async function saveCurrentProject(options?: { skipTaskCheck?: boolean }): Promise<void> {
   const { project, changeTracker, resetChangeTracker } = useProjectStore.getState();
   if (!project) return;
 
   // If git is enabled and we're on the main branch, prompt user to start a task first
-  if (isGitEnabled()) {
+  if (!options?.skipTaskCheck && isGitEnabled()) {
     const savePath = resolveProjectPath();
     if (savePath) {
       try {
