@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useEditorStore, LoopMode } from '../../store/editorStore';
 import { useProjectStore } from '../../store/projectStore';
 import { useTimelineCommands } from '../../hooks/useTimelineCommands';
@@ -32,6 +32,49 @@ export const Timeline: React.FC = () => {
 
   const lastUpdateRef = useRef<number>(performance.now());
   const requestRef = useRef<number>(0);
+  const timelineBarRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+
+  const scrubToClientX = useCallback((clientX: number) => {
+    const bar = timelineBarRef.current;
+    if (!bar) return;
+    const rect = bar.getBoundingClientRect();
+    const fraction = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const proj = useProjectStore.getState();
+    const sh = proj.project?.spritesheets.find(s => s.id === proj.activeSpritesheetId);
+    const an = sh?.animations.find(a => a.id === proj.activeAnimationId);
+    const kfs = an?.keyframes ? [...an.keyframes].sort((a, b) => a.time - b.time) : [];
+    const dur = kfs.length > 0 ? kfs[kfs.length - 1].time + 100 : 0;
+    if (dur <= 0) return;
+    const newTime = fraction * dur;
+    useEditorStore.getState().setPlaybackTime(newTime);
+    // Sync active frame
+    for (let i = kfs.length - 1; i >= 0; i--) {
+      if (newTime >= kfs[i].time) {
+        if (proj.activeFrameId !== kfs[i].frameId) {
+          useProjectStore.getState().setActiveFrame(kfs[i].frameId);
+        }
+        break;
+      }
+    }
+  }, []);
+
+  const handleTimelinePointerDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+    setIsPlaying(false);
+    scrubToClientX(e.clientX);
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, [scrubToClientX, setIsPlaying]);
+
+  const handleTimelinePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return;
+    scrubToClientX(e.clientX);
+  }, [scrubToClientX]);
+
+  const handleTimelinePointerUp = useCallback(() => {
+    isDraggingRef.current = false;
+  }, []);
 
   const sheet = project?.spritesheets.find(s => s.id === activeSpritesheetId);
   const anim = sheet?.animations.find(a => a.id === activeAnimationId);
@@ -213,7 +256,14 @@ export const Timeline: React.FC = () => {
         </div>
       </div>
       <div className="flex-1 p-4 relative overflow-x-auto">
-        <div className="relative h-12 w-full border border-slate-600 rounded bg-slate-900 flex items-center p-2">
+        <div
+          ref={timelineBarRef}
+          className="relative h-12 w-full border border-slate-600 rounded bg-slate-900 flex items-center p-2 cursor-pointer"
+          onPointerDown={handleTimelinePointerDown}
+          onPointerMove={handleTimelinePointerMove}
+          onPointerUp={handleTimelinePointerUp}
+          onPointerCancel={handleTimelinePointerUp}
+        >
           {/* A-B loop markers */}
           {loopStart != null && totalDuration > 0 && (
             <div
@@ -269,7 +319,7 @@ export const Timeline: React.FC = () => {
               className="absolute top-0 bottom-0 w-px bg-red-500 z-20 pointer-events-none"
               style={{ left: `${(playbackTime / totalDuration) * 100}%` }}
             >
-              <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rotate-45 transform origin-bottom" />
+              <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rotate-45 transform origin-bottom pointer-events-auto cursor-grab" />
             </div>
           )}
         </div>

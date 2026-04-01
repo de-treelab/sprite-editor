@@ -40,6 +40,7 @@ export const KeyframeEditor: React.FC = () => {
 
   const [draggingKeyframeId, setDraggingKeyframeId] = useState<string | null>(null);
   const [draggingMarker, setDraggingMarker] = useState<'A' | 'B' | null>(null);
+  const [isScrubbing, setIsScrubbing] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const lastTimeRef = useRef<number | null>(null);
   const requestRef = useRef<number | null>(null);
@@ -138,6 +139,19 @@ export const KeyframeEditor: React.FC = () => {
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
+    if (isScrubbing && timelineRef.current) {
+      const rect = timelineRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left + timelineRef.current.scrollLeft;
+      let newTime = Math.max(0, x / zoom);
+      if (snapInterval > 0) {
+        newTime = Math.round(newTime / snapInterval) * snapInterval;
+      } else {
+        newTime = Math.round(newTime);
+      }
+      setCurrentTime(newTime);
+      return;
+    }
+
     if (draggingMarker && timelineRef.current) {
       const rect = timelineRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left + timelineRef.current.scrollLeft;
@@ -173,6 +187,7 @@ export const KeyframeEditor: React.FC = () => {
   const handlePointerUp = () => {
     setDraggingKeyframeId(null);
     setDraggingMarker(null);
+    setIsScrubbing(false);
   };
 
   const handleTimelineClick = (e: React.PointerEvent) => {
@@ -189,6 +204,8 @@ export const KeyframeEditor: React.FC = () => {
     }
 
     setCurrentTime(clickedTime);
+    setIsScrubbing(true);
+    setIsPlaying(false);
   };
 
   const handleAddKeyframeClick = () => {
