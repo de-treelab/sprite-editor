@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { registerCommand, unregisterCommand } from '../config/commandRegistry';
-import { useEditorStore } from '../store/editorStore';
 import { useSettingsStore } from '../store/settingsStore';
+import { useLayoutStore } from '../store/layoutStore';
 import { IconRegistry } from '../components/IconRegistry';
 import { useHistoryStore } from '../store/historyStore';
 
@@ -16,77 +16,57 @@ export function useGlobalCommands(handlers: {
   onSave?: () => void;
   onSaveWithoutTask?: () => void;
   onOpenCommandPalette?: () => void;
+  onSaveLayout?: () => void;
+  onManageLayouts?: () => void;
 }) {
-  const setFocusedView = useEditorStore((s) => s.setFocusedView);
-  const toggleHiddenView = useEditorStore((s) => s.toggleHiddenView);
-  const toggleFullscreenView = useEditorStore((s) => s.toggleFullscreenView);
+  const toggleViewHidden = useLayoutStore((s) => s.toggleViewHidden);
+  const setFullscreenView = useLayoutStore((s) => s.setFullscreenView);
+  const layout = useLayoutStore((s) => s.layout);
   const openSettings = useSettingsStore((s) => s.openSettings);
 
   useEffect(() => {
-    // View focus commands
-    registerCommand({
-      key: 'global.focusCanvas',
-      view: 'global',
-      handler: () => setFocusedView('canvas'),
-    });
-    registerCommand({
-      key: 'global.focusTimeline',
-      view: 'global',
-      handler: () => setFocusedView('timeline'),
-    });
-    registerCommand({
-      key: 'global.focusPreview',
-      view: 'global',
-      handler: () => setFocusedView('preview'),
-    });
-    registerCommand({
-      key: 'global.focusNavigator',
-      view: 'global',
-      handler: () => setFocusedView('navigator'),
-    });
-
     // View hide commands
     registerCommand({
       key: 'global.hideCanvas',
       view: 'global',
-      handler: () => toggleHiddenView('canvas'),
+      handler: () => toggleViewHidden('canvas'),
     });
     registerCommand({
       key: 'global.hideTimeline',
       view: 'global',
-      handler: () => toggleHiddenView('timeline'),
+      handler: () => toggleViewHidden('timeline'),
     });
     registerCommand({
       key: 'global.hidePreview',
       view: 'global',
-      handler: () => toggleHiddenView('preview'),
+      handler: () => toggleViewHidden('preview'),
     });
     registerCommand({
       key: 'global.hideNavigator',
       view: 'global',
-      handler: () => toggleHiddenView('navigator'),
+      handler: () => toggleViewHidden('navigator'),
     });
 
     // View fullscreen commands
     registerCommand({
       key: 'global.fullscreenCanvas',
       view: 'global',
-      handler: () => toggleFullscreenView('canvas'),
+      handler: () => setFullscreenView(layout.fullscreenViewId === 'canvas' ? null : 'canvas'),
     });
     registerCommand({
       key: 'global.fullscreenTimeline',
       view: 'global',
-      handler: () => toggleFullscreenView('timeline'),
+      handler: () => setFullscreenView(layout.fullscreenViewId === 'timeline' ? null : 'timeline'),
     });
     registerCommand({
       key: 'global.fullscreenPreview',
       view: 'global',
-      handler: () => toggleFullscreenView('preview'),
+      handler: () => setFullscreenView(layout.fullscreenViewId === 'preview' ? null : 'preview'),
     });
     registerCommand({
       key: 'global.fullscreenNavigator',
       view: 'global',
-      handler: () => toggleFullscreenView('navigator'),
+      handler: () => setFullscreenView(layout.fullscreenViewId === 'navigator' ? null : 'navigator'),
     });
 
     // Settings
@@ -98,10 +78,6 @@ export function useGlobalCommands(handlers: {
     });
 
     return () => {
-      unregisterCommand('global.focusCanvas');
-      unregisterCommand('global.focusTimeline');
-      unregisterCommand('global.focusPreview');
-      unregisterCommand('global.focusNavigator');
       unregisterCommand('global.hideCanvas');
       unregisterCommand('global.hideTimeline');
       unregisterCommand('global.hidePreview');
@@ -112,7 +88,7 @@ export function useGlobalCommands(handlers: {
       unregisterCommand('global.fullscreenNavigator');
       unregisterCommand('global.openSettings');
     };
-  }, [setFocusedView, toggleHiddenView, toggleFullscreenView, openSettings]);
+  }, [toggleViewHidden, setFullscreenView, layout.fullscreenViewId, openSettings]);
 
   // File / edit commands — re-register when handlers change
   useEffect(() => {
@@ -170,4 +146,34 @@ export function useGlobalCommands(handlers: {
       unregisterCommand('global.openCommandPalette');
     };
   }, [handlers.onSave, handlers.onSaveWithoutTask, handlers.onOpen, handlers.onNewProject, handlers.onOpenCommandPalette]);
+
+  // Layout commands
+  const resetLayout = useLayoutStore((s) => s.resetLayout);
+
+  useEffect(() => {
+    registerCommand({
+      key: 'global.resetLayout',
+      view: 'global',
+      icon: IconRegistry.Layout,
+      handler: () => resetLayout(),
+    });
+    registerCommand({
+      key: 'global.saveLayout',
+      view: 'global',
+      icon: IconRegistry.Save,
+      handler: () => handlers.onSaveLayout?.(),
+    });
+    registerCommand({
+      key: 'global.manageLayouts',
+      view: 'global',
+      icon: IconRegistry.Layout,
+      handler: () => handlers.onManageLayouts?.(),
+    });
+
+    return () => {
+      unregisterCommand('global.resetLayout');
+      unregisterCommand('global.saveLayout');
+      unregisterCommand('global.manageLayouts');
+    };
+  }, [resetLayout, handlers.onSaveLayout, handlers.onManageLayouts]);
 }

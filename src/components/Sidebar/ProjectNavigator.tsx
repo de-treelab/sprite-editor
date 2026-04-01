@@ -20,7 +20,6 @@ export const ProjectNavigator: React.FC = () => {
   const updateImage = useProjectStore(state => state.updateImage);
   const setFocusedView = useEditorStore(state => state.setFocusedView);
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [showSpriteModal, setShowSpriteModal] = useState(false);
   const [itemModalSheetId, setItemModalSheetId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -127,23 +126,11 @@ export const ProjectNavigator: React.FC = () => {
 
   if (!project) return null;
 
-  if (isCollapsed) {
-    return (
-      <div className="w-10 bg-slate-800 border-r border-slate-700 flex flex-col items-center py-2 h-full z-10 transition-all">
-        <IconButton
-          icon={IconRegistry.FolderOpen}
-          onClick={() => setIsCollapsed(false)}
-          label="Expand"
-        />
-      </div>
-    );
-  }
-
   return (
     <>
       <div
         ref={listRef}
-        className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col h-full z-10 transition-all flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+        className="bg-slate-800 flex flex-col h-full flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
         tabIndex={0}
         onFocus={() => setFocusedView('navigator')}
         onKeyDown={handleKeyDown}
@@ -157,12 +144,6 @@ export const ProjectNavigator: React.FC = () => {
               size="sm"
               onClick={() => setShowSpriteModal(true)}
               label="New Spritesheet"
-            />
-            <IconButton
-              icon={IconRegistry.Folder}
-              size="sm"
-              onClick={() => setIsCollapsed(true)}
-              label="Collapse"
             />
           </div>
         </div>

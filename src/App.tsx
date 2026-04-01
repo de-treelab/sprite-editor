@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { TopBar } from "./components/TopBar/TopBar";
-import { ProjectNavigator } from "./components/Sidebar/ProjectNavigator";
-import { Workspace } from "./components/Workspace/Workspace";
+import { LayoutRoot } from "./components/Layout/LayoutRoot";
 
 import { NewProjectModal } from "./components/NewProjectModal";
 import { ResizeCanvasModal } from "./components/Modals/ResizeCanvasModal";
 import { ExportModal } from "./components/Modals/ExportModal";
+import { SaveLayoutModal } from "./components/Modals/SaveLayoutModal";
+import { LayoutManagerModal } from "./components/Modals/LayoutManagerModal";
 import { useProjectStore } from "./store/projectStore";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useTranslation } from "react-i18next";
@@ -38,6 +39,8 @@ function App() {
   const [showTaskHistory, setShowTaskHistory] = useState(false);
   const [showResizeCanvas, setShowResizeCanvas] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showSaveLayout, setShowSaveLayout] = useState(false);
+  const [showLayoutManager, setShowLayoutManager] = useState(false);
   const [recentProjects, setRecentProjects] = useState<string[]>([]);
   
   const loadRecentProjects = () => {
@@ -86,6 +89,8 @@ function App() {
     onOpenCommandPalette: toggleCommandPalette,
     onSave: saveCurrentProject,
     onSaveWithoutTask: () => saveCurrentProject({ skipTaskCheck: true }),
+    onSaveLayout: () => setShowSaveLayout(true),
+    onManageLayouts: () => setShowLayoutManager(true),
   });
 
   // Register dynamic project commands (open spritesheet/animation)
@@ -148,12 +153,16 @@ function App() {
         <ExportModal onClose={() => setShowExportModal(false)} />
       )}
 
+      {showSaveLayout && (
+        <SaveLayoutModal onClose={() => setShowSaveLayout(false)} />
+      )}
+      {showLayoutManager && (
+        <LayoutManagerModal onClose={() => setShowLayoutManager(false)} />
+      )}
+
       {project ? (
         <ErrorBoundary>
-          <div className="flex flex-1 overflow-hidden">
-            <ProjectNavigator />
-            <Workspace />
-          </div>
+          <LayoutRoot />
         </ErrorBoundary>
       ) : (
         <div className="flex flex-1 items-center justify-center bg-slate-800">

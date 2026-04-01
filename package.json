@@ -19,6 +19,8 @@
     "i18next-browser-languagedetector": "^8.2.1",
     "i18next-http-backend": "^3.0.2",
     "maxrects-packer": "^2.7.3",
+    "overlayscrollbars": "^2.14.0",
+    "overlayscrollbars-react": "^0.5.6",
     "pixi.js": "^8.17.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

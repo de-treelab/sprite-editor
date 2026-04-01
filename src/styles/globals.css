@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/* OverlayScrollbars dark theme overrides */
+.os-theme-light > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+  background: #475569;
+  border-radius: 2px;
+}
+.os-theme-light > .os-scrollbar:hover > .os-scrollbar-track > .os-scrollbar-handle {
+  background: #64748b;
+}
+.os-theme-light > .os-scrollbar > .os-scrollbar-track {
+  background: transparent;
+}
+.os-scrollbar-horizontal {
+  height: 6px !important;
+}
+.os-scrollbar-vertical {
+  width: 6px !important;
+}
+
 @layer base {
   :root {
     --background: theme('colors.slate.900');

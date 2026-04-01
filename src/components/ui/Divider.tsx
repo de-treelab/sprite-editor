@@ -18,7 +18,7 @@ export const Divider: React.FC<DividerProps> = ({
 
 // Compact divider for toolbars
 export const ToolbarDivider: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`w-8 h-px bg-slate-700 my-2 ${className}`} />
+  <div className={`w-full h-px bg-slate-700 my-2 ${className}`} />
 );
 
 // Menu divider (alias for consistency)

@@ -25,11 +25,11 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="w-16 shrink-0 bg-slate-800 border-r border-slate-700 flex flex-col items-center py-2 overflow-y-auto">
+    <div className="bg-slate-800 flex flex-col items-center py-2 overflow-y-auto flex-1 min-w-0">
       {toolCategories.map((category, catIndex) => (
         <React.Fragment key={category.id}>
           {catIndex > 0 && <ToolbarDivider />}
-          <div className="flex flex-col items-center space-y-1">
+          <div className="flex flex-row flex-wrap items-center space-y-1">
             {category.tools.map((toolId) => {
               const tool = toolDefinitions[toolId];
               return (

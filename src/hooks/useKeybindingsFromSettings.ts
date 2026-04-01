@@ -38,6 +38,9 @@ export function useKeybindingsFromSettings() {
         undo: get('editor.keybindings.global.undo', defaultKeybindings.global.undo),
         redo: get('editor.keybindings.global.redo', defaultKeybindings.global.redo),
         openCommandPalette: get('editor.keybindings.global.openCommandPalette', defaultKeybindings.global.openCommandPalette),
+        saveLayout: get('editor.keybindings.global.saveLayout', defaultKeybindings.global.saveLayout),
+        manageLayouts: get('editor.keybindings.global.manageLayouts', defaultKeybindings.global.manageLayouts),
+        resetLayout: get('editor.keybindings.global.resetLayout', defaultKeybindings.global.resetLayout),
       },
       canvas: {
         toolPencil: get('editor.keybindings.canvas.toolPencil', defaultKeybindings.canvas.toolPencil),

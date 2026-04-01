@@ -35,6 +35,11 @@ export interface GlobalKeybindings {
 
   // Command palette
   openCommandPalette: string;
+
+  // Layout management
+  saveLayout: string;
+  manageLayouts: string;
+  resetLayout: string;
 }
 
 // Canvas-specific keybindings
@@ -124,6 +129,9 @@ export const defaultKeybindings: KeybindingsConfig = {
     undo: 'ctrl+z',
     redo: 'ctrl+shift+z',
     openCommandPalette: 'ctrl+shift+p',
+    saveLayout: 'ctrl+shift+l',
+    manageLayouts: 'ctrl+alt+l',
+    resetLayout: '',
   },
   canvas: {
     toolPencil: 'b',

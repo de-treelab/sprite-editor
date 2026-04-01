@@ -130,7 +130,7 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
         )}
       </div>
 
-      <div className="ml-auto flex items-center gap-4 text-xs">
+      <div className="flex items-center gap-4 text-xs">
         <div className="flex items-center gap-2">
           <span className="text-slate-500">Snap</span>
           <Select

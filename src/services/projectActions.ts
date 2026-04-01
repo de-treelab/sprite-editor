@@ -1,6 +1,7 @@
 import { useProjectStore } from '../store/projectStore';
 import { useLoadingStore } from '../store/loadingStore';
 import { useSettingsStore } from '../store/settingsStore';
+import { useLayoutStore } from '../store/layoutStore';
 import { saveProjectV2, gitCommit, gitPush, gitHasRemote, loadProjectV2, gitPull, gitIsRepo, gitInit, gitRemoteSetUrl, gitCurrentBranch } from './backend';
 import { buildCommitMessage, buildSaveManifest } from '../store/changeTracker';
 import { toast } from 'react-toastify';
@@ -182,6 +183,9 @@ export async function loadProjectFromDisk(dir: string): Promise<void> {
     if (isGitEnabled()) {
       useTaskStore.getState().syncFromGit().catch(() => {});
     }
+
+    // Restore layout for this project
+    useLayoutStore.getState().loadProjectLayout(dir);
   } finally {
     setLoading(false);
   }

@@ -18,7 +18,7 @@ export const KeyframeTrack: React.FC<KeyframeTrackProps> = ({
   onPointerDown,
   onDeleteKeyframe,
 }) => (
-  <div className="absolute top-8 bottom-4 left-0 right-0 flex items-center">
+  <div className="absolute top-6 bottom-4 left-0 right-0 flex">
     <div className="w-full h-10 bg-slate-800/30 rounded flex relative border-y border-slate-800">
       {keyframes.map((k: Keyframe) => (
         <div

@@ -45,6 +45,9 @@ import {
   LuImage,
   LuPackage,
   LuArrowUpDown,
+  LuPenLine,
+  LuLink,
+  LuLayoutDashboard,
 } from 'react-icons/lu';
 
 export const IconRegistry = {
@@ -106,4 +109,7 @@ export const IconRegistry = {
   Image: LuImage,
   Package: LuPackage,
   SwapColors: LuArrowUpDown,
+  Edit: LuPenLine,
+  Link: LuLink,
+  Layout: LuLayoutDashboard,
 };

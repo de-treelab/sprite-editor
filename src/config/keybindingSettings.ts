@@ -33,6 +33,9 @@ export const keybindingSettings: SettingDefinition[] = [
   kb('global', 'undo', 'Undo', defaultKeybindings.global.undo),
   kb('global', 'redo', 'Redo', defaultKeybindings.global.redo),
   kb('global', 'openCommandPalette', 'Command Palette', defaultKeybindings.global.openCommandPalette),
+  kb('global', 'saveLayout', 'Save Layout', defaultKeybindings.global.saveLayout),
+  kb('global', 'manageLayouts', 'Manage Layouts', defaultKeybindings.global.manageLayouts),
+  kb('global', 'resetLayout', 'Reset Layout', defaultKeybindings.global.resetLayout),
 
   // Canvas
   kb('canvas', 'toolPencil', 'Pencil Tool', defaultKeybindings.canvas.toolPencil),

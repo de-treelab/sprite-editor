@@ -11,6 +11,7 @@ import { useTaskStore } from '../../store/taskStore';
 import { FileMenu } from './FileMenu';
 import { EditMenu } from './EditMenu';
 import { TaskMenu } from './TaskMenu';
+import { ViewMenu } from './ViewMenu';
 
 export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHistory: () => void; onRequestResizeCanvas?: () => void; onRequestExport?: () => void }> = ({ onRequestNewProject, onRequestTaskHistory, onRequestResizeCanvas, onRequestExport }) => {
   const { t } = useTranslation();
@@ -144,6 +145,12 @@ export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHi
             onRequestTaskHistory();
             setActiveMenu(null);
           }}
+        />
+
+        <ViewMenu
+          isOpen={activeMenu === 'view'}
+          onOpenChange={(open) => setActiveMenu(open ? 'view' : null)}
+          trigger={<MenuButton menuId="view" label={t('topbar.view.menu', 'View')} />}
         />
       </div>
 
