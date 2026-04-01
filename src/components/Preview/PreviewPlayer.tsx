@@ -77,7 +77,7 @@ export const PreviewPlayer: React.FC = () => {
         return;
       }
 
-      const activeAnim = sheet.animations.find(a => a.id === state.activeAnimationId);
+      const activeAnim = sheet.animations.find(a => a.id === state.activeItemId);
       const canvasSize = activeAnim?.canvasSize || state.project.defaultCanvasSize;
 
       // Compute pixel size to fit the sprite inside the container with padding

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { TopBar } from "./components/TopBar/TopBar";
-import { SpritesheetSidebar } from "./components/Sidebar/SpritesheetSidebar";
+import { ProjectNavigator } from "./components/Sidebar/ProjectNavigator";
 import { Workspace } from "./components/Workspace/Workspace";
 
 import { NewProjectModal } from "./components/NewProjectModal";
@@ -127,10 +127,10 @@ function App() {
         <NewProjectModal onClose={() => setShowNewProjectModal(false)} />
       )}
 
-      {showResizeCanvas && useProjectStore.getState().activeSpritesheetId && useProjectStore.getState().activeAnimationId && (
+      {showResizeCanvas && useProjectStore.getState().activeSpritesheetId && useProjectStore.getState().activeItemId && useProjectStore.getState().activeItemType === 'animation' && (
         <ResizeCanvasModal
           spritesheetId={useProjectStore.getState().activeSpritesheetId!}
-          animationId={useProjectStore.getState().activeAnimationId!}
+          animationId={useProjectStore.getState().activeItemId!}
           onClose={() => setShowResizeCanvas(false)}
         />
       )}
@@ -142,7 +142,7 @@ function App() {
       {project ? (
         <ErrorBoundary>
           <div className="flex flex-1 overflow-hidden">
-            <SpritesheetSidebar />
+            <ProjectNavigator />
             <Workspace />
           </div>
         </ErrorBoundary>

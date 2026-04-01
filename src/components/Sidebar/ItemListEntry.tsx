@@ -1,14 +1,16 @@
 import React from 'react';
 import { IconRegistry } from '../IconRegistry';
 import { InlineEditInput } from '../ui';
+import type { ActiveItemType } from '../../types/project';
 
-interface Animation {
+interface ItemData {
   id: string;
   name: string;
 }
 
-interface AnimationListItemProps {
-  animation: Animation;
+interface ItemListEntryProps {
+  item: ItemData;
+  itemType: ActiveItemType;
   sheetId: string;
   isSelected: boolean;
   isEditing: boolean;
@@ -19,8 +21,9 @@ interface AnimationListItemProps {
   onCancelEdit: () => void;
 }
 
-export const AnimationListItem: React.FC<AnimationListItemProps> = ({
-  animation,
+export const ItemListEntry: React.FC<ItemListEntryProps> = ({
+  item,
+  itemType,
   isSelected,
   isEditing,
   className = '',
@@ -44,15 +47,19 @@ export const AnimationListItem: React.FC<AnimationListItemProps> = ({
       onStartEdit();
     }}
   >
-    <IconRegistry.Play className="mr-2 text-xs flex-shrink-0" />
+    {itemType === 'image' ? (
+      <IconRegistry.File className="mr-2 text-xs flex-shrink-0 text-amber-400" />
+    ) : (
+      <IconRegistry.Play className="mr-2 text-xs flex-shrink-0" />
+    )}
     {isEditing ? (
       <InlineEditInput
-        value={animation.name}
+        value={item.name}
         onSave={onSaveEdit}
         onCancel={onCancelEdit}
       />
     ) : (
-      <span className="truncate select-none">{animation.name}</span>
+      <span className="truncate select-none">{item.name}</span>
     )}
   </div>
 );

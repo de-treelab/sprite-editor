@@ -13,7 +13,8 @@ const PIXELS_PER_MS_DEFAULT = 0.5;
 export const KeyframeEditor: React.FC = () => {
   const {
     project,
-    activeAnimationId,
+    activeItemId,
+    activeItemType,
     activeSpritesheetId,
     activeFrameId,
     addKeyframe,
@@ -25,7 +26,7 @@ export const KeyframeEditor: React.FC = () => {
   } = useProjectStore();
 
   const activeSheet = project?.spritesheets?.find((s: any) => s.id === activeSpritesheetId);
-  const animation = activeSheet?.animations?.find((a: any) => a.id === activeAnimationId);
+  const animation = activeSheet?.animations?.find((a: any) => a.id === activeItemId);
 
   const { isPlaying, setIsPlaying, playbackSpeed, setPlaybackSpeed, setPlaybackFrameId } = useEditorStore();
   const loopStart = useEditorStore(s => s.loopStart);
@@ -169,7 +170,7 @@ export const KeyframeEditor: React.FC = () => {
       return;
     }
 
-    if (!draggingKeyframeId || !timelineRef.current || !activeSpritesheetId || !activeAnimationId) return;
+    if (!draggingKeyframeId || !timelineRef.current || !activeSpritesheetId || !activeItemId) return;
 
     const rect = timelineRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left + timelineRef.current.scrollLeft;
@@ -181,7 +182,7 @@ export const KeyframeEditor: React.FC = () => {
       newTime = Math.round(newTime);
     }
 
-    updateKeyframe(activeSpritesheetId, activeAnimationId, draggingKeyframeId, { time: newTime });
+    updateKeyframe(activeSpritesheetId, activeItemId, draggingKeyframeId, { time: newTime });
   };
 
   const handlePointerUp = () => {
@@ -191,7 +192,7 @@ export const KeyframeEditor: React.FC = () => {
   };
 
   const handleTimelineClick = (e: React.PointerEvent) => {
-    if (draggingKeyframeId || draggingMarker || !timelineRef.current || !activeSpritesheetId || !activeAnimationId) return;
+    if (draggingKeyframeId || draggingMarker || !timelineRef.current || !activeSpritesheetId || !activeItemId) return;
 
     const rect = timelineRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left + timelineRef.current.scrollLeft;
@@ -209,7 +210,7 @@ export const KeyframeEditor: React.FC = () => {
   };
 
   const handleAddKeyframeClick = () => {
-    if (!activeSpritesheetId || !activeAnimationId || !activeSheet) return;
+    if (!activeSpritesheetId || !activeItemId || !activeSheet) return;
 
     const newLayer = {
       id: crypto.randomUUID(),
@@ -235,21 +236,33 @@ export const KeyframeEditor: React.FC = () => {
       frameId: newFrame.id
     };
 
-    addKeyframe(activeSpritesheetId, activeAnimationId, newKf);
+    addKeyframe(activeSpritesheetId, activeItemId, newKf);
     setActiveFrame(newFrame.id);
     setActiveLayer(newLayer.id);
   };
 
   const handleDeleteKeyframe = (e: React.MouseEvent, keyframeId: string) => {
     e.stopPropagation();
-    if (!activeSpritesheetId || !activeAnimationId) return;
-    removeKeyframe(activeSpritesheetId, activeAnimationId, keyframeId);
+    if (!activeSpritesheetId || !activeItemId) return;
+    removeKeyframe(activeSpritesheetId, activeItemId, keyframeId);
   };
 
   // Register keyframe editor-scoped commands
   useKeyframeEditorCommands({
     onAddKeyframe: handleAddKeyframeClick,
   });
+
+  if (activeItemType === 'image') {
+    return (
+      <div
+        className="flex flex-col h-64 bg-slate-900 border-t border-slate-700 text-slate-300 select-none items-center justify-center"
+        tabIndex={0}
+        onFocus={() => setFocusedView('timeline')}
+      >
+        <span className="text-slate-500 text-sm">Timeline disabled for reference images</span>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -263,7 +276,7 @@ export const KeyframeEditor: React.FC = () => {
         playbackSpeed={playbackSpeed}
         onPlaybackSpeedChange={setPlaybackSpeed}
         onAddKeyframe={handleAddKeyframeClick}
-        addDisabled={!activeAnimationId}
+        addDisabled={!activeItemId}
         animationName={animation?.name}
         currentTime={currentTime}
         snapInterval={snapInterval}

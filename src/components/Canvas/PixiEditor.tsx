@@ -39,15 +39,20 @@ export const PixiEditor = () => {
 
   const project = useProjectStore(state => state.project);
   const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
-  const activeAnimationId = useProjectStore(state => state.activeAnimationId);
+  const activeItemId = useProjectStore(state => state.activeItemId);
+  const activeItemType = useProjectStore(state => state.activeItemType);
 
-  // Compute effective canvas size from animation or project default
+  // Compute effective canvas size from animation/image or project default
   const effectiveCanvasSize = useMemo(() => {
     if (!project) return { width: 32, height: 32 };
     const sheet = project.spritesheets.find(s => s.id === activeSpritesheetId);
-    const anim = sheet?.animations.find(a => a.id === activeAnimationId);
+    if (activeItemType === 'image') {
+      const img = (sheet?.images || []).find(i => i.id === activeItemId);
+      return img?.canvasSize || project.defaultCanvasSize;
+    }
+    const anim = sheet?.animations.find(a => a.id === activeItemId);
     return anim?.canvasSize || project.defaultCanvasSize;
-  }, [project, activeSpritesheetId, activeAnimationId]);
+  }, [project, activeSpritesheetId, activeItemId, activeItemType]);
 
   const canvasW = effectiveCanvasSize.width;
   const canvasH = effectiveCanvasSize.height;

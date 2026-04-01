@@ -64,6 +64,7 @@ export function useKeybindingsFromSettings() {
         toggleCenterLines: get('editor.keybindings.canvas.toggleCenterLines', defaultKeybindings.canvas.toggleCenterLines),
         copy: get('editor.keybindings.canvas.copy', defaultKeybindings.canvas.copy),
         paste: get('editor.keybindings.canvas.paste', defaultKeybindings.canvas.paste),
+        swapColors: get('editor.keybindings.canvas.swapColors', defaultKeybindings.canvas.swapColors),
       },
       timeline: {
         playPause: get('editor.keybindings.timeline.playPause', defaultKeybindings.timeline.playPause),

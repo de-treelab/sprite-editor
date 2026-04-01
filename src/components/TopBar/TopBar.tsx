@@ -112,7 +112,7 @@ export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHi
           isOpen={activeMenu === 'edit'}
           onOpenChange={(open) => setActiveMenu(open ? 'edit' : null)}
           trigger={<MenuButton menuId="edit" label={t('topbar.edit.menu', 'Edit')} />}
-          hasActiveAnimation={!!useProjectStore.getState().activeAnimationId}
+          hasActiveAnimation={!!useProjectStore.getState().activeItemId}
           onResizeCanvas={() => {
             onRequestResizeCanvas?.();
             setActiveMenu(null);

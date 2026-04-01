@@ -45,3 +45,7 @@ export { MenuItem, MenuDivider as MenuItemDivider } from './MenuItem';
 
 // List components
 export { ListItem, SimpleListItem } from './ListItem';
+
+// Tab components
+export { TabGroup } from './TabGroup';
+export type { Tab } from './TabGroup';

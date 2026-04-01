@@ -8,7 +8,7 @@ import { IconRegistry } from '../components/IconRegistry';
 function getActiveKeyframes() {
   const pState = useProjectStore.getState();
   const sheet = pState.project?.spritesheets.find(s => s.id === pState.activeSpritesheetId);
-  const anim = sheet?.animations.find(a => a.id === pState.activeAnimationId);
+  const anim = sheet?.animations.find(a => a.id === pState.activeItemId);
   return anim?.keyframes ? [...anim.keyframes].sort((a, b) => a.time - b.time) : [];
 }
 

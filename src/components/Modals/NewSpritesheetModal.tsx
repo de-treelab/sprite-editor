@@ -17,6 +17,7 @@ export const NewSpritesheetModal: React.FC<{ onClose: () => void }> = ({ onClose
       id,
       name,
       animations: [],
+      images: [],
       frames: []
     });
     setActiveSpritesheet(id);

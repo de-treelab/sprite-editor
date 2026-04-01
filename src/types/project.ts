@@ -16,6 +16,7 @@ export interface Spritesheet {
   id: string;
   name: string;
   animations: Animation[];
+  images: ReferenceImage[];
   frames: SpriteFrame[];
 }
 
@@ -25,6 +26,15 @@ export interface Animation {
   canvasSize?: { width: number; height: number }; // Defaults to project definition
   keyframes: Keyframe[];
 }
+
+export interface ReferenceImage {
+  id: string;
+  name: string;
+  canvasSize?: { width: number; height: number };
+  frameId: string;
+}
+
+export type ActiveItemType = 'animation' | 'image';
 
 export interface Keyframe {
   id: string;

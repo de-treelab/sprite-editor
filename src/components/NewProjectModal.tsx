@@ -34,7 +34,7 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
   const setProject = useProjectStore(state => state.setProject);
   const setProjectPath = useProjectStore(state => state.setProjectPath);
   const setActiveSpritesheet = useProjectStore(state => state.setActiveSpritesheet);
-  const setActiveAnimation = useProjectStore(state => state.setActiveAnimation);
+  const setActiveItem = useProjectStore(state => state.setActiveItem);
   const setActiveFrame = useProjectStore(state => state.setActiveFrame);
   const setActiveLayer = useProjectStore(state => state.setActiveLayer);
 
@@ -158,7 +158,7 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
     setProject(newProject);
     setProjectPath(fullPath || null);
     setActiveSpritesheet(null);
-    setActiveAnimation(null);
+    setActiveItem(null);
     setActiveFrame(null);
     setActiveLayer(null);
     setLoading(false);

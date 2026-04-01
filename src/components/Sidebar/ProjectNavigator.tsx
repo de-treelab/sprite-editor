@@ -3,25 +3,26 @@ import { useProjectStore } from '../../store/projectStore';
 import { useEditorStore } from '../../store/editorStore';
 import { IconRegistry } from '../IconRegistry';
 import { NewSpritesheetModal } from '../Modals/NewSpritesheetModal';
-import { NewAnimationModal } from '../Modals/NewAnimationModal';
+import { NewItemModal } from '../Modals/NewItemModal';
 import { IconButton, SimpleListItem, InlineEditInput } from '../ui';
-import { AnimationListItem } from './AnimationListItem';
+import { ItemListEntry } from './ItemListEntry';
 
-type NavLevel = 'sheets' | 'animations';
+type NavLevel = 'sheets' | 'items';
 
-export const SpritesheetSidebar: React.FC = () => {
+export const ProjectNavigator: React.FC = () => {
   const project = useProjectStore(state => state.project);
   const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
   const setActiveSpritesheet = useProjectStore(state => state.setActiveSpritesheet);
-  const activeAnimationId = useProjectStore(state => state.activeAnimationId);
-  const setActiveAnimation = useProjectStore(state => state.setActiveAnimation);
+  const activeItemId = useProjectStore(state => state.activeItemId);
+  const setActiveItem = useProjectStore(state => state.setActiveItem);
   const updateSpritesheet = useProjectStore(state => state.updateSpritesheet);
   const updateAnimation = useProjectStore(state => state.updateAnimation);
+  const updateImage = useProjectStore(state => state.updateImage);
   const setFocusedView = useEditorStore(state => state.setFocusedView);
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showSpriteModal, setShowSpriteModal] = useState(false);
-  const [animModalSheetId, setAnimModalSheetId] = useState<string | null>(null);
+  const [itemModalSheetId, setItemModalSheetId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Keyboard navigation state
@@ -29,16 +30,26 @@ export const SpritesheetSidebar: React.FC = () => {
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const handleRenameSave = (type: 'sheet' | 'anim', parentId: string | null, id: string, name: string) => {
+  const handleRenameSave = (type: 'sheet' | 'anim' | 'image', parentId: string | null, id: string, name: string) => {
     if (name.trim()) {
       if (type === 'sheet') {
         updateSpritesheet(id, { name: name.trim() });
       } else if (type === 'anim' && parentId) {
         updateAnimation(parentId, id, { name: name.trim() });
+      } else if (type === 'image' && parentId) {
+        updateImage(parentId, id, { name: name.trim() });
       }
     }
     setEditingId(null);
   };
+
+  /** Build a flat list of animations + images for the given sheet. */
+  const getSheetItems = useCallback((sheet: { animations: { id: string; name: string }[]; images?: { id: string; name: string }[] }) => {
+    const items: { id: string; name: string; type: 'animation' | 'image' }[] = [];
+    for (const a of sheet.animations) items.push({ id: a.id, name: a.name, type: 'animation' });
+    for (const i of (sheet.images || [])) items.push({ id: i.id, name: i.name, type: 'image' });
+    return items;
+  }, []);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (!project || editingId) return;
@@ -68,31 +79,32 @@ export const SpritesheetSidebar: React.FC = () => {
           const sheet = sheets[highlightedIndex];
           if (sheet) {
             setActiveSpritesheet(sheet.id);
-            if (sheet.animations.length > 0) {
-              setNavLevel('animations');
+            const items = getSheetItems(sheet);
+            if (items.length > 0) {
+              setNavLevel('items');
               setHighlightedIndex(0);
             }
           }
           break;
         }
       }
-    } else if (navLevel === 'animations' && activeSheet) {
-      const anims = activeSheet.animations;
+    } else if (navLevel === 'items' && activeSheet) {
+      const items = getSheetItems(activeSheet);
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault();
-          const next = Math.min(highlightedIndex + 1, anims.length - 1);
+          const next = Math.min(highlightedIndex + 1, items.length - 1);
           setHighlightedIndex(next);
-          const anim = anims[next];
-          if (anim) setActiveAnimation(anim.id);
+          const item = items[next];
+          if (item) setActiveItem(item.id, item.type);
           break;
         }
         case 'ArrowUp': {
           e.preventDefault();
           const prev = Math.max(highlightedIndex - 1, 0);
           setHighlightedIndex(prev);
-          const anim = anims[prev];
-          if (anim) setActiveAnimation(anim.id);
+          const item = items[prev];
+          if (item) setActiveItem(item.id, item.type);
           break;
         }
         case 'ArrowLeft': {
@@ -105,13 +117,13 @@ export const SpritesheetSidebar: React.FC = () => {
         case ' ':
         case 'Enter': {
           e.preventDefault();
-          const anim = anims[highlightedIndex];
-          if (anim) setActiveAnimation(anim.id);
+          const item = items[highlightedIndex];
+          if (item) setActiveItem(item.id, item.type);
           break;
         }
       }
     }
-  }, [project, activeSpritesheetId, navLevel, highlightedIndex, editingId, setActiveSpritesheet, setActiveAnimation]);
+  }, [project, activeSpritesheetId, navLevel, highlightedIndex, editingId, setActiveSpritesheet, setActiveItem, getSheetItems]);
 
   if (!project) return null;
 
@@ -138,7 +150,7 @@ export const SpritesheetSidebar: React.FC = () => {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b border-slate-700">
-          <span className="font-bold text-sm text-slate-300">Spritesheets</span>
+          <span className="font-bold text-sm text-slate-300">Project</span>
           <div className="flex space-x-1">
             <IconButton
               icon={IconRegistry.Add}
@@ -160,6 +172,7 @@ export const SpritesheetSidebar: React.FC = () => {
           {project.spritesheets.map((sheet, sheetIndex) => {
             const isSelected = activeSpritesheetId === sheet.id;
             const isSheetHighlighted = navLevel === 'sheets' && highlightedIndex === sheetIndex;
+            const items = getSheetItems(sheet);
             return (
               <div key={sheet.id} className="select-none mb-1">
                 <SimpleListItem
@@ -186,21 +199,22 @@ export const SpritesheetSidebar: React.FC = () => {
 
                 {isSelected && (
                   <div className="ml-4 mt-1 space-y-1">
-                    {sheet.animations.map((anim, animIndex) => (
-                      <AnimationListItem
-                        key={anim.id}
-                        animation={anim}
+                    {items.map((item, itemIndex) => (
+                      <ItemListEntry
+                        key={item.id}
+                        item={item}
+                        itemType={item.type}
                         sheetId={sheet.id}
-                        isSelected={activeAnimationId === anim.id}
-                        isEditing={editingId === anim.id}
-                        className={navLevel === 'animations' && highlightedIndex === animIndex ? 'ring-1 ring-indigo-400' : ''}
+                        isSelected={activeItemId === item.id}
+                        isEditing={editingId === item.id}
+                        className={navLevel === 'items' && highlightedIndex === itemIndex ? 'ring-1 ring-indigo-400' : ''}
                         onSelect={() => {
-                          setActiveAnimation(anim.id);
-                          setNavLevel('animations');
-                          setHighlightedIndex(animIndex);
+                          setActiveItem(item.id, item.type);
+                          setNavLevel('items');
+                          setHighlightedIndex(itemIndex);
                         }}
-                        onStartEdit={() => setEditingId(anim.id)}
-                        onSaveEdit={(name) => handleRenameSave('anim', sheet.id, anim.id, name)}
+                        onStartEdit={() => setEditingId(item.id)}
+                        onSaveEdit={(name) => handleRenameSave(item.type === 'image' ? 'image' : 'anim', sheet.id, item.id, name)}
                         onCancelEdit={() => setEditingId(null)}
                       />
                     ))}
@@ -208,11 +222,11 @@ export const SpritesheetSidebar: React.FC = () => {
                       className="flex items-center p-1 text-xs rounded cursor-pointer text-slate-500 hover:text-slate-300 hover:bg-slate-700/50"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setAnimModalSheetId(sheet.id);
+                        setItemModalSheetId(sheet.id);
                       }}
                     >
                       <span className="mr-2 font-bold">+</span>
-                      <span>New Animation</span>
+                      <span>New...</span>
                     </div>
                   </div>
                 )}
@@ -231,7 +245,7 @@ export const SpritesheetSidebar: React.FC = () => {
       </div>
 
       {showSpriteModal && <NewSpritesheetModal onClose={() => setShowSpriteModal(false)} />}
-      {animModalSheetId && <NewAnimationModal spritesheetId={animModalSheetId} onClose={() => setAnimModalSheetId(null)} />}
+      {itemModalSheetId && <NewItemModal spritesheetId={itemModalSheetId} onClose={() => setItemModalSheetId(null)} />}
     </>
   );
 };

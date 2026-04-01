@@ -14,7 +14,8 @@ export const Workspace: React.FC = () => {
   
   const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
   const activeFrameId = useProjectStore(state => state.activeFrameId);
-  const activeAnimationId = useProjectStore(state => state.activeAnimationId);
+  const activeItemId = useProjectStore(state => state.activeItemId);
+  const activeItemType = useProjectStore(state => state.activeItemType);
   const hiddenViews = useEditorStore(state => state.hiddenViews);
   const fullscreenView = useEditorStore(state => state.fullscreenView);
 
@@ -44,15 +45,15 @@ export const Workspace: React.FC = () => {
             )
           )}
           {fullscreenView === 'preview' && (
-            !activeAnimationId ? (
-              <EmptyState icon={<IconRegistry.Play />} title="Select an animation" />
+            !activeItemId ? (
+              <EmptyState icon={<IconRegistry.Play />} title="Select an animation or image" />
             ) : (
               <PreviewPlayer />
             )
           )}
           {fullscreenView === 'timeline' && (
-            !activeAnimationId ? (
-              <EmptyState icon={<IconRegistry.Play />} title="Select an animation to edit keyframes" />
+            !activeItemId || activeItemType === 'image' ? (
+              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? 'Timeline disabled for images' : 'Select an animation to edit keyframes'} />
             ) : (
               <KeyframeEditor />
             )
@@ -94,8 +95,8 @@ export const Workspace: React.FC = () => {
               <div className="p-2 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-800 border-b border-slate-700 text-center">
                 Preview
               </div>
-              {!activeAnimationId ? (
-                <EmptyState icon={<IconRegistry.Play />} title="Select an animation" />
+              {!activeItemId ? (
+                <EmptyState icon={<IconRegistry.Play />} title="Select an animation or image" />
               ) : (
                 <PreviewPlayer />
               )}
@@ -107,8 +108,8 @@ export const Workspace: React.FC = () => {
         {/* Bottom Row: Keyframe Editor */}
         {isVisible('timeline') && (
           <div className="h-64 border-t border-slate-700 flex flex-col bg-slate-900">
-            {!activeAnimationId ? (
-              <EmptyState icon={<IconRegistry.Play />} title="Select an animation to edit keyframes" />
+            {!activeItemId || activeItemType === 'image' ? (
+              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? 'Timeline disabled for images' : 'Select an animation to edit keyframes'} />
             ) : (
               <KeyframeEditor />
             )}

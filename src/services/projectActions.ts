@@ -115,7 +115,7 @@ export async function saveCurrentProject(): Promise<void> {
  * Pulls latest from remote first if available.
  */
 export async function loadProjectFromDisk(dir: string): Promise<void> {
-  const { setProject, setProjectPath, setActiveSpritesheet, setActiveAnimation, setActiveFrame, setActiveLayer } = useProjectStore.getState();
+  const { setProject, setProjectPath, setActiveSpritesheet, setActiveItem, setActiveFrame, setActiveLayer } = useProjectStore.getState();
   const { setLoading } = useLoadingStore.getState();
 
   setLoading(true, i18n.t('loading.opening', 'Opening project…'));
@@ -161,7 +161,7 @@ export async function loadProjectFromDisk(dir: string): Promise<void> {
       const firstSheet = parsed.spritesheets[0];
       setActiveSpritesheet(firstSheet.id);
       if (firstSheet.animations && firstSheet.animations.length > 0) {
-        setActiveAnimation(firstSheet.animations[0].id);
+        setActiveItem(firstSheet.animations[0].id, 'animation');
       }
       if (firstSheet.frames && firstSheet.frames.length > 0) {
         setActiveFrame(firstSheet.frames[0].id);

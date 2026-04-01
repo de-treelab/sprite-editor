@@ -25,7 +25,7 @@ export const Timeline: React.FC = () => {
   const loopStart = useEditorStore(s => s.loopStart);
   const loopEnd = useEditorStore(s => s.loopEnd);
   const setFocusedView = useEditorStore((state) => state.setFocusedView);
-  const { activeSpritesheetId, activeAnimationId, project, setActiveFrame } = useProjectStore();
+  const { activeSpritesheetId, activeItemId, activeItemType, project, setActiveFrame } = useProjectStore();
 
   // Register timeline-scoped commands
   useTimelineCommands();
@@ -42,7 +42,7 @@ export const Timeline: React.FC = () => {
     const fraction = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     const proj = useProjectStore.getState();
     const sh = proj.project?.spritesheets.find(s => s.id === proj.activeSpritesheetId);
-    const an = sh?.animations.find(a => a.id === proj.activeAnimationId);
+    const an = sh?.animations.find(a => a.id === proj.activeItemId);
     const kfs = an?.keyframes ? [...an.keyframes].sort((a, b) => a.time - b.time) : [];
     const dur = kfs.length > 0 ? kfs[kfs.length - 1].time + 100 : 0;
     if (dur <= 0) return;
@@ -77,7 +77,8 @@ export const Timeline: React.FC = () => {
   }, []);
 
   const sheet = project?.spritesheets.find(s => s.id === activeSpritesheetId);
-  const anim = sheet?.animations.find(a => a.id === activeAnimationId);
+  const anim = sheet?.animations.find(a => a.id === activeItemId);
+  const isReferenceImage = activeItemType === 'image';
   const keyframes = anim?.keyframes ? [...anim.keyframes].sort((a,b) => a.time - b.time) : [];
 
   const totalDuration = keyframes.length > 0 ? keyframes[keyframes.length - 1].time + 100 : 0;
@@ -129,7 +130,7 @@ export const Timeline: React.FC = () => {
 
         useEditorStore.getState().setPlaybackTime(newTime);
 
-        const kfs = (useProjectStore.getState().project?.spritesheets.find(s => s.id === useProjectStore.getState().activeSpritesheetId)?.animations.find(a => a.id === useProjectStore.getState().activeAnimationId)?.keyframes || []).sort((a,b) => a.time - b.time);
+        const kfs = (useProjectStore.getState().project?.spritesheets.find(s => s.id === useProjectStore.getState().activeSpritesheetId)?.animations.find(a => a.id === useProjectStore.getState().activeItemId)?.keyframes || []).sort((a,b) => a.time - b.time);
 
         for (let i = kfs.length - 1; i >= 0; i--) {
             if (newTime >= kfs[i].time) {
@@ -190,6 +191,18 @@ export const Timeline: React.FC = () => {
   };
 
   const LoopIcon = loopModeIcons[loopMode];
+
+  if (isReferenceImage) {
+    return (
+      <div
+        className="h-48 bg-slate-800 border-t border-slate-700 flex flex-col items-center justify-center focus:outline-none"
+        tabIndex={0}
+        onFocus={() => setFocusedView('timeline')}
+      >
+        <span className="text-slate-500 text-sm">Timeline disabled for reference images</span>
+      </div>
+    );
+  }
 
   return (
     <div

@@ -83,8 +83,8 @@ function renderOnionSkins(
   appRef: React.MutableRefObject<PIXI.Application | null>,
 ) {
   let frameSequence = activeSheet.frames.map((f: any) => f.id);
-  if (state.activeAnimationId) {
-    const anim = activeSheet.animations.find((a: any) => a.id === state.activeAnimationId);
+  if (state.activeItemId && state.activeItemType === 'animation') {
+    const anim = activeSheet.animations.find((a: any) => a.id === state.activeItemId);
     if (anim) {
       frameSequence = anim.keyframes.slice().sort((a: any, b: any) => a.time - b.time).map((k: any) => k.frameId);
     }

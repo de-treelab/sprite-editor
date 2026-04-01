@@ -23,7 +23,7 @@ interface Props {
 export const ExportModal: React.FC<Props> = ({ onClose }) => {
   const project = useProjectStore(s => s.project);
   const activeSpritesheetId = useProjectStore(s => s.activeSpritesheetId);
-  const activeAnimationId = useProjectStore(s => s.activeAnimationId);
+  const activeItemId = useProjectStore(s => s.activeItemId);
 
   const [format, setFormat] = useState<ExportFormat>('atlas');
   const [atlasMaxWidth, setAtlasMaxWidth] = useState(4096);
@@ -37,7 +37,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
   if (!project) return null;
 
   const activeSheet = project.spritesheets.find(s => s.id === activeSpritesheetId);
-  const activeAnimation = activeSheet?.animations.find(a => a.id === activeAnimationId);
+  const activeAnimation = activeSheet?.animations.find(a => a.id === activeItemId);
 
   const formatOptions = [
     { value: 'atlas', label: 'Spritesheet Atlas (PNG)' },

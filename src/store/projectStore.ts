@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { AppProject, Spritesheet, Animation, Layer, ProjectPalette } from "../types/project";
+import { AppProject, Spritesheet, Animation, ReferenceImage, ActiveItemType, Layer, ProjectPalette } from "../types/project";
 import {
   ChangeTracker,
   createChangeTracker,
@@ -14,7 +14,8 @@ interface ProjectState {
   projectPath: string | null;
   changeTracker: ChangeTracker;
   activeSpritesheetId: string | null;
-  activeAnimationId: string | null;
+  activeItemId: string | null;
+  activeItemType: ActiveItemType | null;
   activeFrameId: string | null;
   activeLayerId: string | null;
 
@@ -27,8 +28,11 @@ interface ProjectState {
   addAnimation: (spritesheetId: string, animation: Animation) => void;
   removeAnimation: (spritesheetId: string, animationId: string) => void;
   updateAnimation: (spritesheetId: string, animationId: string, updates: Partial<Animation>) => void;
+  addImage: (spritesheetId: string, image: ReferenceImage) => void;
+  removeImage: (spritesheetId: string, imageId: string) => void;
+  updateImage: (spritesheetId: string, imageId: string, updates: Partial<ReferenceImage>) => void;
   setActiveSpritesheet: (sheetId: string | null) => void;
-  setActiveAnimation: (animId: string | null) => void;
+  setActiveItem: (itemId: string | null, itemType?: ActiveItemType | null) => void;
   setActiveFrame: (frameId: string | null) => void;
   setActiveLayer: (layerId: string | null) => void;
   addKeyframe: (spritesheetId: string, animationId: string, keyframe: import('../types/project').Keyframe) => void;
@@ -51,7 +55,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
   projectPath: null,
   changeTracker: createChangeTracker(true),
   activeSpritesheetId: null,
-  activeAnimationId: null,
+  activeItemId: null,
+  activeItemType: null,
   activeFrameId: null,
   activeLayerId: null,
 
@@ -150,8 +155,52 @@ export const useProjectStore = create<ProjectState>((set) => ({
       return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
     }),
 
-  setActiveSpritesheet: (sheetId) => set({ activeSpritesheetId: sheetId, activeAnimationId: null, activeFrameId: null, activeLayerId: null }),
-  setActiveAnimation: (animId) => set({ activeAnimationId: animId, activeFrameId: null, activeLayerId: null }),
+  addImage: (spritesheetId, image) =>
+    set((state) => {
+      if (!state.project) return state;
+      const tracker = state.changeTracker;
+      markSpritesheetDirty(tracker, spritesheetId);
+      tracker.structuralChanges.push(`Add Image '${image.name}'`);
+      const spritesheets = state.project.spritesheets.map((sheet) =>
+        sheet.id === spritesheetId
+          ? { ...sheet, images: [...(sheet.images || []), image] }
+          : sheet
+      );
+      return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
+    }),
+
+  removeImage: (spritesheetId, imageId) =>
+    set((state) => {
+      if (!state.project) return state;
+      const tracker = state.changeTracker;
+      markSpritesheetDirty(tracker, spritesheetId);
+      const sheet = state.project.spritesheets.find((s) => s.id === spritesheetId);
+      const img = (sheet?.images || []).find((i) => i.id === imageId);
+      tracker.structuralChanges.push(`Remove Image '${img?.name || imageId}'`);
+      const spritesheets = state.project.spritesheets.map((s) => {
+        if (s.id !== spritesheetId) return s;
+        return { ...s, images: (s.images || []).filter((i) => i.id !== imageId) };
+      });
+      return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
+    }),
+
+  updateImage: (spritesheetId, imageId, updates) =>
+    set((state) => {
+      if (!state.project) return state;
+      const tracker = state.changeTracker;
+      markSpritesheetDirty(tracker, spritesheetId);
+      const spritesheets = state.project.spritesheets.map((sheet) => {
+        if (sheet.id !== spritesheetId) return sheet;
+        const images = (sheet.images || []).map((img) =>
+          img.id === imageId ? { ...img, ...updates } : img
+        );
+        return { ...sheet, images };
+      });
+      return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
+    }),
+
+  setActiveSpritesheet: (sheetId) => set({ activeSpritesheetId: sheetId, activeItemId: null, activeItemType: null, activeFrameId: null, activeLayerId: null }),
+  setActiveItem: (itemId, itemType = null) => set({ activeItemId: itemId, activeItemType: itemId ? (itemType ?? null) : null, activeFrameId: null, activeLayerId: null }),
   setActiveFrame: (frameId) => set({ activeFrameId: frameId }),
   setActiveLayer: (layerId) => set({ activeLayerId: layerId }),
 

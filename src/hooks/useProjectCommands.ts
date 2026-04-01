@@ -10,7 +10,7 @@ import { useProjectStore } from '../store/projectStore';
 export function useProjectCommands() {
   useEffect(() => {
     const provider = (): Command[] => {
-      const { project, setActiveSpritesheet, setActiveAnimation } = useProjectStore.getState();
+      const { project, setActiveSpritesheet, setActiveItem } = useProjectStore.getState();
       if (!project) return [];
 
       const commands: Command[] = [];
@@ -28,7 +28,7 @@ export function useProjectCommands() {
             view: 'global',
             handler: () => {
               setActiveSpritesheet(sheet.id);
-              setActiveAnimation(anim.id);
+              setActiveItem(anim.id, 'animation');
             },
           });
         }
