@@ -9,7 +9,10 @@ import { registerBuiltinViews } from "./layouts/registerViews";
 
 registerBuiltinViews();
 
-// Auto-initialize OverlayScrollbars on all scrollable elements
+// Opt-in OverlayScrollbars: only elements with [data-os-scrollbar] get wrapped.
+// The global auto-detect approach (wrapping all overflow:auto/scroll) is
+// incompatible with React because OverlayScrollbars restructures the DOM,
+// which breaks React's internal DOM references during commit phases.
 const osOptions = {
   scrollbars: {
     theme: 'os-theme-light' as const,
@@ -20,38 +23,18 @@ const osOptions = {
 
 const managed = new WeakSet<Element>();
 
-function isScrollable(el: Element): boolean {
-  // Skip OverlayScrollbars' own elements to avoid infinite loop
-  if (el.closest('[data-overlayscrollbars]') && el !== el.closest('[data-overlayscrollbars]')) return false;
-  if (el.classList.contains('os-scrollbar') || el.closest('.os-scrollbar')) return false;
-  const style = getComputedStyle(el);
-  const overflowX = style.overflowX;
-  const overflowY = style.overflowY;
-  return (
-    overflowX === 'auto' || overflowX === 'scroll' ||
-    overflowY === 'auto' || overflowY === 'scroll'
-  );
-}
-
 function initScrollbars(root: Element) {
-  // Check the root itself
-  if (root instanceof HTMLElement && isScrollable(root) && !managed.has(root)) {
-    managed.add(root);
-    OverlayScrollbars(root, osOptions);
-  }
-  // Check descendants
-  root.querySelectorAll('*').forEach(el => {
-    if (el instanceof HTMLElement && isScrollable(el) && !managed.has(el)) {
+  root.querySelectorAll('[data-os-scrollbar]').forEach(el => {
+    if (el instanceof HTMLElement && !managed.has(el)) {
       managed.add(el);
       OverlayScrollbars(el, osOptions);
     }
   });
 }
 
-// Observe DOM changes to catch dynamically added scrollable elements
+// Observe DOM changes to catch dynamically added opt-in scrollable elements
 let scanQueued = false;
 const observer = new MutationObserver((mutations) => {
-  // Skip if mutations are only from OverlayScrollbars internals
   const hasRelevant = mutations.some(m =>
     Array.from(m.addedNodes).some(n =>
       n instanceof HTMLElement && !n.classList.contains('os-scrollbar') && !n.hasAttribute('data-overlayscrollbars-contents')

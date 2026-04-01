@@ -1,7 +1,11 @@
 import * as PIXI from 'pixi.js';
 import { useEditorStore } from '../../store/editorStore';
-import { getSelectionBounds } from '../../tools/drawingUtils';
 
+/**
+ * Draw marching ants along the actual boundary of the selection mask.
+ * For each selected pixel, we check its 4 neighbors — any edge bordering
+ * a non-selected pixel (or the canvas edge) gets a dashed line segment.
+ */
 export function drawSelectionOverlay(
   selectionGraphics: PIXI.Graphics,
   viewport: PIXI.Container,
@@ -12,26 +16,51 @@ export function drawSelectionOverlay(
   selectionGraphics.clear();
   const mask = useEditorStore.getState().selectionMask;
   if (!mask) return;
-  const bounds = getSelectionBounds(mask, canvasWidth, canvasHeight);
-  if (!bounds) return;
 
-  const { minX, minY, maxX, maxY } = bounds;
-  const dashLen = 4;
-  const points: [number, number][] = [
-    [minX, minY], [maxX + 1, minY], [maxX + 1, maxY + 1], [minX, maxY + 1], [minX, minY],
-  ];
+  const strokeWidth = 1 / (viewport.scale.x || 1);
+  const dashLen = 4 / (viewport.scale.x || 1);
 
-  for (let i = 0; i < points.length - 1; i++) {
-    const [ax, ay] = points[i];
-    const [bx, by] = points[i + 1];
+  // Collect all boundary edge segments
+  // Each segment is a horizontal or vertical line on the pixel grid
+  const segments: [number, number, number, number][] = [];
+
+  for (let y = 0; y < canvasHeight; y++) {
+    for (let x = 0; x < canvasWidth; x++) {
+      if (!mask[y * canvasWidth + x]) continue;
+
+      // Top edge: if y === 0 or pixel above is not selected
+      if (y === 0 || !mask[(y - 1) * canvasWidth + x]) {
+        segments.push([x, y, x + 1, y]);
+      }
+      // Bottom edge
+      if (y === canvasHeight - 1 || !mask[(y + 1) * canvasWidth + x]) {
+        segments.push([x, y + 1, x + 1, y + 1]);
+      }
+      // Left edge
+      if (x === 0 || !mask[y * canvasWidth + (x - 1)]) {
+        segments.push([x, y, x, y + 1]);
+      }
+      // Right edge
+      if (x === canvasWidth - 1 || !mask[y * canvasWidth + (x + 1)]) {
+        segments.push([x + 1, y, x + 1, y + 1]);
+      }
+    }
+  }
+
+  if (segments.length === 0) return;
+
+  // Draw each segment as a dashed line with marching ants
+  for (const [ax, ay, bx, by] of segments) {
     const dx = bx - ax;
     const dy = by - ay;
     const len = Math.sqrt(dx * dx + dy * dy);
+    if (len === 0) continue;
     const nx = dx / len;
     const ny = dy / len;
+
     let d = 0;
     let dash = true;
-    let phase = marchingAntsOffset % (dashLen * 2);
+    let phase = (marchingAntsOffset / (viewport.scale.x || 1)) % (dashLen * 2);
     if (phase > dashLen) { dash = false; phase -= dashLen; }
     d = -phase;
 
@@ -41,7 +70,7 @@ export function drawSelectionOverlay(
       if (segEnd > segStart && dash) {
         selectionGraphics.moveTo(ax + nx * segStart, ay + ny * segStart);
         selectionGraphics.lineTo(ax + nx * segEnd, ay + ny * segEnd);
-        selectionGraphics.stroke({ width: 1 / (viewport.scale.x || 1), color: 0x000000 });
+        selectionGraphics.stroke({ width: strokeWidth, color: 0x000000 });
       }
       d += dashLen;
       dash = !dash;

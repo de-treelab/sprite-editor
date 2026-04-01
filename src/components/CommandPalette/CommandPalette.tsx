@@ -40,7 +40,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
     const scored: ScoredCommand[] = [];
 
     for (const cmd of allCommands) {
-      const displayName = commandDisplayName(cmd.key, t);
+      const displayName = cmd.displayName || commandDisplayName(cmd.key, t);
       const viewLabel = cmd.view === 'global' ? 'Global' : (viewDisplayNames[cmd.view as ViewType] ?? cmd.view);
       const searchText = `${displayName} ${cmd.key} ${viewLabel}`.toLowerCase();
 
@@ -77,7 +77,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
-    const item = list.children[selectedIndex] as HTMLElement | undefined;
+    const item = list.querySelector(`[data-cmd-index="${selectedIndex}"]`) as HTMLElement | null;
     item?.scrollIntoView({ block: 'nearest' });
   }, [selectedIndex]);
 

@@ -15,6 +15,9 @@ import {
   flipVertical,
   rotateCw,
   rotateCcw,
+  rotateByArbitraryAngle,
+  movePixels,
+  scalePixels,
   createRectSelection,
   createEllipseSelection,
   createMagicWandSelection,
@@ -27,6 +30,7 @@ import { syncLayers } from './layerSync';
 import { drawSelectionOverlay } from './selectionOverlay';
 import { commitWithUndo, imageDataToDataURL, getToolProp } from './canvasUtils';
 import { useHistoryStore } from '../../store/historyStore';
+import { toolDefinitions, ToolId } from '../../tools/toolDefinitions';
 
 export const PixiEditor = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,7 +82,11 @@ export const PixiEditor = () => {
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         isSpaceHeld = false;
-        if (containerRef.current) containerRef.current.style.cursor = '';
+        // Restore tool-specific cursor
+        if (containerRef.current) {
+          const tool = useEditorStore.getState().activeTool as ToolId;
+          containerRef.current.style.cursor = toolDefinitions[tool]?.cursor || '';
+        }
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -239,6 +247,11 @@ export const PixiEditor = () => {
           state.zoomLevel !== prevState.zoomLevel
         ) {
           redrawGrid();
+        }
+        // Update cursor when tool changes
+        if (state.activeTool !== prevState.activeTool && containerRef.current && !isSpaceHeld) {
+          const toolDef = toolDefinitions[state.activeTool as ToolId];
+          containerRef.current.style.cursor = toolDef?.cursor || '';
         }
       });
       doSyncLayers();
@@ -464,8 +477,8 @@ export const PixiEditor = () => {
         const edState = useEditorStore.getState();
         const tool = edState.activeTool;
 
-        // Middle mouse, Space held, or move tool = pan
-        if (e.button === 1 || isSpaceHeld || tool === 'move') {
+        // Middle mouse, Space held, or pan tool = viewport pan
+        if (e.button === 1 || isSpaceHeld || tool === 'pan') {
           isPanning = true;
           lastPanPos = { x: e.global.x, y: e.global.y };
           if (containerRef.current) containerRef.current.style.cursor = 'grabbing';
@@ -527,7 +540,8 @@ export const PixiEditor = () => {
         if (tool === 'magicWand') {
           const tolerance = getToolPropLocal<number>('magicWand', 'tolerance', 15);
           const selectionMode = getToolPropLocal<string>('magicWand', 'selectionMode', 'replace') as 'replace' | 'add' | 'subtract' | 'intersect';
-          const newMask = createMagicWandSelection(ctx, px, py, tolerance, true, canvasWidth, canvasHeight);
+          const contiguous = getToolPropLocal<boolean>('magicWand', 'contiguous', true);
+          const newMask = createMagicWandSelection(ctx, px, py, tolerance, contiguous, canvasWidth, canvasHeight);
           const combined = combineSelections(useEditorStore.getState().selectionMask, newMask, selectionMode);
           useEditorStore.getState().setSelectionMask(isSelectionEmpty(combined) ? null : combined);
           redrawSelection();
@@ -546,6 +560,17 @@ export const PixiEditor = () => {
           const brushShape = getToolPropLocal<string>(tool, 'brushShape', 'square') as BrushShape;
           drawBrush(ctx, px, py, brushSize, brushShape, edState.primaryColor, tool === 'eraser');
           drawingTexture.source.update();
+        }
+
+        // Move/scale/rotate/transform tools start with cursor change
+        if (tool === 'move' || tool === 'transform') {
+          if (containerRef.current) containerRef.current.style.cursor = 'move';
+        }
+        if (tool === 'scale') {
+          if (containerRef.current) containerRef.current.style.cursor = 'nwse-resize';
+        }
+        if (tool === 'rotate') {
+          if (containerRef.current) containerRef.current.style.cursor = 'crosshair';
         }
       });
 
@@ -590,6 +615,47 @@ export const PixiEditor = () => {
 
           lastDrawPos = { x: px, y: py };
           drawingTexture.source.update();
+        } else if (tool === 'move' || tool === 'transform') {
+          // Move pixels: restore snapshot, apply cumulative delta
+          if (snapshotBeforeDraw) {
+            ctx.putImageData(snapshotBeforeDraw, 0, 0);
+            const dx = px - startPos.x;
+            const dy = py - startPos.y;
+            const mask = edState.selectionMask;
+            movePixels(ctx, canvasWidth, canvasHeight, dx, dy, mask);
+            drawingTexture.source.update();
+            lastDrawPos = { x: px, y: py };
+          }
+        } else if (tool === 'scale') {
+          // Scale pixels: compute scale from drag distance
+          if (snapshotBeforeDraw) {
+            ctx.putImageData(snapshotBeforeDraw, 0, 0);
+            const dx = px - startPos.x;
+            const dy = py - startPos.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const sign = (dx + dy) >= 0 ? 1 : -1;
+            const scaleFactor = Math.max(0.1, 1 + sign * distance / 50);
+            const maintainAspect = getToolPropLocal<boolean>('scale', 'maintainAspect', true);
+            const interpolation = getToolPropLocal<string>('scale', 'interpolation', 'nearest') as 'nearest' | 'bilinear';
+            const sx = scaleFactor;
+            const sy = maintainAspect ? scaleFactor : Math.max(0.1, 1 + dy / 50);
+            const mask = edState.selectionMask;
+            scalePixels(ctx, canvasWidth, canvasHeight, sx, sy, interpolation, mask);
+            drawingTexture.source.update();
+            lastDrawPos = { x: px, y: py };
+          }
+        } else if (tool === 'rotate') {
+          // Rotate pixels: compute angle from drag
+          if (snapshotBeforeDraw) {
+            ctx.putImageData(snapshotBeforeDraw, 0, 0);
+            const dx = px - startPos.x;
+            const angle = dx * 2; // 2 degrees per pixel of horizontal drag
+            const interpolation = getToolPropLocal<string>('rotate', 'interpolation', 'nearest') as 'nearest' | 'bilinear';
+            const mask = edState.selectionMask;
+            rotateByArbitraryAngle(ctx, canvasWidth, canvasHeight, angle, interpolation, mask);
+            drawingTexture.source.update();
+            lastDrawPos = { x: px, y: py };
+          }
         } else if (tool === 'line') {
           if (snapshotBeforeDraw) {
             ctx.putImageData(snapshotBeforeDraw, 0, 0);
@@ -650,13 +716,23 @@ export const PixiEditor = () => {
             const combined = combineSelections(edState.selectionMask, newMask, selectionMode);
             edState.setSelectionMask(isSelectionEmpty(combined) ? null : combined);
             redrawSelection();
+          } else if (edState.activeTool === 'move' || edState.activeTool === 'scale' || edState.activeTool === 'rotate' || edState.activeTool === 'transform') {
+            // Commit transform tools with undo
+            if (snapshotBeforeDraw) {
+              const toolName = edState.activeTool;
+              commitLocal(toolName.charAt(0).toUpperCase() + toolName.slice(1), snapshotBeforeDraw);
+            }
           } else if (snapshotBeforeDraw) {
             const toolName = edState.activeTool;
             commitLocal(toolName.charAt(0).toUpperCase() + toolName.slice(1), snapshotBeforeDraw);
           }
         }
         isPanning = false;
-        if (containerRef.current && !isSpaceHeld) containerRef.current.style.cursor = '';
+        // Restore tool-specific cursor
+        if (containerRef.current && !isSpaceHeld) {
+          const tool = useEditorStore.getState().activeTool as ToolId;
+          containerRef.current.style.cursor = toolDefinitions[tool]?.cursor || '';
+        }
       };
 
       app.stage.on('pointerup', commitDataFlow);

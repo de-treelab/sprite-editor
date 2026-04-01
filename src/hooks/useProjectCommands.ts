@@ -19,6 +19,7 @@ export function useProjectCommands() {
         commands.push({
           key: `project.openSpritesheet.${sheet.id}`,
           view: 'global',
+          displayName: `Open Spritesheet: ${sheet.name}`,
           handler: () => setActiveSpritesheet(sheet.id),
         });
 
@@ -26,6 +27,7 @@ export function useProjectCommands() {
           commands.push({
             key: `project.openAnimation.${sheet.id}.${anim.id}`,
             view: 'global',
+            displayName: `Open Animation: ${anim.name}`,
             handler: () => {
               setActiveSpritesheet(sheet.id);
               setActiveItem(anim.id, 'animation');

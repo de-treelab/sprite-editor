@@ -9,8 +9,8 @@ import { IconRegistry } from '../IconRegistry';
 const toolCategories: { id: ToolDefinition['category']; tools: ToolId[] }[] = [
   { id: 'draw', tools: ['pencil', 'eraser', 'fill', 'line', 'rectangle', 'ellipse'] },
   { id: 'select', tools: ['selection', 'magicWand'] },
-  { id: 'transform', tools: ['move', 'flipHorizontal', 'flipVertical'] },
-  { id: 'utility', tools: ['picker'] },
+  { id: 'transform', tools: ['move', 'scale', 'rotate', 'transform', 'flipHorizontal', 'flipVertical'] },
+  { id: 'utility', tools: ['picker', 'pan'] },
 ];
 
 export const Sidebar: React.FC = () => {

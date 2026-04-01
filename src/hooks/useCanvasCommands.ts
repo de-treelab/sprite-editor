@@ -26,6 +26,10 @@ export function useCanvasCommands() {
     registerCommand({ key: 'canvas.toolFill', view: 'canvas', icon: IconRegistry.ToolFill, handler: () => setActiveTool('fill') });
     registerCommand({ key: 'canvas.toolPicker', view: 'canvas', icon: IconRegistry.ToolPicker, handler: () => setActiveTool('picker') });
     registerCommand({ key: 'canvas.toolMove', view: 'canvas', icon: IconRegistry.ToolMove, handler: () => setActiveTool('move') });
+    registerCommand({ key: 'canvas.toolPan', view: 'canvas', icon: IconRegistry.ToolPan, handler: () => setActiveTool('pan') });
+    registerCommand({ key: 'canvas.toolScale', view: 'canvas', icon: IconRegistry.ToolScale, handler: () => setActiveTool('scale') });
+    registerCommand({ key: 'canvas.toolRotate', view: 'canvas', icon: IconRegistry.ToolRotate, handler: () => setActiveTool('rotate') });
+    registerCommand({ key: 'canvas.toolTransform', view: 'canvas', icon: IconRegistry.ToolTransform, handler: () => setActiveTool('transform') });
     registerCommand({ key: 'canvas.toolSelection', view: 'canvas', icon: IconRegistry.ToolSelect, handler: () => setActiveTool('selection') });
     registerCommand({ key: 'canvas.toolMagicWand', view: 'canvas', icon: IconRegistry.ToolMagicWand, handler: () => setActiveTool('magicWand') });
     registerCommand({ key: 'canvas.toolLine', view: 'canvas', icon: IconRegistry.ToolLine, handler: () => setActiveTool('line') });
@@ -158,7 +162,8 @@ export function useCanvasCommands() {
     return () => {
       for (const key of [
         'canvas.toolPencil', 'canvas.toolEraser', 'canvas.toolFill', 'canvas.toolPicker',
-        'canvas.toolMove', 'canvas.toolSelection', 'canvas.toolMagicWand', 'canvas.toolLine',
+        'canvas.toolMove', 'canvas.toolPan', 'canvas.toolScale', 'canvas.toolRotate', 'canvas.toolTransform',
+        'canvas.toolSelection', 'canvas.toolMagicWand', 'canvas.toolLine',
         'canvas.toolRectangle', 'canvas.toolEllipse', 'canvas.flipHorizontal', 'canvas.flipVertical',
         'canvas.rotateCw', 'canvas.rotateCcw',
         'canvas.selectAll', 'canvas.clearSelection',

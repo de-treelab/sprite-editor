@@ -48,6 +48,9 @@ import {
   LuPenLine,
   LuLink,
   LuLayoutDashboard,
+  LuHand,
+  LuMaximize,
+  LuSquareDashedMousePointer,
 } from 'react-icons/lu';
 
 export const IconRegistry = {
@@ -68,6 +71,10 @@ export const IconRegistry = {
   ToolMove: LuMove,
   ToolFlipHorizontal: LuFlipHorizontal2,
   ToolFlipVertical: LuFlipVertical2,
+  ToolPan: LuHand,
+  ToolScale: LuMaximize,
+  ToolRotate: LuRotateCw,
+  ToolTransform: LuSquareDashedMousePointer,
 
   // Playback / Timeline
   Play: LuPlay,

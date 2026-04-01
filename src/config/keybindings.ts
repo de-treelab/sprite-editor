@@ -50,6 +50,10 @@ export interface CanvasKeybindings {
   toolFill: string;
   toolPicker: string;
   toolMove: string;
+  toolPan: string;
+  toolScale: string;
+  toolRotate: string;
+  toolTransform: string;
   toolSelection: string;
   toolMagicWand: string;
   toolLine: string;
@@ -139,6 +143,10 @@ export const defaultKeybindings: KeybindingsConfig = {
     toolFill: 'g',
     toolPicker: 'i',
     toolMove: 'v',
+    toolPan: 'h',
+    toolScale: 's',
+    toolRotate: 'r',
+    toolTransform: 't',
     toolSelection: 'm',
     toolMagicWand: 'w',
     toolLine: 'l',

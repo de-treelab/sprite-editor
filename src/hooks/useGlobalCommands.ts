@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { registerCommand, unregisterCommand } from '../config/commandRegistry';
 import { useSettingsStore } from '../store/settingsStore';
 import { useLayoutStore } from '../store/layoutStore';
+import { useEditorStore } from '../store/editorStore';
 import { IconRegistry } from '../components/IconRegistry';
 import { useHistoryStore } from '../store/historyStore';
 
@@ -25,6 +26,30 @@ export function useGlobalCommands(handlers: {
   const openSettings = useSettingsStore((s) => s.openSettings);
 
   useEffect(() => {
+    const setFocusedView = useEditorStore.getState().setFocusedView;
+
+    // View focus commands
+    registerCommand({
+      key: 'global.focusCanvas',
+      view: 'global',
+      handler: () => setFocusedView('canvas'),
+    });
+    registerCommand({
+      key: 'global.focusTimeline',
+      view: 'global',
+      handler: () => setFocusedView('timeline'),
+    });
+    registerCommand({
+      key: 'global.focusPreview',
+      view: 'global',
+      handler: () => setFocusedView('preview'),
+    });
+    registerCommand({
+      key: 'global.focusNavigator',
+      view: 'global',
+      handler: () => setFocusedView('navigator'),
+    });
+
     // View hide commands
     registerCommand({
       key: 'global.hideCanvas',
@@ -78,6 +103,10 @@ export function useGlobalCommands(handlers: {
     });
 
     return () => {
+      unregisterCommand('global.focusCanvas');
+      unregisterCommand('global.focusTimeline');
+      unregisterCommand('global.focusPreview');
+      unregisterCommand('global.focusNavigator');
       unregisterCommand('global.hideCanvas');
       unregisterCommand('global.hideTimeline');
       unregisterCommand('global.hidePreview');

@@ -38,6 +38,7 @@ export const CommandList: React.FC<CommandListProps> = ({
         return (
           <button
             key={entry.cmd.key}
+            data-cmd-index={idx}
             className={`
               w-full text-left px-4 py-2 flex items-center gap-3 text-sm transition-colors
               ${idx === selectedIndex ? 'bg-indigo-600/30 text-white' : 'text-slate-300 hover:bg-slate-700/50'}
