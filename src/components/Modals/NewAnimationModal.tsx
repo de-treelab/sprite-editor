@@ -13,7 +13,10 @@ export const NewAnimationModal: React.FC<Props> = ({ spritesheetId, onClose }) =
   const { t } = useTranslation();
   const project = useProjectStore(state => state.project);
   const addAnimation = useProjectStore(state => state.addAnimation);
+  const addFrame = useProjectStore(state => state.addFrame);
   const setActiveAnimation = useProjectStore(state => state.setActiveAnimation);
+  const setActiveFrame = useProjectStore(state => state.setActiveFrame);
+  const setActiveLayer = useProjectStore(state => state.setActiveLayer);
 
   const [name, setName] = useState('New Animation');
   const [width, setWidth] = useState(project?.defaultCanvasSize.width || 64);
@@ -21,13 +24,42 @@ export const NewAnimationModal: React.FC<Props> = ({ spritesheetId, onClose }) =
 
   const handleCreate = () => {
     const id = generate_id();
+    const layerId = generate_id();
+    const frameId = generate_id();
+    const keyframeId = generate_id();
+
+    const initialLayer = {
+      id: layerId,
+      name: 'Background',
+      opacity: 1.0,
+      blendMode: 'normal' as const,
+      visible: true,
+      locked: false,
+      isReference: false,
+      data: ''
+    };
+
+    const initialFrame = {
+      id: frameId,
+      layers: [initialLayer]
+    };
+
+    const initialKeyframe = {
+      id: keyframeId,
+      time: 0,
+      frameId: frameId
+    };
+
     addAnimation(spritesheetId, {
       id,
       name,
       canvasSize: { width, height },
-      keyframes: []
+      keyframes: [initialKeyframe]
     });
+    addFrame(spritesheetId, initialFrame);
     setActiveAnimation(id);
+    setActiveFrame(frameId);
+    setActiveLayer(layerId);
     onClose();
   };
 
