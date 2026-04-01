@@ -4,6 +4,13 @@ import { useEditorStore } from '../store/editorStore';
 import { IconRegistry } from '../components/IconRegistry';
 import { getCanvasActions } from './canvasActions';
 
+function swapColors() {
+  const state = useEditorStore.getState();
+  const primary = state.primaryColor;
+  state.setPrimaryColor(state.secondaryColor);
+  state.setSecondaryColor(primary);
+}
+
 /**
  * Registers all canvas-scoped commands: tool switching, zoom, flip, selection.
  * Call in a component that is mounted when the canvas is available (e.g. PixiEditor).
@@ -126,6 +133,14 @@ export function useCanvasCommands() {
       },
     });
 
+    // Swap colors
+    registerCommand({
+      key: 'canvas.swapColors',
+      view: 'canvas',
+      icon: IconRegistry.SwapColors,
+      handler: swapColors,
+    });
+
     // Copy/Paste
     registerCommand({
       key: 'canvas.copy',
@@ -151,6 +166,7 @@ export function useCanvasCommands() {
         'canvas.fitToScreen', 'canvas.zoomToSelection',
         'canvas.toggleGrid', 'canvas.toggleCenterLines',
         'canvas.copy', 'canvas.paste',
+        'canvas.swapColors',
       ]) {
         unregisterCommand(key);
       }

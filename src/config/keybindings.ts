@@ -66,6 +66,7 @@ export interface CanvasKeybindings {
   toggleCenterLines: string;
   copy: string;
   paste: string;
+  swapColors: string;
 }
 
 // Timeline-specific keybindings (includes keyframe editing)
@@ -148,6 +149,7 @@ export const defaultKeybindings: KeybindingsConfig = {
     toggleCenterLines: "ctrl+;",
     copy: 'ctrl+c',
     paste: 'ctrl+v',
+    swapColors: 'x',
   },
   timeline: {
     playPause: 'space',

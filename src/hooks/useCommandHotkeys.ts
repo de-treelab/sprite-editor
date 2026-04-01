@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useEditorStore } from '../store/editorStore';
 import { useSettingsStore } from '../store/settingsStore';
-import { getAllCommands, Command } from '../config/commandRegistry';
+import { getAllCommands } from '../config/commandRegistry';
 import { ViewType } from '../config/keybindings';
 
 /**
@@ -54,11 +54,6 @@ function resolveKeybinding(commandKey: string, settingsValues: Record<string, un
   return typeof val === 'string' && val ? val : undefined;
 }
 
-interface BindingEntry {
-  parsed: ReturnType<typeof parseBinding>;
-  command: Command;
-}
-
 /**
  * Central hotkey hook — reads all registered commands, resolves their
  * keybindings from settings, and listens for keyboard events.
@@ -71,28 +66,14 @@ export function useCommandHotkeys() {
   const focusedView = useEditorStore((s) => s.focusedView);
   const settingsValues = useSettingsStore((s) => s.values);
 
-  // Keep a ref with the latest bindings so the event handler is always current
-  const bindingsRef = useRef<BindingEntry[]>([]);
+  // Keep refs so the event handler always reads the latest values
   const focusedViewRef = useRef<ViewType | null>(null);
   focusedViewRef.current = focusedView;
+  const settingsRef = useRef(settingsValues);
+  settingsRef.current = settingsValues;
 
-  // Rebuild binding list whenever commands or settings change
-  useEffect(() => {
-    const commands = getAllCommands();
-    const entries: BindingEntry[] = [];
-
-    for (const cmd of commands) {
-      const kb = resolveKeybinding(cmd.key, settingsValues);
-      if (!kb) continue;
-      const parsed = parseBinding(kb);
-      if (!parsed) continue;
-      entries.push({ parsed, command: cmd });
-    }
-
-    bindingsRef.current = entries;
-  }, [settingsValues]);
-
-  // Single keydown listener
+  // Single keydown listener — resolves bindings lazily so it always
+  // picks up the latest registered commands and settings.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't intercept when typing in an input/textarea
@@ -100,24 +81,30 @@ export function useCommandHotkeys() {
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
       const currentView = focusedViewRef.current;
+      const currentSettings = settingsRef.current;
+      const commands = getAllCommands();
 
-      for (const { parsed, command } of bindingsRef.current) {
+      for (const cmd of commands) {
+        const kb = resolveKeybinding(cmd.key, currentSettings);
+        if (!kb) continue;
+        const parsed = parseBinding(kb);
+        if (!parsed) continue;
         if (!eventMatchesBinding(e, parsed)) continue;
 
         // Check view scoping
-        if (command.view !== 'global') {
-          if (currentView !== command.view) {
+        if (cmd.view !== 'global') {
+          if (currentView !== cmd.view) {
             // Allow timeline commands when preview is focused
-            if (!(command.view === 'timeline' && currentView === 'preview')) continue;
+            if (!(cmd.view === 'timeline' && currentView === 'preview')) continue;
           }
         }
 
         // Check enabled
-        if (command.enabled && !command.enabled()) continue;
+        if (cmd.enabled && !cmd.enabled()) continue;
 
         e.preventDefault();
         e.stopPropagation();
-        command.handler();
+        cmd.handler();
         return;
       }
     };

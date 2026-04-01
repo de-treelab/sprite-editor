@@ -51,6 +51,7 @@ export const keybindingSettings: SettingDefinition[] = [
   kb('canvas', 'zoomIn', 'Zoom In', defaultKeybindings.canvas.zoomIn),
   kb('canvas', 'zoomOut', 'Zoom Out', defaultKeybindings.canvas.zoomOut),
   kb('canvas', 'zoomReset', 'Zoom Reset', defaultKeybindings.canvas.zoomReset),
+  kb('canvas', 'swapColors', 'Swap Colors', defaultKeybindings.canvas.swapColors),
 
   // Timeline (includes keyframe editing)
   kb('timeline', 'playPause', 'Play / Pause', defaultKeybindings.timeline.playPause),
