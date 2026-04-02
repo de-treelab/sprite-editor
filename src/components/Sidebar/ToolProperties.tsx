@@ -1,12 +1,7 @@
 import React from 'react';
 import { useEditorStore } from '../../store/editorStore';
-import {
-  toolDefinitions,
-  ToolProperty,
-  NumberProperty,
-  SelectProperty,
-  BooleanProperty,
-} from '../../tools/toolDefinitions';
+import { getTool } from '../../tools/toolRegistry';
+import type { ToolProperty, NumberProperty, SelectProperty, BooleanProperty } from '../../tools/toolTypes';
 import { useTranslation } from 'react-i18next';
 import { RangeSlider, Select, Checkbox, SectionPanel, SectionHeader } from '../ui';
 
@@ -73,7 +68,7 @@ export const ToolProperties: React.FC = () => {
   const { t } = useTranslation();
   const { activeTool, toolProperties, setToolProperty } = useEditorStore();
 
-  const toolDef = toolDefinitions[activeTool];
+  const toolDef = getTool(activeTool);
   if (!toolDef || toolDef.properties.length === 0) {
     return null;
   }

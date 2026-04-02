@@ -5,7 +5,7 @@ import { syncLayers, disposeLayerSync } from './layerSync';
 import { setCanvasActions } from '../../hooks/canvasActions';
 import { CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM } from './canvasUtils';
 import { clamp } from '../../utils/math';
-import { toolDefinitions, ToolId } from '../../tools/toolDefinitions';
+import { getTool } from '../../tools/toolRegistry';
 import { useSettingsStore } from '../../store/settingsStore';
 import { setupViewport } from './viewportSetup';
 import { setupCanvasActions } from './canvasActionsSetup';
@@ -62,8 +62,8 @@ export function initPixiEditor(params: InitPixiParams): InitPixiCleanup {
     if (e.code === 'Space') {
       interaction.isSpaceHeld = false;
       if (containerRef.current) {
-        const tool = useEditorStore.getState().activeTool as ToolId;
-        containerRef.current.style.cursor = toolDefinitions[tool]?.cursor || '';
+        const tool = useEditorStore.getState().activeTool;
+        containerRef.current.style.cursor = getTool(tool)?.cursor || '';
       }
     }
   };
@@ -189,7 +189,7 @@ export function initPixiEditor(params: InitPixiParams): InitPixiCleanup {
         redrawGrid();
       }
       if (state.activeTool !== prevState.activeTool && containerRef.current && !interaction.isSpaceHeld) {
-        const toolDef = toolDefinitions[state.activeTool as ToolId];
+        const toolDef = getTool(state.activeTool);
         containerRef.current.style.cursor = toolDef?.cursor || '';
       }
     });

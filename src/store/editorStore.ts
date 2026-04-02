@@ -1,12 +1,53 @@
 import { create } from 'zustand';
-import { ToolId, buildDefaultToolProperties } from '../tools/toolDefinitions';
+import { buildDefaultToolProperties, getTool } from '../tools/toolRegistry';
+import '../tools/builtins'; // ensure built-in tools are registered
 import { KeybindingsConfig, defaultKeybindings, ViewType } from '../config/keybindings';
 
-export type Tool = ToolId;
+export type Tool = string;
 export type LoopMode = 'loop' | 'oneshot' | 'pingpong';
 
 // Tool property values stored per-tool
-export type ToolProperties = Record<ToolId, Record<string, number | string | boolean>>;
+export type ToolProperties = Record<string, Record<string, number | string | boolean>>;
+
+// ── Tool property persistence ──
+
+const TOOL_PROPS_STORAGE_KEY = 'toolProperties';
+
+function loadPersistedToolProperties(): Record<string, Record<string, unknown>> {
+  try {
+    const raw = localStorage.getItem(TOOL_PROPS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function persistToolProperties(toolProperties: ToolProperties) {
+  const sparse: Record<string, Record<string, unknown>> = {};
+  for (const [toolId, props] of Object.entries(toolProperties)) {
+    const toolDef = getTool(toolId);
+    if (!toolDef) continue;
+    for (const [key, value] of Object.entries(props)) {
+      const propDef = toolDef.properties.find((p) => p.key === key);
+      if (propDef && value !== propDef.default) {
+        sparse[toolId] ??= {};
+        sparse[toolId][key] = value;
+      }
+    }
+  }
+  localStorage.setItem(TOOL_PROPS_STORAGE_KEY, JSON.stringify(sparse));
+}
+
+function buildInitialToolProperties(): ToolProperties {
+  const defaults = buildDefaultToolProperties();
+  const persisted = loadPersistedToolProperties();
+  for (const [toolId, props] of Object.entries(persisted)) {
+    if (defaults[toolId]) {
+      Object.assign(defaults[toolId], props);
+    }
+  }
+  return defaults;
+}
 
 // Re-export ViewType for convenience
 export type { ViewType };
@@ -86,7 +127,7 @@ interface EditorState {
 
 export const useEditorStore = create<EditorState>((set, get) => ({
   activeTool: 'pencil',
-  toolProperties: buildDefaultToolProperties(),
+  toolProperties: buildInitialToolProperties(),
   primaryColor: '#000000',
   secondaryColor: '#ffffff',
   zoomLevel: 100,
@@ -121,16 +162,19 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   setActiveTool: (tool) => set({ activeTool: tool }),
 
-  setToolProperty: (tool, key, value) =>
-    set((state) => ({
-      toolProperties: {
+  setToolProperty: (tool, key, value) => {
+    set((state) => {
+      const newProps = {
         ...state.toolProperties,
         [tool]: {
           ...state.toolProperties[tool],
           [key]: value,
         },
-      },
-    })),
+      };
+      persistToolProperties(newProps);
+      return { toolProperties: newProps };
+    });
+  },
 
   getToolProperty: <T extends number | string | boolean>(tool: Tool, key: string): T => {
     return get().toolProperties[tool]?.[key] as T;

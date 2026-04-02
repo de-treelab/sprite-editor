@@ -1,30 +1,13 @@
 import { useEditorStore } from '../../store/editorStore';
 import { useProjectStore } from '../../store/projectStore';
-import {
-  drawBrush,
-  drawLine,
-  drawRectangle,
-  drawEllipse,
-  floodFill,
-  pickColor,
-  flipHorizontal,
-  flipVertical,
-  rotateByArbitraryAngle,
-  movePixels,
-  scalePixels,
-  createRectSelection,
-  createEllipseSelection,
-  createMagicWandSelection,
-  combineSelections,
-  isSelectionEmpty,
-  BrushShape,
-} from '../../tools/drawingUtils';
 import { commitWithUndo, getToolProp } from './canvasUtils';
-import { toolDefinitions, ToolId } from '../../tools/toolDefinitions';
+import { getTool } from '../../tools/toolRegistry';
+import type { ToolContext, ToolPointerEvent } from '../../tools/toolTypes';
 import type { PixiEditorContext } from './editorContext';
 
 /**
  * Attach pointer-event handlers (down / move / up) to the Pixi stage.
+ * This is now a thin dispatcher that delegates to the active tool's callbacks.
  */
 export function setupPointerHandlers(ec: PixiEditorContext) {
   const {
@@ -44,116 +27,156 @@ export function setupPointerHandlers(ec: PixiEditorContext) {
     interaction,
   } = ec;
 
-  const getToolPropLocal = <T extends number | string | boolean>(tool: string, key: string, defaultVal: T): T =>
-    getToolProp<T>(tool, key, defaultVal);
+  // Shared dragState for the current gesture
+  let currentDragState: Record<string, unknown> = {};
 
   const commitLocal = (label: string, beforeData: ImageData) => {
     commitWithUndo(label, beforeData, drawingCanvas, ctx, drawingTexture, canvasWidth, canvasHeight);
   };
 
+  /** Build a ToolContext for the currently active tool */
+  function buildToolContext(toolId: string): ToolContext {
+    const edState = useEditorStore.getState();
+    return {
+      ctx,
+      width: canvasWidth,
+      height: canvasHeight,
+
+      previewCtx,
+      showPreview() {
+        previewSprite.visible = true;
+      },
+      hidePreview() {
+        previewSprite.visible = false;
+      },
+      clearPreview() {
+        previewCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+      },
+
+      get selectionMask() {
+        return useEditorStore.getState().selectionMask;
+      },
+      setSelectionMask(mask: Uint8Array | null) {
+        useEditorStore.getState().setSelectionMask(mask);
+      },
+      redrawSelection() {
+        ec.redrawSelection();
+      },
+
+      selectionGraphics: {
+        clear: () => selectionGraphics.clear(),
+        rect: (x: number, y: number, w: number, h: number) => selectionGraphics.rect(x, y, w, h),
+        ellipse: (cx: number, cy: number, rx: number, ry: number) => selectionGraphics.ellipse(cx, cy, rx, ry),
+        stroke: (opts: { width: number; color: number; pixelLine: boolean }) => selectionGraphics.stroke(opts),
+      },
+      get viewportScale() {
+        return viewport.scale.x || 1;
+      },
+
+      primaryColor: edState.primaryColor,
+      secondaryColor: edState.secondaryColor,
+      setPrimaryColor(color: string) {
+        useEditorStore.getState().setPrimaryColor(color);
+      },
+
+      getProperty<T extends number | string | boolean>(key: string): T {
+        return getToolProp<T>(toolId, key, undefined as unknown as T);
+      },
+
+      captureSnapshot() {
+        return ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+      },
+
+      commit(label: string, snapshotBefore: ImageData) {
+        commitLocal(label, snapshotBefore);
+      },
+
+      refreshTexture() {
+        drawingTexture.source.update();
+      },
+
+      setCursor(cursor: string) {
+        if (containerRef.current) containerRef.current.style.cursor = cursor;
+      },
+
+      dragState: currentDragState,
+    };
+  }
+
+  /** Build a ToolPointerEvent from a Pixi FederatedPointerEvent */
+  function buildPointerEvent(e: { global: { x: number; y: number }; button: number }): ToolPointerEvent {
+    const localPos = viewport.toLocal(e.global);
+    return {
+      x: Math.floor(localPos.x),
+      y: Math.floor(localPos.y),
+      globalX: e.global.x,
+      globalY: e.global.y,
+      button: e.button,
+      shiftKey: false,
+      ctrlKey: false,
+      altKey: false,
+    };
+  }
+
+  /** Check if we can draw on the active layer */
+  function canDrawOnActiveLayer(): boolean {
+    const pState = useProjectStore.getState();
+    const frame = pState.project?.spritesheets
+      .find((s) => s.id === pState.activeSpritesheetId)
+      ?.frames.find((f) => f.id === pState.activeFrameId);
+    const activeLayer = frame?.layers.find((l) => l.id === pState.activeLayerId);
+    return !!(activeLayer && !activeLayer.locked && activeLayer.visible !== false);
+  }
+
   // ── Pointer Down ──
 
   app.stage.on('pointerdown', (e) => {
     const edState = useEditorStore.getState();
-    const tool = edState.activeTool;
+    const toolId = edState.activeTool;
 
     // Middle mouse, Space held, or pan tool = viewport pan
-    if (e.button === 1 || interaction.isSpaceHeld || tool === 'pan') {
+    if (e.button === 1 || interaction.isSpaceHeld || toolId === 'pan') {
       interaction.isPanning = true;
       interaction.lastPanPos = { x: e.global.x, y: e.global.y };
       if (containerRef.current) containerRef.current.style.cursor = 'grabbing';
       return;
     }
 
-    // Check if we can draw on the active layer
-    const pState = useProjectStore.getState();
-    const frame = pState.project?.spritesheets
-      .find((s) => s.id === pState.activeSpritesheetId)
-      ?.frames.find((f) => f.id === pState.activeFrameId);
-    const activeLayer = frame?.layers.find((l) => l.id === pState.activeLayerId);
+    // Layer guard
+    if (!canDrawOnActiveLayer()) return;
 
-    if (!activeLayer || activeLayer.locked || activeLayer.visible === false) {
-      return;
+    // Look up the active tool from registry
+    const toolDef = getTool(toolId);
+    if (!toolDef) return;
+
+    // Build event + context
+    const event = buildPointerEvent(e);
+    currentDragState = {};
+    const toolCtx = buildToolContext(toolId);
+
+    // Mode-specific setup
+    if (toolDef.mode === 'drag') {
+      const snapshot = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+      interaction.snapshotBeforeDraw = snapshot;
+      interaction.isDrawing = true;
+      interaction.startPos = { x: event.x, y: event.y };
+      interaction.lastDrawPos = { x: event.x, y: event.y };
+      // Store snapshot in dragState for tools that need to restore it each move
+      currentDragState.snapshot = snapshot;
+    } else if (toolDef.mode === 'preview') {
+      interaction.snapshotBeforeDraw = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+      interaction.isDrawing = true;
+      interaction.startPos = { x: event.x, y: event.y };
+      toolCtx.clearPreview();
+      toolCtx.showPreview();
+    } else if (toolDef.mode === 'selection') {
+      interaction.isDrawing = true;
+      interaction.startPos = { x: event.x, y: event.y };
+      interaction.lastDrawPos = { x: event.x, y: event.y };
     }
 
-    const localPos = viewport.toLocal(e.global);
-    const px = Math.floor(localPos.x);
-    const py = Math.floor(localPos.y);
-
-    // Handle instant tools (click-only, no drag)
-    if (tool === 'fill') {
-      const before = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-      const tolerance = getToolPropLocal<number>('fill', 'tolerance', 0);
-      const contiguous = getToolPropLocal<boolean>('fill', 'contiguous', true);
-      floodFill(ctx, px, py, edState.primaryColor, tolerance, contiguous, canvasWidth, canvasHeight);
-      drawingTexture.source.update();
-      commitLocal('Fill', before);
-      return;
-    }
-
-    if (tool === 'picker') {
-      const color = pickColor(ctx, px, py, canvasWidth, canvasHeight);
-      if (color) {
-        edState.setPrimaryColor(color);
-      }
-      return;
-    }
-
-    if (tool === 'flipHorizontal') {
-      const before = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-      const mask = useEditorStore.getState().selectionMask;
-      flipHorizontal(ctx, canvasWidth, canvasHeight, mask);
-      drawingTexture.source.update();
-      commitLocal('Flip horizontal', before);
-      return;
-    }
-
-    if (tool === 'flipVertical') {
-      const before = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-      const mask = useEditorStore.getState().selectionMask;
-      flipVertical(ctx, canvasWidth, canvasHeight, mask);
-      drawingTexture.source.update();
-      commitLocal('Flip vertical', before);
-      return;
-    }
-
-    if (tool === 'magicWand') {
-      const tolerance = getToolPropLocal<number>('magicWand', 'tolerance', 15);
-      const selectionMode = getToolPropLocal<string>('magicWand', 'selectionMode', 'replace') as
-        | 'replace'
-        | 'add'
-        | 'subtract'
-        | 'intersect';
-      const contiguous = getToolPropLocal<boolean>('magicWand', 'contiguous', true);
-      const newMask = createMagicWandSelection(ctx, px, py, tolerance, contiguous, canvasWidth, canvasHeight);
-      const combined = combineSelections(useEditorStore.getState().selectionMask, newMask, selectionMode);
-      useEditorStore.getState().setSelectionMask(isSelectionEmpty(combined) ? null : combined);
-      ec.redrawSelection();
-      return;
-    }
-
-    // Start drawing for drag-based tools
-    interaction.isDrawing = true;
-    interaction.startPos = { x: px, y: py };
-    interaction.lastDrawPos = { x: px, y: py };
-    interaction.snapshotBeforeDraw = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-
-    if (tool === 'pencil' || tool === 'eraser') {
-      const brushSize = getToolPropLocal<number>(tool, 'brushSize', 1);
-      const brushShape = getToolPropLocal<string>(tool, 'brushShape', 'square') as BrushShape;
-      drawBrush(ctx, px, py, brushSize, brushShape, edState.primaryColor, tool === 'eraser');
-      drawingTexture.source.update();
-    }
-
-    if (tool === 'move' || tool === 'transform') {
-      if (containerRef.current) containerRef.current.style.cursor = 'move';
-    }
-    if (tool === 'scale') {
-      if (containerRef.current) containerRef.current.style.cursor = 'nwse-resize';
-    }
-    if (tool === 'rotate') {
-      if (containerRef.current) containerRef.current.style.cursor = 'crosshair';
-    }
+    // Delegate to tool
+    toolDef.onPointerDown(event, toolCtx);
   });
 
   // ── Pointer Move ──
@@ -170,176 +193,56 @@ export function setupPointerHandlers(ec: PixiEditorContext) {
 
     if (!interaction.isDrawing) return;
 
-    const localPos = viewport.toLocal(e.global);
-    const px = Math.floor(localPos.x);
-    const py = Math.floor(localPos.y);
-    const edState = useEditorStore.getState();
-    const tool = edState.activeTool;
-    const { startPos, lastDrawPos, snapshotBeforeDraw } = interaction;
+    const toolId = useEditorStore.getState().activeTool;
+    const toolDef = getTool(toolId);
+    if (!toolDef?.onPointerMove) return;
 
-    if (tool === 'pencil' || tool === 'eraser') {
-      const brushSize = getToolPropLocal<number>(tool, 'brushSize', 1);
-      const brushShape = getToolPropLocal<string>(tool, 'brushShape', 'square') as BrushShape;
+    const event = buildPointerEvent(e);
+    const toolCtx = buildToolContext(toolId);
+    toolDef.onPointerMove(event, toolCtx);
 
-      const dx = Math.abs(px - lastDrawPos.x);
-      const dy = Math.abs(py - lastDrawPos.y);
-      const sx = lastDrawPos.x < px ? 1 : -1;
-      const sy = lastDrawPos.y < py ? 1 : -1;
-      let err = dx - dy;
-      let x = lastDrawPos.x;
-      let y = lastDrawPos.y;
-
-      while (true) {
-        drawBrush(ctx, x, y, brushSize, brushShape, edState.primaryColor, tool === 'eraser');
-        if (x === px && y === py) break;
-        const e2 = 2 * err;
-        if (e2 > -dy) {
-          err -= dy;
-          x += sx;
-        }
-        if (e2 < dx) {
-          err += dx;
-          y += sy;
-        }
-      }
-
-      interaction.lastDrawPos = { x: px, y: py };
-      drawingTexture.source.update();
-    } else if (tool === 'move' || tool === 'transform') {
-      if (snapshotBeforeDraw) {
-        ctx.putImageData(snapshotBeforeDraw, 0, 0);
-        const dx = px - startPos.x;
-        const dy = py - startPos.y;
-        const mask = edState.selectionMask;
-        movePixels(ctx, canvasWidth, canvasHeight, dx, dy, mask);
-        drawingTexture.source.update();
-        interaction.lastDrawPos = { x: px, y: py };
-      }
-    } else if (tool === 'scale') {
-      if (snapshotBeforeDraw) {
-        ctx.putImageData(snapshotBeforeDraw, 0, 0);
-        const dx = px - startPos.x;
-        const dy = py - startPos.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const sign = dx + dy >= 0 ? 1 : -1;
-        const scaleFactor = Math.max(0.1, 1 + (sign * distance) / 50);
-        const maintainAspect = getToolPropLocal<boolean>('scale', 'maintainAspect', true);
-        const interpolation = getToolPropLocal<string>('scale', 'interpolation', 'nearest') as 'nearest' | 'bilinear';
-        const sx = scaleFactor;
-        const sy = maintainAspect ? scaleFactor : Math.max(0.1, 1 + dy / 50);
-        const mask = edState.selectionMask;
-        scalePixels(ctx, canvasWidth, canvasHeight, sx, sy, interpolation, mask);
-        drawingTexture.source.update();
-        interaction.lastDrawPos = { x: px, y: py };
-      }
-    } else if (tool === 'rotate') {
-      if (snapshotBeforeDraw) {
-        ctx.putImageData(snapshotBeforeDraw, 0, 0);
-        const dx = px - startPos.x;
-        const angle = dx * 2;
-        const interpolation = getToolPropLocal<string>('rotate', 'interpolation', 'nearest') as 'nearest' | 'bilinear';
-        const mask = edState.selectionMask;
-        rotateByArbitraryAngle(ctx, canvasWidth, canvasHeight, angle, interpolation, mask);
-        drawingTexture.source.update();
-        interaction.lastDrawPos = { x: px, y: py };
-      }
-    } else if (tool === 'line') {
-      if (snapshotBeforeDraw) {
-        previewCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-        const thickness = getToolPropLocal<number>('line', 'brushSize', 1);
-        drawLine(previewCtx, startPos.x, startPos.y, px, py, edState.primaryColor, thickness, 'square');
-        previewTexture.source.update();
-        previewSprite.visible = true;
-      }
-    } else if (tool === 'rectangle') {
-      if (snapshotBeforeDraw) {
-        previewCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-        const filled = getToolPropLocal<boolean>('rectangle', 'filled', false);
-        const strokeWidth = getToolPropLocal<number>('rectangle', 'brushSize', 1);
-        drawRectangle(previewCtx, startPos.x, startPos.y, px, py, edState.primaryColor, filled, strokeWidth);
-        previewTexture.source.update();
-        previewSprite.visible = true;
-      }
-    } else if (tool === 'ellipse') {
-      if (snapshotBeforeDraw) {
-        previewCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-        const filled = getToolPropLocal<boolean>('ellipse', 'filled', false);
-        const strokeWidth = getToolPropLocal<number>('ellipse', 'brushSize', 1);
-        drawEllipse(previewCtx, startPos.x, startPos.y, px, py, edState.primaryColor, filled, strokeWidth);
-        previewTexture.source.update();
-        previewSprite.visible = true;
-      }
-    } else if (tool === 'selection') {
-      const selectionShape = getToolPropLocal<string>('selection', 'selectionShape', 'rectangle');
-      selectionGraphics.clear();
-      if (selectionShape === 'ellipse') {
-        const cx = (startPos.x + px) / 2;
-        const cy = (startPos.y + py) / 2;
-        const rx = Math.abs(px - startPos.x) / 2;
-        const ry = Math.abs(py - startPos.y) / 2;
-        selectionGraphics.ellipse(cx, cy, rx, ry);
-      } else {
-        const rx = Math.min(startPos.x, px);
-        const ry = Math.min(startPos.y, py);
-        const rw = Math.abs(px - startPos.x);
-        const rh = Math.abs(py - startPos.y);
-        selectionGraphics.rect(rx, ry, rw, rh);
-      }
-      selectionGraphics.stroke({ width: 1 / (viewport.scale.x || 1), color: 0x000000, pixelLine: true });
-      interaction.lastDrawPos = { x: px, y: py };
+    if (toolDef.mode === 'preview') {
+      previewTexture.source.update();
+      previewSprite.visible = true;
     }
   });
 
   // ── Pointer Up / Commit ──
 
-  const PREVIEW_TOOLS = new Set(['line', 'rectangle', 'ellipse']);
-
-  const commitDataFlow = () => {
+  const commitDataFlow = (e: { global: { x: number; y: number }; button: number }) => {
     if (interaction.isDrawing) {
       interaction.isDrawing = false;
-      const edState = useEditorStore.getState();
-      const { startPos, lastDrawPos, snapshotBeforeDraw } = interaction;
+      const toolId = useEditorStore.getState().activeTool;
+      const toolDef = getTool(toolId);
 
-      if (PREVIEW_TOOLS.has(edState.activeTool) && previewSprite.visible) {
-        ctx.drawImage(previewCanvas, 0, 0);
-        drawingTexture.source.update();
-        previewCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-        previewSprite.visible = false;
-      }
+      if (toolDef) {
+        const event = buildPointerEvent(e);
+        const toolCtx = buildToolContext(toolId);
 
-      if (edState.activeTool === 'selection') {
-        const selectionShape = getToolPropLocal<string>('selection', 'selectionShape', 'rectangle');
-        const selectionMode = getToolPropLocal<string>('selection', 'selectionMode', 'replace') as
-          | 'replace'
-          | 'add'
-          | 'subtract'
-          | 'intersect';
-        const newMask =
-          selectionShape === 'ellipse'
-            ? createEllipseSelection(startPos.x, startPos.y, lastDrawPos.x, lastDrawPos.y, canvasWidth, canvasHeight)
-            : createRectSelection(startPos.x, startPos.y, lastDrawPos.x, lastDrawPos.y, canvasWidth, canvasHeight);
-        const combined = combineSelections(edState.selectionMask, newMask, selectionMode);
-        edState.setSelectionMask(isSelectionEmpty(combined) ? null : combined);
-        ec.redrawSelection();
-      } else if (
-        edState.activeTool === 'move' ||
-        edState.activeTool === 'scale' ||
-        edState.activeTool === 'rotate' ||
-        edState.activeTool === 'transform'
-      ) {
-        if (snapshotBeforeDraw) {
-          const toolName = edState.activeTool;
-          commitLocal(toolName.charAt(0).toUpperCase() + toolName.slice(1), snapshotBeforeDraw);
+        // Preview tools: composite preview onto drawing canvas
+        if (toolDef.mode === 'preview' && previewSprite.visible) {
+          ctx.drawImage(previewCanvas, 0, 0);
+          drawingTexture.source.update();
+          previewCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+          previewSprite.visible = false;
         }
-      } else if (snapshotBeforeDraw) {
-        const toolName = edState.activeTool;
-        commitLocal(toolName.charAt(0).toUpperCase() + toolName.slice(1), snapshotBeforeDraw);
+
+        // Call tool's onPointerUp
+        toolDef.onPointerUp?.(event, toolCtx);
+
+        // Auto-commit for drag/preview tools
+        if ((toolDef.mode === 'drag' || toolDef.mode === 'preview') && interaction.snapshotBeforeDraw) {
+          commitLocal(toolDef.defaultLabel, interaction.snapshotBeforeDraw);
+          interaction.snapshotBeforeDraw = null;
+        }
       }
     }
+
     interaction.isPanning = false;
     if (containerRef.current && !interaction.isSpaceHeld) {
-      const tool = useEditorStore.getState().activeTool as ToolId;
-      containerRef.current.style.cursor = toolDefinitions[tool]?.cursor || '';
+      const toolId = useEditorStore.getState().activeTool;
+      const toolDef = getTool(toolId);
+      containerRef.current.style.cursor = toolDef?.cursor || '';
     }
   };
 

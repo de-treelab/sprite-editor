@@ -1,22 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEditorStore } from '../../store/editorStore';
-import { toolDefinitions, ToolId, ToolDefinition } from '../../tools/toolDefinitions';
+import { getCategories, getToolsByCategory, onRegistryChange } from '../../tools/toolRegistry';
 import { useTranslation } from 'react-i18next';
 import { IconButton, ToolbarDivider } from '../ui';
 import { IconRegistry } from '../IconRegistry';
-
-// Group tools by category for display
-const toolCategories: { id: ToolDefinition['category']; tools: ToolId[] }[] = [
-  { id: 'draw', tools: ['pencil', 'eraser', 'fill', 'line', 'rectangle', 'ellipse'] },
-  { id: 'select', tools: ['selection', 'magicWand'] },
-  { id: 'transform', tools: ['move', 'scale', 'rotate', 'transform', 'flipHorizontal', 'flipVertical'] },
-  { id: 'utility', tools: ['picker', 'pan'] },
-];
 
 export const Sidebar: React.FC = () => {
   const { t } = useTranslation();
   const { activeTool, setActiveTool, primaryColor, secondaryColor, setPrimaryColor, setSecondaryColor } =
     useEditorStore();
+
+  // Re-render when tools are registered/unregistered
+  const [categories, setCategories] = useState(getCategories);
+  useEffect(() => {
+    const update = () => setCategories(getCategories());
+    return onRegistryChange(update);
+  }, []);
 
   const handleColorSwap = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -27,24 +26,21 @@ export const Sidebar: React.FC = () => {
 
   return (
     <div className="bg-slate-800 flex flex-col items-center py-2 overflow-y-auto flex-1 min-w-0">
-      {toolCategories.map((category, catIndex) => (
-        <React.Fragment key={category.id}>
+      {categories.map((category, catIndex) => (
+        <React.Fragment key={category}>
           {catIndex > 0 && <ToolbarDivider />}
           <div className="flex flex-row flex-wrap items-center space-y-1">
-            {category.tools.map((toolId) => {
-              const tool = toolDefinitions[toolId];
-              return (
-                <IconButton
-                  key={tool.id}
-                  icon={tool.icon}
-                  size="lg"
-                  variant="active"
-                  isActive={activeTool === toolId}
-                  label={t(tool.labelKey, tool.defaultLabel)}
-                  onClick={() => setActiveTool(toolId)}
-                />
-              );
-            })}
+            {getToolsByCategory(category).map((tool) => (
+              <IconButton
+                key={tool.id}
+                icon={tool.icon}
+                size="lg"
+                variant="active"
+                isActive={activeTool === tool.id}
+                label={t(tool.labelKey, tool.defaultLabel)}
+                onClick={() => setActiveTool(tool.id)}
+              />
+            ))}
           </div>
         </React.Fragment>
       ))}
