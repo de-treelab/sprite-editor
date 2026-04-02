@@ -1,6 +1,7 @@
 import React from 'react';
 import { Command } from '../../config/commandRegistry';
 import { formatKeybinding } from './commandUtils';
+import { useTranslation } from 'react-i18next';
 
 export interface ScoredCommand {
   cmd: Command;
@@ -25,10 +26,12 @@ export const CommandList: React.FC<CommandListProps> = ({
   onExecute,
   getKeybinding,
   listRef,
-}) => (
+}) => {
+  const { t } = useTranslation();
+  return (
   <div ref={listRef} className="max-h-[40vh] overflow-y-auto py-1">
     {commands.length === 0 ? (
-      <div className="px-4 py-6 text-center text-sm text-slate-500">No matching commands</div>
+      <div className="px-4 py-6 text-center text-sm text-slate-500">{t('command_palette.no_results')}</div>
     ) : (
       commands.map((entry, idx) => {
         const kb = getKeybinding(entry.cmd.key);
@@ -71,4 +74,5 @@ export const CommandList: React.FC<CommandListProps> = ({
       })
     )}
   </div>
-);
+  );
+};

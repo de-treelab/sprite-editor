@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useProjectStore } from '../../store/projectStore';
 import { Modal, ModalFooter, FormField, NumberInput } from '../ui';
+import { useTranslation } from 'react-i18next';
 
 type AnchorX = 0 | 0.5 | 1;
 type AnchorY = 0 | 0.5 | 1;
@@ -52,6 +53,7 @@ function resizeLayerData(
 }
 
 export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId, onClose }) => {
+  const { t } = useTranslation();
   const project = useProjectStore(state => state.project);
   const updateAnimation = useProjectStore(state => state.updateAnimation);
   const updateLayer = useProjectStore(state => state.updateLayer);
@@ -119,20 +121,20 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
     <Modal
       isOpen={true}
       onClose={onClose}
-      title="Resize Canvas"
+      title={t('resize_modal.title')}
       size="sm"
       footer={
         <ModalFooter
           onCancel={onClose}
           onConfirm={handleResize}
-          confirmText={isProcessing ? 'Resizing…' : 'Resize'}
+          confirmText={isProcessing ? t('resize_modal.resizing') : t('resize_modal.resize')}
           confirmDisabled={isProcessing || width <= 0 || height <= 0 || (width === currentSize.width && height === currentSize.height)}
         />
       }
     >
       <p className="text-xs text-slate-400 mb-3">
-        Current size: {currentSize.width} × {currentSize.height} px
-        {affectedFrameIds.size > 0 && ` · ${affectedFrameIds.size} frame(s) will be modified`}
+        {t('resize_modal.current_size')} {currentSize.width} × {currentSize.height} px
+        {affectedFrameIds.size > 0 && ` · ${affectedFrameIds.size} ${t('resize_modal.frames_modified')}`}
       </p>
 
       <div className="flex gap-4">
@@ -154,7 +156,7 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
         </FormField>
       </div>
 
-      <FormField label="Mode">
+      <FormField label={t('resize_modal.mode')}>
         <div className="flex gap-2">
           <button
             className={`px-3 py-1.5 text-sm rounded border transition-colors ${
@@ -164,7 +166,7 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
             }`}
             onClick={() => setMode('crop')}
           >
-            Crop / Pad
+            {t('resize_modal.crop_pad')}
           </button>
           <button
             className={`px-3 py-1.5 text-sm rounded border transition-colors ${
@@ -174,13 +176,13 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
             }`}
             onClick={() => setMode('scale')}
           >
-            Scale
+            {t('common.scale')}
           </button>
         </div>
       </FormField>
 
       {mode === 'crop' && (
-        <FormField label="Anchor">
+        <FormField label={t('resize_modal.anchor')}>
           <div className="inline-grid grid-cols-3 gap-1">
             {anchorPositions.map(({ x, y }) => {
               const isActive = anchorX === x && anchorY === y;

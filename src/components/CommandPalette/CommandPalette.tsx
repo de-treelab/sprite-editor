@@ -41,7 +41,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
 
     for (const cmd of allCommands) {
       const displayName = cmd.displayName || commandDisplayName(cmd.key, t);
-      const viewLabel = cmd.view === 'global' ? 'Global' : (viewDisplayNames[cmd.view as ViewType] ?? cmd.view);
+      const viewLabel = cmd.view === 'global' ? t('common.global') : (viewDisplayNames[cmd.view as ViewType] ?? cmd.view);
       const searchText = `${displayName} ${cmd.key} ${viewLabel}`.toLowerCase();
 
       if (q && !searchText.includes(q)) continue;
@@ -130,7 +130,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
             ref={inputRef}
             type="text"
             className="w-full bg-transparent text-slate-200 text-sm outline-none placeholder:text-slate-500"
-            placeholder="Type a command…"
+            placeholder={t('command_palette.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

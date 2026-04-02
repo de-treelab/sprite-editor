@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useLayoutStore } from '../../store/layoutStore';
 import { useProjectStore } from '../../store/projectStore';
 import { Modal, ModalFooter, FormField, TextInput, Checkbox } from '../ui';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   onClose: () => void;
 }
 
 export const SaveLayoutModal: React.FC<Props> = ({ onClose }) => {
+  const { t } = useTranslation();
   const saveLayout = useLayoutStore(s => s.saveLayout);
   const overwriteLayout = useLayoutStore(s => s.overwriteLayout);
   const setProjectLayout = useLayoutStore(s => s.setProjectLayout);
@@ -37,10 +39,10 @@ export const SaveLayoutModal: React.FC<Props> = ({ onClose }) => {
   const canSave = selectedId || name.trim();
 
   return (
-    <Modal isOpen onClose={onClose} title="Save Layout" size="sm">
+    <Modal isOpen onClose={onClose} title={t('save_layout_modal.title')} size="sm">
       {savedLayouts.length > 0 && (
         <div className="space-y-1">
-          <label className="text-xs font-medium text-slate-400">Overwrite existing</label>
+          <label className="text-xs font-medium text-slate-400">{t('save_layout_modal.overwrite_existing')}</label>
           <div className="max-h-32 overflow-y-auto space-y-0.5">
             {savedLayouts.map(sl => (
               <button
@@ -63,11 +65,11 @@ export const SaveLayoutModal: React.FC<Props> = ({ onClose }) => {
       )}
 
       {!selectedId && (
-        <FormField label="Or save as new">
+        <FormField label={t('save_layout_modal.save_as_new')}>
           <TextInput
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="My Layout"
+            placeholder={t('save_layout_modal.placeholder')}
             autoFocus
             onKeyDown={(e: React.KeyboardEvent) => {
               if (e.key === 'Enter') handleSave();
@@ -78,7 +80,7 @@ export const SaveLayoutModal: React.FC<Props> = ({ onClose }) => {
 
       {projectPath && (
         <Checkbox
-          label="Bind to current project"
+          label={t('save_layout_modal.bind_to_project')}
           checked={bindToProject}
           onChange={setBindToProject}
         />
@@ -86,7 +88,7 @@ export const SaveLayoutModal: React.FC<Props> = ({ onClose }) => {
       <ModalFooter
         onCancel={onClose}
         onConfirm={handleSave}
-        confirmText={selectedId ? 'Overwrite' : 'Save'}
+          confirmText={selectedId ? t('common.overwrite') : t('common.save')}
         confirmDisabled={!canSave}
       />
     </Modal>

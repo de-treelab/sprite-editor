@@ -198,14 +198,14 @@ export const RightSidebar = () => {
             icon={IconRegistry.Add}
             size="sm"
             onClick={handleAddLayer}
-            label="New Layer"
+            label={t('sidebar.new_layer')}
           />
           <IconButton
             icon={IconRegistry.Merge}
             size="sm"
             onClick={handleMergeDown}
             disabled={!canMergeDown}
-            label="Merge Down"
+            label={t('sidebar.merge_down')}
           />
           <IconButton
             icon={IconRegistry.Delete}
@@ -213,7 +213,7 @@ export const RightSidebar = () => {
             variant="danger"
             onClick={handleRemoveLayer}
             disabled={!activeLayerId}
-            label="Delete Layer"
+            label={t('sidebar.delete_layer')}
           />
         </div>
       </div>

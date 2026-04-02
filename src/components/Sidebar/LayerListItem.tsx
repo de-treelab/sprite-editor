@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { IconRegistry } from '../IconRegistry';
 import { useProjectStore } from '../../store/projectStore';
+import { useTranslation } from 'react-i18next';
 import {
   RangeSlider,
   IconButton,
@@ -49,6 +50,7 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
   onDragEnd,
 }) => {
   const [editingName, setEditingName] = useState(false);
+  const { t } = useTranslation();
   const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
   const activeFrameId = useProjectStore(state => state.activeFrameId);
   const updateLayer = useProjectStore(state => state.updateLayer);
@@ -74,7 +76,7 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
           variant="toggle"
           isActive={layer.visible}
           onClick={(e) => { e.stopPropagation(); updateLayer(activeSpritesheetId!, activeFrameId!, layer.id, { visible: !layer.visible }); }}
-          label={layer.visible ? "Hide Layer" : "Show Layer"}
+          label={layer.visible ? t('sidebar.hide_layer') : t('sidebar.show_layer')}
         />
 
         <IconButton
@@ -83,7 +85,7 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
           variant="toggle"
           isActive={layer.locked}
           onClick={(e) => { e.stopPropagation(); updateLayer(activeSpritesheetId!, activeFrameId!, layer.id, { locked: !layer.locked }); }}
-          label={layer.locked ? "Unlock Layer" : "Lock Layer"}
+          label={layer.locked ? t('sidebar.unlock_layer') : t('sidebar.lock_layer')}
           className={layer.locked ? '!text-rose-400' : ''}
         />
 
@@ -103,7 +105,7 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
               e.stopPropagation();
               setEditingName(true);
             }}
-            title={layer.isReference ? "Reference Layer (Not exported)\nDouble-click to rename" : "Double-click to rename"}
+            title={layer.isReference ? t('sidebar.reference_tooltip') : t('sidebar.rename_tooltip')}
           >
             {layer.name}
           </span>
@@ -115,7 +117,7 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
             e.stopPropagation();
             updateLayer(activeSpritesheetId!, activeFrameId!, layer.id, { isReference: !layer.isReference });
           }}
-          title="Toggle Reference Mode (Not rendered in export)"
+          title={t('sidebar.toggle_reference')}
         >
           <span className="text-[10px] font-mono border border-current rounded px-1">REF</span>
         </button>
@@ -125,7 +127,7 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
           size="sm"
           variant="danger"
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
-          label="Delete Layer"
+          label={t('sidebar.delete_layer')}
         />
       </div>
 

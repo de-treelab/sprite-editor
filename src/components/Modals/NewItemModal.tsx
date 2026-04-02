@@ -25,7 +25,7 @@ export const NewItemModal: React.FC<Props> = ({ spritesheetId, initialTab = 'ani
   const setActiveLayer = useProjectStore(state => state.setActiveLayer);
 
   const [activeTab, setActiveTab] = useState<ItemTab>(initialTab);
-  const [name, setName] = useState(initialTab === 'image' ? 'New Image' : initialTab === 'import' ? '' : 'New Animation');
+  const [name, setName] = useState(initialTab === 'image' ? t('new_item.default_image_name') : initialTab === 'import' ? '' : t('new_item.default_animation_name'));
   const [width, setWidth] = useState(project?.defaultCanvasSize.width || 64);
   const [height, setHeight] = useState(project?.defaultCanvasSize.height || 64);
   const [importPath, setImportPath] = useState<string | null>(null);
@@ -41,11 +41,11 @@ export const NewItemModal: React.FC<Props> = ({ spritesheetId, initialTab = 'ani
   const handleTabChange = (tab: ItemTab) => {
     setActiveTab(tab);
     if (tab === 'animation') {
-      if (name === 'New Image' || name === '') setName('New Animation');
+      if (name === t('new_item.default_image_name') || name === '') setName(t('new_item.default_animation_name'));
     } else if (tab === 'image') {
-      if (name === 'New Animation' || name === '') setName('New Image');
+      if (name === t('new_item.default_animation_name') || name === '') setName(t('new_item.default_image_name'));
     } else if (tab === 'import') {
-      if (name === 'New Animation' || name === 'New Image') setName('');
+      if (name === t('new_item.default_animation_name') || name === t('new_item.default_image_name')) setName('');
     }
   };
 
@@ -81,7 +81,7 @@ export const NewItemModal: React.FC<Props> = ({ spritesheetId, initialTab = 'ani
 
     const initialLayer = {
       id: layerId,
-      name: 'Background',
+      name: t('new_item.default_layer_name'),
       opacity: 1.0,
       blendMode: 'normal' as const,
       visible: true,

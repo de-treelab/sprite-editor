@@ -68,11 +68,11 @@ export const ColorPalettePanel: React.FC = () => {
   return (
     <div className="border-b border-slate-700">
       <SectionHeader
-        title={t('sidebar.palette', 'Palette')}
+        title={t('palette.title')}
         actions={
           <div className="flex gap-1">
-            <IconButton icon={IconRegistry.Add} size="sm" onClick={handleAddPalette} label="New Palette" />
-            <IconButton icon={IconRegistry.Delete} size="sm" variant="danger" onClick={handleDeletePalette} disabled={!activePalette} label="Delete Palette" />
+            <IconButton icon={IconRegistry.Add} size="sm" onClick={handleAddPalette} label={t('palette.new_palette')} />
+            <IconButton icon={IconRegistry.Delete} size="sm" variant="danger" onClick={handleDeletePalette} disabled={!activePalette} label={t('palette.delete_palette')} />
           </div>
         }
       />
@@ -106,7 +106,7 @@ export const ColorPalettePanel: React.FC = () => {
               <span
                 className="text-xs text-slate-300 cursor-pointer hover:text-white"
                 onDoubleClick={() => inlineEdit.startEditing(activePalette.id)}
-                title="Double-click to rename"
+                title={t('palette.rename_tooltip')}
               >
                 {activePalette.name}
               </span>
@@ -126,12 +126,12 @@ export const ColorPalettePanel: React.FC = () => {
                     style={{ backgroundColor: color }}
                     onClick={(e) => handleColorClick(color, e)}
                     onContextMenu={(e) => { e.preventDefault(); handleColorClick(color, e); }}
-                    title={`${color} — Click: primary, Right-click: secondary`}
+                    title={t('palette.color_tooltip', { defaultValue: `${color} — Click: primary, Right-click: secondary` })}
                   />
                   <button
                     className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 text-white text-[8px] rounded-full hidden group-hover:flex items-center justify-center leading-none"
                     onClick={() => handleRemoveColor(idx)}
-                    title="Remove color"
+                    title={t('palette.remove_color')}
                   >×</button>
                 </div>
               ))}
@@ -140,7 +140,7 @@ export const ColorPalettePanel: React.FC = () => {
               <div
                 className="w-5 h-5 rounded-sm border border-dashed border-slate-500 cursor-pointer hover:border-slate-300 flex items-center justify-center text-slate-500 hover:text-slate-300 text-xs"
                 onClick={handleAddColor}
-                title="Add current color to palette"
+                title={t('palette.add_color')}
               >+</div>
             </div>
           </div>
@@ -149,7 +149,7 @@ export const ColorPalettePanel: React.FC = () => {
 
       {palettes.length === 0 && (
         <div className="px-2 pb-2 text-xs text-slate-500 italic">
-          {t('sidebar.palette.empty', 'No palettes yet. Create one to get started.')}
+          {t('palette.empty')}
         </div>
       )}
     </div>

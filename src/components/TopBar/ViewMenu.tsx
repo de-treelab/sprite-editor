@@ -5,6 +5,7 @@ import { viewExistsInTree } from '../../layouts/layoutUtils';
 import { executeCommand } from '../../config/commandRegistry';
 import { ControlledDropdown, MenuItem, MenuDivider } from '../ui';
 import { IconRegistry } from '../IconRegistry';
+import { useTranslation } from 'react-i18next';
 
 interface ViewMenuProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface ViewMenuProps {
 }
 
 export const ViewMenu: React.FC<ViewMenuProps> = ({ isOpen, onOpenChange, trigger }) => {
+  const { t } = useTranslation();
   const layout = useLayoutStore(s => s.layout);
   const floatView = useLayoutStore(s => s.floatView);
   const toggleViewHidden = useLayoutStore(s => s.toggleViewHidden);
@@ -83,24 +85,24 @@ export const ViewMenu: React.FC<ViewMenuProps> = ({ isOpen, onOpenChange, trigge
 
       {layout.fullscreenViewId && (
         <MenuItem
-          label="Exit Fullscreen"
+          label={t('topbar.view.exit_fullscreen')}
           onClick={handleExitFullscreen}
         />
       )}
 
       <MenuItem
-        label="Reset Layout"
+        label={t('topbar.view.reset_layout')}
         onClick={handleResetLayout}
       />
 
       <MenuItem
-        label="Save Layout..."
+        label={t('topbar.view.save_layout')}
         icon={IconRegistry.Save}
         onClick={() => { executeCommand('global.saveLayout'); onOpenChange(false); }}
       />
 
       <MenuItem
-        label="Manage Layouts..."
+        label={t('topbar.view.manage_layouts')}
         icon={IconRegistry.Layout}
         onClick={() => { executeCommand('global.manageLayouts'); onOpenChange(false); }}
       />

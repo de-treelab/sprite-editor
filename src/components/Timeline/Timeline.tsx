@@ -4,6 +4,7 @@ import { useProjectStore } from '../../store/projectStore';
 import { useTimelineCommands } from '../../hooks/useTimelineCommands';
 import { SpeedButtonGroup, IconButton } from '../ui';
 import { IconRegistry } from '../IconRegistry';
+import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons';
 
 const loopModeIcons: Record<LoopMode, IconType> = {
@@ -19,6 +20,7 @@ const loopModeLabels: Record<LoopMode, string> = {
 };
 
 export const Timeline: React.FC = () => {
+  const { t } = useTranslation();
   const { isPlaying, playbackTime, playbackSpeed, setIsPlaying, setPlaybackTime, setPlaybackSpeed } = useEditorStore();
   const loopMode = useEditorStore(s => s.loopMode);
   const setLoopMode = useEditorStore(s => s.setLoopMode);
@@ -199,7 +201,7 @@ export const Timeline: React.FC = () => {
         tabIndex={0}
         onFocus={() => setFocusedView('timeline')}
       >
-        <span className="text-slate-500 text-sm">Timeline disabled for reference images</span>
+        <span className="text-slate-500 text-sm">{t('timeline.disabled_for_images')}</span>
       </div>
     );
   }
@@ -212,7 +214,7 @@ export const Timeline: React.FC = () => {
     >
       <div className="flex px-4 py-2 bg-slate-800 border-b border-slate-700 text-xs text-slate-300">
         <span className="font-bold flex items-center gap-2">
-          Timeline
+          {t('timeline.title')}
           {anim && <span className="ml-2 px-2 py-0.5 bg-slate-700 rounded-full">{anim.name}</span>}
         </span>
         <div className="ml-auto flex space-x-4 items-center">
@@ -237,7 +239,7 @@ export const Timeline: React.FC = () => {
               icon={isPlaying ? IconRegistry.Pause : IconRegistry.Play}
               size="sm"
               onClick={togglePlay}
-              label={isPlaying ? 'Pause' : 'Play'}
+              label={isPlaying ? t('timeline.pause') : t('timeline.play')}
             />
             <IconButton
               icon={IconRegistry.SkipForward}

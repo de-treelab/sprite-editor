@@ -8,9 +8,11 @@ import { KeyframeEditor } from '../Timeline/KeyframeEditor';
 import { PreviewPlayer } from '../Preview/PreviewPlayer';
 import { IconRegistry } from '../IconRegistry';
 import { EmptyState } from '../ui';
+import { useTranslation } from 'react-i18next';
 import type { ViewType } from '../../config/keybindings';
 
 export const Workspace: React.FC = () => {
+  const { t } = useTranslation();
   
   const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
   const activeFrameId = useProjectStore(state => state.activeFrameId);
@@ -26,7 +28,7 @@ export const Workspace: React.FC = () => {
       <div className="flex-1 bg-slate-800 flex items-center justify-center">
         <EmptyState
           icon={<IconRegistry.Folder />}
-          title="Select or create a new spritesheet to begin"
+          title={t('workspace.select_spritesheet')}
         />
       </div>
     );
@@ -39,21 +41,21 @@ export const Workspace: React.FC = () => {
         <div className="flex flex-col flex-1 overflow-hidden">
           {fullscreenView === 'canvas' && (
             !activeFrameId ? (
-              <EmptyState icon={<IconRegistry.File />} title="Select a frame to edit" />
+              <EmptyState icon={<IconRegistry.File />} title={t('canvas.select_frame')} />
             ) : (
               <PixiEditor />
             )
           )}
           {fullscreenView === 'preview' && (
             !activeItemId || activeItemType === 'image' ? (
-              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? 'Preview disabled for images' : 'Select an animation'} />
+              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? t('preview_view.disabled_for_images') : t('preview_view.select_animation')} />
             ) : (
               <PreviewPlayer />
             )
           )}
           {fullscreenView === 'timeline' && (
             !activeItemId || activeItemType === 'image' ? (
-              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? 'Timeline disabled for images' : 'Select an animation to edit keyframes'} />
+              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? t('timeline.disabled_for_images') : t('timeline.select_animation')} />
             ) : (
               <KeyframeEditor />
             )
@@ -79,7 +81,7 @@ export const Workspace: React.FC = () => {
               
               <div className="flex-1 flex flex-col min-w-0 bg-slate-800">
                 {!activeFrameId ? (
-                  <EmptyState icon={<IconRegistry.File />} title="Select a frame to edit" />
+                  <EmptyState icon={<IconRegistry.File />} title={t('canvas.select_frame')} />
                 ) : (
                   <PixiEditor />
                 )}
@@ -96,7 +98,7 @@ export const Workspace: React.FC = () => {
                 Preview
               </div>
               {!activeItemId || activeItemType === 'image' ? (
-                <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? 'Preview disabled for images' : 'Select an animation'} />
+                <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? t('preview_view.disabled_for_images') : t('preview_view.select_animation')} />
               ) : (
                 <PreviewPlayer />
               )}
@@ -109,7 +111,7 @@ export const Workspace: React.FC = () => {
         {isVisible('timeline') && (
           <div className="h-64 border-t border-slate-700 flex flex-col bg-slate-900">
             {!activeItemId || activeItemType === 'image' ? (
-              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? 'Timeline disabled for images' : 'Select an animation to edit keyframes'} />
+              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? t('timeline.disabled_for_images') : t('timeline.select_animation')} />
             ) : (
               <KeyframeEditor />
             )}

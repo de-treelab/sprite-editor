@@ -78,7 +78,7 @@ export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHi
     <div className="h-10 bg-slate-800 border-b border-slate-700 flex items-center px-4 shadow-sm select-none z-40 relative">
       <div className="flex items-center space-x-2 mr-6 text-indigo-400">
         <IconRegistry.ToolFill className="text-xl" />
-        <span className="font-bold tracking-wide">SpriteEditor</span>
+        <span className="font-bold tracking-wide">{t('topbar.app_title')}</span>
       </div>
 
       <div className="flex space-x-1">
@@ -138,7 +138,7 @@ export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHi
             setActiveMenu(null);
             try { await finishTask(); } catch (e) {
               console.error(e);
-              toast.error('Failed to finish task: ' + e);
+              toast.error(t('task.finish_error') + e);
             }
           }}
           onTaskHistory={() => {

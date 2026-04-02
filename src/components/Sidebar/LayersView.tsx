@@ -173,9 +173,9 @@ export const RightSidebarLayers = () => {
       <div className="p-2 border-b border-slate-700 font-bold text-sm text-slate-300 flex justify-between items-center shrink-0">
         <span>{t('sidebar.layers', 'Layers')}</span>
         <div className="flex gap-1">
-          <IconButton icon={IconRegistry.Add} size="sm" onClick={handleAddLayer} label="New Layer" />
-          <IconButton icon={IconRegistry.Merge} size="sm" onClick={handleMergeDown} disabled={!canMergeDown} label="Merge Down" />
-          <IconButton icon={IconRegistry.Delete} size="sm" variant="danger" onClick={handleRemoveLayer} disabled={!activeLayerId} label="Delete Layer" />
+          <IconButton icon={IconRegistry.Add} size="sm" onClick={handleAddLayer} label={t('sidebar.new_layer')} />
+          <IconButton icon={IconRegistry.Merge} size="sm" onClick={handleMergeDown} disabled={!canMergeDown} label={t('sidebar.merge_down')} />
+          <IconButton icon={IconRegistry.Delete} size="sm" variant="danger" onClick={handleRemoveLayer} disabled={!activeLayerId} label={t('sidebar.delete_layer')} />
         </div>
       </div>
 

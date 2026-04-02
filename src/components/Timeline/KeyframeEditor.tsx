@@ -7,10 +7,12 @@ import { TimelineToolbar } from './TimelineToolbar';
 import { TimelineRuler } from './TimelineRuler';
 import { KeyframeTrack } from './KeyframeTrack';
 import { Playhead } from './Playhead';
+import { useTranslation } from 'react-i18next';
 
 const PIXELS_PER_MS_DEFAULT = 0.5;
 
 export const KeyframeEditor: React.FC = () => {
+  const { t } = useTranslation();
   const {
     project,
     activeItemId,
@@ -259,7 +261,7 @@ export const KeyframeEditor: React.FC = () => {
         tabIndex={0}
         onFocus={() => setFocusedView('timeline')}
       >
-        <span className="text-slate-500 text-sm">Timeline disabled for reference images</span>
+        <span className="text-slate-500 text-sm">{t('timeline.disabled_for_images')}</span>
       </div>
     );
   }

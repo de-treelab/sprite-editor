@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEditorStore } from '../../store/editorStore';
 import { SectionPanel, SectionHeader, RangeSlider } from '../ui';
+import { useTranslation } from 'react-i18next';
 
 export const OnionSkinPanel: React.FC = () => {
   const {
@@ -11,18 +12,19 @@ export const OnionSkinPanel: React.FC = () => {
     onionSkinBeforeTint, setOnionSkinBeforeTint,
     onionSkinAfterTint, setOnionSkinAfterTint,
   } = useEditorStore();
+  const { t } = useTranslation();
 
   return (
     <SectionPanel>
       <SectionHeader
-        title="Onion Skin"
+        title={t('onion_skin.title')}
         toggle={{ checked: onionSkinEnabled, onChange: setOnionSkinEnabled }}
         className="mb-2"
       />
       {onionSkinEnabled && (
         <div className="space-y-2 mt-3">
           <RangeSlider
-            label="Before"
+            label={t('onion_skin.before')}
             value={onionSkinBefore}
             onChange={setOnionSkinBefore}
             min={0}
@@ -30,7 +32,7 @@ export const OnionSkinPanel: React.FC = () => {
             step={1}
           />
           <RangeSlider
-            label="After"
+            label={t('onion_skin.after')}
             value={onionSkinAfter}
             onChange={setOnionSkinAfter}
             min={0}
@@ -38,7 +40,7 @@ export const OnionSkinPanel: React.FC = () => {
             step={1}
           />
           <RangeSlider
-            label="Opacity"
+            label={t('onion_skin.opacity')}
             value={onionSkinOpacity}
             onChange={setOnionSkinOpacity}
             min={0.1}
@@ -48,7 +50,7 @@ export const OnionSkinPanel: React.FC = () => {
           />
           <div className="flex items-center gap-3 pt-1">
             <label className="flex items-center gap-1.5 text-xs text-slate-400">
-              <span>Before</span>
+              <span>{t('onion_skin.before')}</span>
               <input
                 type="color"
                 value={onionSkinBeforeTint}
@@ -57,7 +59,7 @@ export const OnionSkinPanel: React.FC = () => {
               />
             </label>
             <label className="flex items-center gap-1.5 text-xs text-slate-400">
-              <span>After</span>
+              <span>{t('onion_skin.after')}</span>
               <input
                 type="color"
                 value={onionSkinAfterTint}

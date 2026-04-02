@@ -6,10 +6,12 @@ import { NewSpritesheetModal } from '../Modals/NewSpritesheetModal';
 import { NewItemModal } from '../Modals/NewItemModal';
 import { IconButton, SimpleListItem, InlineEditInput } from '../ui';
 import { ItemListEntry } from './ItemListEntry';
+import { useTranslation } from 'react-i18next';
 
 type NavLevel = 'sheets' | 'items';
 
 export const ProjectNavigator: React.FC = () => {
+  const { t } = useTranslation();
   const project = useProjectStore(state => state.project);
   const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
   const setActiveSpritesheet = useProjectStore(state => state.setActiveSpritesheet);
@@ -137,13 +139,13 @@ export const ProjectNavigator: React.FC = () => {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b border-slate-700">
-          <span className="font-bold text-sm text-slate-300">Project</span>
+          <span className="font-bold text-sm text-slate-300">{t('common.project')}</span>
           <div className="flex space-x-1">
             <IconButton
               icon={IconRegistry.Add}
               size="sm"
               onClick={() => setShowSpriteModal(true)}
-              label="New Spritesheet"
+              label={t('sidebar.new_spritesheet')}
             />
           </div>
         </div>
@@ -207,7 +209,7 @@ export const ProjectNavigator: React.FC = () => {
                       }}
                     >
                       <span className="mr-2 font-bold">+</span>
-                      <span>New...</span>
+                      <span>{t('sidebar.new_item')}</span>
                     </div>
                   </div>
                 )}
@@ -220,7 +222,7 @@ export const ProjectNavigator: React.FC = () => {
             onClick={() => setShowSpriteModal(true)}
           >
             <span className="mr-2 font-bold">+</span>
-            <span>New Spritesheet</span>
+            <span>{t('sidebar.new_spritesheet')}</span>
           </div>
         </div>
       </div>

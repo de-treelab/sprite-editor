@@ -9,7 +9,7 @@ export const NewSpritesheetModal: React.FC<{ onClose: () => void }> = ({ onClose
   const addSpritesheet = useProjectStore(state => state.addSpritesheet);
   const setActiveSpritesheet = useProjectStore(state => state.setActiveSpritesheet);
 
-  const [name, setName] = useState('New Spritesheet');
+  const [name, setName] = useState(t('new_spritesheet.default_name'));
 
   const handleCreate = () => {
     const id = generate_id();

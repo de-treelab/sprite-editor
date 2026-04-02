@@ -77,7 +77,7 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
       <IconButton
         icon={isPlaying ? IconRegistry.Pause : IconRegistry.Play}
         onClick={onTogglePlay}
-        label={isPlaying ? "Pause" : "Play"}
+        label={isPlaying ? t('timeline.pause') : t('timeline.play')}
       />
 
       {/* Loop mode toggle */}
@@ -99,7 +99,7 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
         onClick={onAddKeyframe}
         disabled={addDisabled}
       >
-        <IconRegistry.Add size={14} className="mr-1" /> Add
+        <IconRegistry.Add size={14} className="mr-1" /> {t('timeline.add')}
       </Button>
 
       <div className="text-sm text-slate-400 font-mono ml-4 border-l border-slate-700 pl-4 w-48 truncate">
@@ -114,25 +114,25 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
         <button
           className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${loopStart != null ? 'bg-green-600 text-white' : 'bg-slate-700 text-slate-400 hover:text-slate-200'}`}
           onClick={setMarkerA}
-          title="Set loop start (A) at playhead"
+          title={t('timeline.set_loop_start')}
         >A</button>
         <button
           className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${loopEnd != null ? 'bg-red-600 text-white' : 'bg-slate-700 text-slate-400 hover:text-slate-200'}`}
           onClick={setMarkerB}
-          title="Set loop end (B) at playhead"
+          title={t('timeline.set_loop_end')}
         >B</button>
         {(loopStart != null || loopEnd != null) && (
           <button
             className="text-[10px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-400 hover:text-red-300"
             onClick={() => { setLoopStart(null); setLoopEnd(null); }}
-            title="Clear A-B loop"
+            title={t('timeline.clear_ab_loop')}
           >✕</button>
         )}
       </div>
 
       <div className="flex items-center gap-4 text-xs">
         <div className="flex items-center gap-2">
-          <span className="text-slate-500">Snap</span>
+          <span className="text-slate-500">{t('timeline.snap')}</span>
           <Select
             value={String(snapInterval)}
             onChange={(e) => onSnapIntervalChange(parseInt(e.target.value, 10))}
@@ -143,7 +143,7 @@ export const TimelineToolbar: React.FC<TimelineToolbarProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-slate-500">Zoom</span>
+          <span className="text-slate-500">{t('common.zoom')}</span>
           <RangeSlider
             value={zoom}
             onChange={onZoomChange}

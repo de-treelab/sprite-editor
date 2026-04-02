@@ -3,12 +3,14 @@ import { useLayoutStore } from '../../store/layoutStore';
 import { useProjectStore } from '../../store/projectStore';
 import { Modal, TextInput } from '../ui';
 import { IconRegistry } from '../IconRegistry';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   onClose: () => void;
 }
 
 export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
+  const { t } = useTranslation();
   const savedLayouts = useLayoutStore(s => s.savedLayouts);
   const loadLayout = useLayoutStore(s => s.loadLayout);
   const deleteLayout = useLayoutStore(s => s.deleteLayout);
@@ -58,9 +60,9 @@ export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
   };
 
   return (
-    <Modal isOpen onClose={onClose} title="Manage Layouts" size="md">
+    <Modal isOpen onClose={onClose} title={t('layout_modal.title')} size="md">
       {savedLayouts.length === 0 ? (
-        <p className="text-sm text-slate-400">No saved layouts. Use "Save Layout" to create one.</p>
+        <p className="text-sm text-slate-400">{t('layout_modal.empty')}</p>
       ) : (
         <div className="space-y-1 max-h-80 overflow-y-auto">
           {savedLayouts.map(layout => (
@@ -88,10 +90,10 @@ export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
                 <span className="flex-1 text-sm text-slate-200 truncate">
                   {layout.name}
                   {activeLayoutId === layout.id && (
-                    <span className="ml-2 text-xs text-indigo-400">(active)</span>
+                    <span className="ml-2 text-xs text-indigo-400">{t('layout_modal.active_badge')}</span>
                   )}
                   {boundLayoutId === layout.id && (
-                    <span className="ml-1 text-xs text-emerald-400">(project)</span>
+                    <span className="ml-1 text-xs text-emerald-400">{t('layout_modal.project_badge')}</span>
                   )}
                 </span>
               )}
@@ -101,14 +103,14 @@ export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
                   <button
                     className="p-1 rounded hover:bg-slate-600 text-slate-400 hover:text-white"
                     onClick={() => handleLoad(layout.id)}
-                    title="Load layout"
+                    title={t('layout_modal.load_tooltip')}
                   >
                     <IconRegistry.FolderOpen className="w-3.5 h-3.5" />
                   </button>
                   <button
                     className="p-1 rounded hover:bg-slate-600 text-slate-400 hover:text-white"
                     onClick={() => startRename(layout.id, layout.name)}
-                    title="Rename"
+                    title={t('layout_modal.rename_tooltip')}
                   >
                     <IconRegistry.Edit className="w-3.5 h-3.5" />
                   </button>
@@ -118,7 +120,7 @@ export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
                         boundLayoutId === layout.id ? 'text-emerald-400' : 'text-slate-400 hover:text-white'
                       }`}
                       onClick={() => handleBindToProject(layout.id)}
-                      title={boundLayoutId === layout.id ? 'Unbind from project' : 'Bind to project'}
+                      title={boundLayoutId === layout.id ? t('layout_modal.unbind_tooltip') : t('layout_modal.bind_tooltip')}
                     >
                       <IconRegistry.Link className="w-3.5 h-3.5" />
                     </button>
@@ -129,20 +131,20 @@ export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
                         className="px-1.5 py-0.5 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
                         onClick={() => handleDelete(layout.id)}
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                       <button
                         className="px-1.5 py-0.5 text-xs rounded bg-slate-600 hover:bg-slate-500 text-slate-300"
                         onClick={() => setConfirmDeleteId(null)}
                       >
-                        Cancel
+                        {t('common.cancel')}
                       </button>
                     </div>
                   ) : (
                     <button
                       className="p-1 rounded hover:bg-slate-600 text-slate-400 hover:text-red-400"
                       onClick={() => setConfirmDeleteId(layout.id)}
-                      title="Delete"
+                      title={t('layout_modal.delete_tooltip')}
                     >
                       <IconRegistry.Delete className="w-3.5 h-3.5" />
                     </button>
@@ -159,7 +161,7 @@ export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
           className="px-3 py-1.5 text-sm rounded bg-slate-700 hover:bg-slate-600 text-slate-300"
           onClick={onClose}
         >
-          Close
+          {t('common.close')}
         </button>
       </div>
     </Modal>
