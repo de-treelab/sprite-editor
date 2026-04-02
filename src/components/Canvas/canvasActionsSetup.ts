@@ -18,11 +18,7 @@ import type { PixiEditorContext } from './editorContext';
  * Wire all canvas-action callbacks (flip, rotate, selection, clipboard, merge, zoom helpers).
  */
 export function setupCanvasActions(ec: PixiEditorContext) {
-  const {
-    ctx, drawingTexture, drawingCanvas,
-    canvasWidth, canvasHeight,
-    viewport, containerRef,
-  } = ec;
+  const { ctx, drawingTexture, drawingCanvas, canvasWidth, canvasHeight, viewport, containerRef } = ec;
 
   const commitLocal = (label: string, beforeData: ImageData) => {
     commitWithUndo(label, beforeData, drawingCanvas, ctx, drawingTexture, canvasWidth, canvasHeight);
@@ -101,8 +97,8 @@ export function setupCanvasActions(ec: PixiEditorContext) {
       const newZoom = Math.round(newScale * 10);
       useEditorStore.getState().setZoomLevel(clamp(newZoom, CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM));
       viewport.scale.set(newScale);
-      viewport.x = (cw / 2) - ((minX + selW / 2) * newScale);
-      viewport.y = (ch / 2) - ((minY + selH / 2) * newScale);
+      viewport.x = cw / 2 - (minX + selW / 2) * newScale;
+      viewport.y = ch / 2 - (minY + selH / 2) * newScale;
       ec.redrawGrid();
     },
     copySelection: () => {
@@ -145,11 +141,11 @@ export function setupCanvasActions(ec: PixiEditorContext) {
       const layerId = pState.activeLayerId;
       if (!sheetId || !frameId || !layerId) return;
 
-      const sheet = pState.project?.spritesheets.find(s => s.id === sheetId);
-      const frame = sheet?.frames.find(f => f.id === frameId);
+      const sheet = pState.project?.spritesheets.find((s) => s.id === sheetId);
+      const frame = sheet?.frames.find((f) => f.id === frameId);
       if (!frame) return;
 
-      const layerIndex = frame.layers.findIndex(l => l.id === layerId);
+      const layerIndex = frame.layers.findIndex((l) => l.id === layerId);
       if (layerIndex <= 0) return;
 
       const topLayer = frame.layers[layerIndex];
@@ -161,7 +157,10 @@ export function setupCanvasActions(ec: PixiEditorContext) {
       const mergeCtx = mergeCanvas.getContext('2d')!;
 
       const drawLayer = (layer: typeof topLayer, done: () => void) => {
-        if (!layer.data) { done(); return; }
+        if (!layer.data) {
+          done();
+          return;
+        }
         const img = new Image();
         img.onload = () => {
           mergeCtx.globalAlpha = layer.opacity ?? 1;
@@ -191,7 +190,9 @@ export function setupCanvasActions(ec: PixiEditorContext) {
               useProjectStore.getState().updateLayer(sheetId, frameId, bottomLayer.id, { data: bottomSnapshot.data });
               useProjectStore.getState().addLayer(sheetId, frameId, topSnapshot);
               const ps = useProjectStore.getState();
-              const curFrame = ps.project?.spritesheets.find(s => s.id === sheetId)?.frames.find(f => f.id === frameId);
+              const curFrame = ps.project?.spritesheets
+                .find((s) => s.id === sheetId)
+                ?.frames.find((f) => f.id === frameId);
               if (curFrame) {
                 const curIdx = curFrame.layers.length - 1;
                 if (curIdx !== layerIndex) {

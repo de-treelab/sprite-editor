@@ -16,19 +16,15 @@ const sizeStyles = {
   lg: 'max-w-lg',
 };
 
-export const Modal: React.FC<ModalProps> = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-  footer,
-  size = 'md',
-}) => {
-  const handleEscape = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  }, [onClose]);
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer, size = 'md' }) => {
+  const handleEscape = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    },
+    [onClose],
+  );
 
   useEffect(() => {
     if (isOpen) {
@@ -85,11 +81,7 @@ export const ModalFooter: React.FC<ModalFooterProps> = ({
       <Button variant="ghost" onClick={onCancel}>
         {cancelText}
       </Button>
-      <Button
-        variant={confirmVariant}
-        onClick={onConfirm}
-        disabled={confirmDisabled}
-      >
+      <Button variant={confirmVariant} onClick={onConfirm} disabled={confirmDisabled}>
         {confirmText}
       </Button>
     </>

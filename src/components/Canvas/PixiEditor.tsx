@@ -14,20 +14,20 @@ export const PixiEditor = () => {
   // Register canvas-scoped commands
   useCanvasCommands();
 
-  const project = useProjectStore(state => state.project);
-  const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
-  const activeItemId = useProjectStore(state => state.activeItemId);
-  const activeItemType = useProjectStore(state => state.activeItemType);
+  const project = useProjectStore((state) => state.project);
+  const activeSpritesheetId = useProjectStore((state) => state.activeSpritesheetId);
+  const activeItemId = useProjectStore((state) => state.activeItemId);
+  const activeItemType = useProjectStore((state) => state.activeItemType);
 
   // Compute effective canvas size from animation/image or project default
   const effectiveCanvasSize = useMemo(() => {
     if (!project) return { width: 32, height: 32 };
-    const sheet = project.spritesheets.find(s => s.id === activeSpritesheetId);
+    const sheet = project.spritesheets.find((s) => s.id === activeSpritesheetId);
     if (activeItemType === 'image') {
-      const img = (sheet?.images || []).find(i => i.id === activeItemId);
+      const img = (sheet?.images || []).find((i) => i.id === activeItemId);
       return img?.canvasSize || project.defaultCanvasSize;
     }
-    const anim = sheet?.animations.find(a => a.id === activeItemId);
+    const anim = sheet?.animations.find((a) => a.id === activeItemId);
     return anim?.canvasSize || project.defaultCanvasSize;
   }, [project, activeSpritesheetId, activeItemId, activeItemType]);
 

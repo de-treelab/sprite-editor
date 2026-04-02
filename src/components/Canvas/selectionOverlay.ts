@@ -77,11 +77,13 @@ export function drawSelectionOverlay(
     const nx = dx / len;
     const ny = dy / len;
 
-    let d = 0;
     let dash = true;
     let phase = (marchingAntsOffset / (viewport.scale.x || 1)) % (dashLen * 2);
-    if (phase > dashLen) { dash = false; phase -= dashLen; }
-    d = -phase;
+    if (phase > dashLen) {
+      dash = false;
+      phase -= dashLen;
+    }
+    let d = -phase;
 
     while (d < len) {
       const segStart = Math.max(0, d);

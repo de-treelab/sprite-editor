@@ -5,12 +5,18 @@ import { useTranslation } from 'react-i18next';
 
 export const OnionSkinPanel: React.FC = () => {
   const {
-    onionSkinEnabled, setOnionSkinEnabled,
-    onionSkinBefore, setOnionSkinBefore,
-    onionSkinAfter, setOnionSkinAfter,
-    onionSkinOpacity, setOnionSkinOpacity,
-    onionSkinBeforeTint, setOnionSkinBeforeTint,
-    onionSkinAfterTint, setOnionSkinAfterTint,
+    onionSkinEnabled,
+    setOnionSkinEnabled,
+    onionSkinBefore,
+    setOnionSkinBefore,
+    onionSkinAfter,
+    setOnionSkinAfter,
+    onionSkinOpacity,
+    setOnionSkinOpacity,
+    onionSkinBeforeTint,
+    setOnionSkinBeforeTint,
+    onionSkinAfterTint,
+    setOnionSkinAfterTint,
   } = useEditorStore();
   const { t } = useTranslation();
 

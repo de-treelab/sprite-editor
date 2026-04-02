@@ -10,11 +10,11 @@ interface Props {
 
 export const SaveLayoutModal: React.FC<Props> = ({ onClose }) => {
   const { t } = useTranslation();
-  const saveLayout = useLayoutStore(s => s.saveLayout);
-  const overwriteLayout = useLayoutStore(s => s.overwriteLayout);
-  const setProjectLayout = useLayoutStore(s => s.setProjectLayout);
-  const savedLayouts = useLayoutStore(s => s.savedLayouts);
-  const projectPath = useProjectStore(s => s.projectPath);
+  const saveLayout = useLayoutStore((s) => s.saveLayout);
+  const overwriteLayout = useLayoutStore((s) => s.overwriteLayout);
+  const setProjectLayout = useLayoutStore((s) => s.setProjectLayout);
+  const savedLayouts = useLayoutStore((s) => s.savedLayouts);
+  const projectPath = useProjectStore((s) => s.projectPath);
 
   const [name, setName] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export const SaveLayoutModal: React.FC<Props> = ({ onClose }) => {
         <div className="space-y-1">
           <label className="text-xs font-medium text-slate-400">{t('save_layout_modal.overwrite_existing')}</label>
           <div className="max-h-32 overflow-y-auto space-y-0.5">
-            {savedLayouts.map(sl => (
+            {savedLayouts.map((sl) => (
               <button
                 key={sl.id}
                 className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors ${
@@ -79,16 +79,12 @@ export const SaveLayoutModal: React.FC<Props> = ({ onClose }) => {
       )}
 
       {projectPath && (
-        <Checkbox
-          label={t('save_layout_modal.bind_to_project')}
-          checked={bindToProject}
-          onChange={setBindToProject}
-        />
+        <Checkbox label={t('save_layout_modal.bind_to_project')} checked={bindToProject} onChange={setBindToProject} />
       )}
       <ModalFooter
         onCancel={onClose}
         onConfirm={handleSave}
-          confirmText={selectedId ? t('common.overwrite') : t('common.save')}
+        confirmText={selectedId ? t('common.overwrite') : t('common.save')}
         confirmDisabled={!canSave}
       />
     </Modal>

@@ -22,10 +22,10 @@ const loopModeLabels: Record<LoopMode, string> = {
 export const Timeline: React.FC = () => {
   const { t } = useTranslation();
   const { isPlaying, playbackTime, playbackSpeed, setIsPlaying, setPlaybackTime, setPlaybackSpeed } = useEditorStore();
-  const loopMode = useEditorStore(s => s.loopMode);
-  const setLoopMode = useEditorStore(s => s.setLoopMode);
-  const loopStart = useEditorStore(s => s.loopStart);
-  const loopEnd = useEditorStore(s => s.loopEnd);
+  const loopMode = useEditorStore((s) => s.loopMode);
+  const setLoopMode = useEditorStore((s) => s.setLoopMode);
+  const loopStart = useEditorStore((s) => s.loopStart);
+  const loopEnd = useEditorStore((s) => s.loopEnd);
   const setFocusedView = useEditorStore((state) => state.setFocusedView);
   const { activeSpritesheetId, activeItemId, activeItemType, project, setActiveFrame } = useProjectStore();
 
@@ -43,8 +43,8 @@ export const Timeline: React.FC = () => {
     const rect = bar.getBoundingClientRect();
     const fraction = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     const proj = useProjectStore.getState();
-    const sh = proj.project?.spritesheets.find(s => s.id === proj.activeSpritesheetId);
-    const an = sh?.animations.find(a => a.id === proj.activeItemId);
+    const sh = proj.project?.spritesheets.find((s) => s.id === proj.activeSpritesheetId);
+    const an = sh?.animations.find((a) => a.id === proj.activeItemId);
     const kfs = an?.keyframes ? [...an.keyframes].sort((a, b) => a.time - b.time) : [];
     const dur = kfs.length > 0 ? kfs[kfs.length - 1].time + 100 : 0;
     if (dur <= 0) return;
@@ -61,27 +61,33 @@ export const Timeline: React.FC = () => {
     }
   }, []);
 
-  const handleTimelinePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    isDraggingRef.current = true;
-    setIsPlaying(false);
-    scrubToClientX(e.clientX);
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, [scrubToClientX, setIsPlaying]);
+  const handleTimelinePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault();
+      isDraggingRef.current = true;
+      setIsPlaying(false);
+      scrubToClientX(e.clientX);
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    },
+    [scrubToClientX, setIsPlaying],
+  );
 
-  const handleTimelinePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
-    scrubToClientX(e.clientX);
-  }, [scrubToClientX]);
+  const handleTimelinePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!isDraggingRef.current) return;
+      scrubToClientX(e.clientX);
+    },
+    [scrubToClientX],
+  );
 
   const handleTimelinePointerUp = useCallback(() => {
     isDraggingRef.current = false;
   }, []);
 
-  const sheet = project?.spritesheets.find(s => s.id === activeSpritesheetId);
-  const anim = sheet?.animations.find(a => a.id === activeItemId);
+  const sheet = project?.spritesheets.find((s) => s.id === activeSpritesheetId);
+  const anim = sheet?.animations.find((a) => a.id === activeItemId);
   const isReferenceImage = activeItemType === 'image';
-  const keyframes = anim?.keyframes ? [...anim.keyframes].sort((a,b) => a.time - b.time) : [];
+  const keyframes = anim?.keyframes ? [...anim.keyframes].sort((a, b) => a.time - b.time) : [];
 
   const totalDuration = keyframes.length > 0 ? keyframes[keyframes.length - 1].time + 100 : 0;
 
@@ -132,15 +138,20 @@ export const Timeline: React.FC = () => {
 
         useEditorStore.getState().setPlaybackTime(newTime);
 
-        const kfs = (useProjectStore.getState().project?.spritesheets.find(s => s.id === useProjectStore.getState().activeSpritesheetId)?.animations.find(a => a.id === useProjectStore.getState().activeItemId)?.keyframes || []).sort((a,b) => a.time - b.time);
+        const kfs = (
+          useProjectStore
+            .getState()
+            .project?.spritesheets.find((s) => s.id === useProjectStore.getState().activeSpritesheetId)
+            ?.animations.find((a) => a.id === useProjectStore.getState().activeItemId)?.keyframes || []
+        ).sort((a, b) => a.time - b.time);
 
         for (let i = kfs.length - 1; i >= 0; i--) {
-            if (newTime >= kfs[i].time) {
-                if (useProjectStore.getState().activeFrameId !== kfs[i].frameId) {
-                    useProjectStore.getState().setActiveFrame(kfs[i].frameId);
-                }
-                break;
+          if (newTime >= kfs[i].time) {
+            if (useProjectStore.getState().activeFrameId !== kfs[i].frameId) {
+              useProjectStore.getState().setActiveFrame(kfs[i].frameId);
             }
+            break;
+          }
         }
       }
       lastUpdateRef.current = time;
@@ -181,7 +192,7 @@ export const Timeline: React.FC = () => {
 
   const stepNext = () => {
     if (keyframes.length === 0) return;
-    const next = keyframes.find(k => k.time > playbackTime + 0.5);
+    const next = keyframes.find((k) => k.time > playbackTime + 0.5);
     if (next) {
       setPlaybackTime(next.time);
       setActiveFrame(next.frameId);
@@ -223,16 +234,14 @@ export const Timeline: React.FC = () => {
           </span>
 
           <div className="flex items-center gap-1">
-            <IconButton
-              icon={IconRegistry.StepBack}
-              size="sm"
-              onClick={stepPrev}
-              label="Step Back"
-            />
+            <IconButton icon={IconRegistry.StepBack} size="sm" onClick={stepPrev} label="Step Back" />
             <IconButton
               icon={IconRegistry.SkipBack}
               size="sm"
-              onClick={() => { setIsPlaying(false); setPlaybackTime(0); }}
+              onClick={() => {
+                setIsPlaying(false);
+                setPlaybackTime(0);
+              }}
               label="Reset"
             />
             <IconButton
@@ -241,18 +250,8 @@ export const Timeline: React.FC = () => {
               onClick={togglePlay}
               label={isPlaying ? t('timeline.pause') : t('timeline.play')}
             />
-            <IconButton
-              icon={IconRegistry.SkipForward}
-              size="sm"
-              onClick={stepNext}
-              label="Next"
-            />
-            <IconButton
-              icon={IconRegistry.StepForward}
-              size="sm"
-              onClick={stepNext}
-              label="Step Forward"
-            />
+            <IconButton icon={IconRegistry.SkipForward} size="sm" onClick={stepNext} label="Next" />
+            <IconButton icon={IconRegistry.StepForward} size="sm" onClick={stepNext} label="Step Forward" />
           </div>
 
           <IconButton
@@ -263,11 +262,7 @@ export const Timeline: React.FC = () => {
             className={loopMode === 'pingpong' ? 'text-yellow-400' : loopMode === 'oneshot' ? 'text-orange-400' : ''}
           />
 
-          <SpeedButtonGroup
-            value={playbackSpeed}
-            onChange={setPlaybackSpeed}
-            className="ml-2"
-          />
+          <SpeedButtonGroup value={playbackSpeed} onChange={setPlaybackSpeed} className="ml-2" />
         </div>
       </div>
       <div className="flex-1 p-4 relative overflow-x-auto">
@@ -309,7 +304,7 @@ export const Timeline: React.FC = () => {
               )}
             </>
           )}
-          {keyframes.map(kf => {
+          {keyframes.map((kf) => {
             const left = (kf.time / totalDuration) * 100;
             return (
               <div

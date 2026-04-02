@@ -131,9 +131,7 @@ function generateNextId(recentTasks: TaskInfo[]): string {
   }
 
   const nextIndex = maxIndex + 1;
-  return pattern
-    .replace('{{prefix}}', prefix)
-    .replace('{{index}}', String(nextIndex));
+  return pattern.replace('{{prefix}}', prefix).replace('{{index}}', String(nextIndex));
 }
 
 /** Load tasks metadata from project's .sprite-editor/tasks.json via localStorage (keyed by project path) */
@@ -142,7 +140,9 @@ function loadTasksMeta(projectPath: string): TaskInfo[] {
     const key = `tasks:${projectPath}`;
     const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return [];
 }
 
@@ -193,16 +193,26 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       const main = getMainBranch();
 
       // Make sure we're on main first
-      try { await gitCheckout(path, main); } catch { /* already on main or doesn't exist */ }
+      try {
+        await gitCheckout(path, main);
+      } catch {
+        /* already on main or doesn't exist */
+      }
 
       // Pull latest main if remote exists
       try {
         const hasRemote = await gitHasRemote(path);
         if (hasRemote) {
           await gitFetch(path);
-          try { await gitRebase(path, `origin/${main}`); } catch { /* no remote main yet */ }
+          try {
+            await gitRebase(path, `origin/${main}`);
+          } catch {
+            /* no remote main yet */
+          }
         }
-      } catch { /* no remote */ }
+      } catch {
+        /* no remote */
+      }
 
       // Create task
       const branch = buildBranchName(id, name);
@@ -254,7 +264,9 @@ export const useTaskStore = create<TaskState>((set, get) => ({
           if (hasRemote) {
             await gitFetch(path);
           }
-        } catch { /* no remote */ }
+        } catch {
+          /* no remote */
+        }
 
         try {
           await gitRebase(path, main);
@@ -272,7 +284,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
       // Update task status
       const amendedTask = { ...task, status: 'active' as const };
-      const recent = get().recentTasks.map((t) => t.id === task.id ? amendedTask : t);
+      const recent = get().recentTasks.map((t) => (t.id === task.id ? amendedTask : t));
       saveTasksMeta(path, recent);
 
       set({ activeTask: amendedTask, recentTasks: recent });
@@ -302,7 +314,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         const manifestJson = buildSaveManifest(project, changeTracker);
         await saveProjectV2(path, manifestJson);
         const message = `[task:${activeTask.id}] ${buildCommitMessage(changeTracker, project)}`;
-        try { await gitCommit(path, message); } catch { /* nothing to commit */ }
+        try {
+          await gitCommit(path, message);
+        } catch {
+          /* nothing to commit */
+        }
         resetChangeTracker();
       }
 
@@ -316,9 +332,13 @@ export const useTaskStore = create<TaskState>((set, get) => ({
             await gitCheckout(path, main);
             await gitRebase(path, `origin/${main}`);
             await gitCheckout(path, activeTask.branch);
-          } catch { /* continue */ }
+          } catch {
+            /* continue */
+          }
         }
-      } catch { /* no remote */ }
+      } catch {
+        /* no remote */
+      }
 
       try {
         await gitRebase(path, main);
@@ -338,7 +358,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       await gitMergeBranch(path, activeTask.branch, `[task:${activeTask.id}] Merge ${activeTask.branch}`);
 
       // 4. Delete task branch
-      try { await gitDeleteBranch(path, activeTask.branch); } catch { /* fine */ }
+      try {
+        await gitDeleteBranch(path, activeTask.branch);
+      } catch {
+        /* fine */
+      }
 
       // 5. Push if remote exists
       try {
@@ -349,7 +373,9 @@ export const useTaskStore = create<TaskState>((set, get) => ({
             toast.warn('Task finished locally. Push failed — will retry next save.');
           });
         }
-      } catch { /* no remote */ }
+      } catch {
+        /* no remote */
+      }
 
       // 6. Reload project from disk (main now has merged changes)
       const data = await loadProjectV2(path);
@@ -357,9 +383,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       useProjectStore.getState().setProject(parsed);
 
       // 7. Mark task as finished in metadata
-      const recent = get().recentTasks.map((t) =>
-        t.id === activeTask.id ? { ...t, status: 'finished' as const } : t,
-      );
+      const recent = get().recentTasks.map((t) => (t.id === activeTask.id ? { ...t, status: 'finished' as const } : t));
       saveTasksMeta(path, recent);
 
       set({ activeTask: null, recentTasks: recent, conflict: null });

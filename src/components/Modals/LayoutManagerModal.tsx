@@ -11,14 +11,14 @@ interface Props {
 
 export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
   const { t } = useTranslation();
-  const savedLayouts = useLayoutStore(s => s.savedLayouts);
-  const loadLayout = useLayoutStore(s => s.loadLayout);
-  const deleteLayout = useLayoutStore(s => s.deleteLayout);
-  const renameLayout = useLayoutStore(s => s.renameLayout);
-  const setProjectLayout = useLayoutStore(s => s.setProjectLayout);
-  const projectLayoutMap = useLayoutStore(s => s.projectLayoutMap);
-  const activeLayoutId = useLayoutStore(s => s.activeLayoutId);
-  const projectPath = useProjectStore(s => s.projectPath);
+  const savedLayouts = useLayoutStore((s) => s.savedLayouts);
+  const loadLayout = useLayoutStore((s) => s.loadLayout);
+  const deleteLayout = useLayoutStore((s) => s.deleteLayout);
+  const renameLayout = useLayoutStore((s) => s.renameLayout);
+  const setProjectLayout = useLayoutStore((s) => s.setProjectLayout);
+  const projectLayoutMap = useLayoutStore((s) => s.projectLayoutMap);
+  const activeLayoutId = useLayoutStore((s) => s.activeLayoutId);
+  const projectPath = useProjectStore((s) => s.projectPath);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -65,7 +65,7 @@ export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
         <p className="text-sm text-slate-400">{t('layout_modal.empty')}</p>
       ) : (
         <div className="space-y-1 max-h-80 overflow-y-auto">
-          {savedLayouts.map(layout => (
+          {savedLayouts.map((layout) => (
             <div
               key={layout.id}
               className={`flex items-center gap-2 p-2 rounded group ${
@@ -120,7 +120,9 @@ export const LayoutManagerModal: React.FC<Props> = ({ onClose }) => {
                         boundLayoutId === layout.id ? 'text-emerald-400' : 'text-slate-400 hover:text-white'
                       }`}
                       onClick={() => handleBindToProject(layout.id)}
-                      title={boundLayoutId === layout.id ? t('layout_modal.unbind_tooltip') : t('layout_modal.bind_tooltip')}
+                      title={
+                        boundLayoutId === layout.id ? t('layout_modal.unbind_tooltip') : t('layout_modal.bind_tooltip')
+                      }
                     >
                       <IconRegistry.Link className="w-3.5 h-3.5" />
                     </button>

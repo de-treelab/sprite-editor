@@ -11,11 +11,7 @@ const sizeStyles: Record<TextInputSize, string> = {
   md: 'px-3 py-2 text-sm',
 };
 
-export const TextInput: React.FC<TextInputProps> = ({
-  size = 'md',
-  className = '',
-  ...props
-}) => {
+export const TextInput: React.FC<TextInputProps> = ({ size = 'md', className = '', ...props }) => {
   return (
     <input
       type="text"
@@ -25,7 +21,9 @@ export const TextInput: React.FC<TextInputProps> = ({
         placeholder:text-slate-500
         ${sizeStyles[size]}
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
       {...props}
     />
   );

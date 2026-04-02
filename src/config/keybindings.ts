@@ -96,8 +96,6 @@ export interface TimelineKeybindings {
   duplicateKeyframe: string;
 }
 
-
-
 // Navigator keybindings
 export interface NavigatorKeybindings {
   newFrame: string;
@@ -168,7 +166,7 @@ export const defaultKeybindings: KeybindingsConfig = {
     fitToScreen: 'ctrl+shift+f',
     zoomToSelection: 'ctrl+shift+e',
     toggleGrid: "ctrl+'",
-    toggleCenterLines: "ctrl+;",
+    toggleCenterLines: 'ctrl+;',
     copy: 'ctrl+c',
     paste: 'ctrl+v',
     swapColors: 'x',

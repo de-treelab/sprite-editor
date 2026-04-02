@@ -38,7 +38,9 @@ export const Button: React.FC<ButtonProps> = ({
         ${sizeStyles[size]}
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
       disabled={disabled}
       {...props}
     >

@@ -45,7 +45,9 @@ export const WikiPage: React.FC<WikiPageProps> = ({ onClose }) => {
         }
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const loadPage = useCallback(async (page: string) => {
@@ -83,21 +85,22 @@ export const WikiPage: React.FC<WikiPageProps> = ({ onClose }) => {
   }, [activePage]);
 
   // Handle wiki-internal links: [[Page Name]] are rendered as Page-Name in GH wiki
-  const handleLinkClick = useCallback((href: string | undefined) => {
-    if (!href) return;
-    // Check if it's an internal wiki link (no protocol)
-    if (!href.startsWith('http://') && !href.startsWith('https://')) {
-      const pageName = decodeURIComponent(href).replace(/\.md$/, '').replace(/-/g, '-');
-      // Check if page exists (with or without dashes for spaces)
-      const match = pages.find(
-        (p) => p === pageName || p.replace(/ /g, '-') === pageName
-      );
-      if (match) {
-        loadPage(match);
-        return;
+  const handleLinkClick = useCallback(
+    (href: string | undefined) => {
+      if (!href) return;
+      // Check if it's an internal wiki link (no protocol)
+      if (!href.startsWith('http://') && !href.startsWith('https://')) {
+        const pageName = decodeURIComponent(href).replace(/\.md$/, '').replace(/-/g, '-');
+        // Check if page exists (with or without dashes for spaces)
+        const match = pages.find((p) => p === pageName || p.replace(/ /g, '-') === pageName);
+        if (match) {
+          loadPage(match);
+          return;
+        }
       }
-    }
-  }, [pages, loadPage]);
+    },
+    [pages, loadPage],
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-slate-900">
@@ -144,9 +147,7 @@ export const WikiPage: React.FC<WikiPageProps> = ({ onClose }) => {
                 {page.replace(/-/g, ' ')}
               </button>
             ))}
-            {pages.length === 0 && !loading && (
-              <p className="text-xs text-slate-500 italic">No pages found</p>
-            )}
+            {pages.length === 0 && !loading && <p className="text-xs text-slate-500 italic">No pages found</p>}
           </div>
         </OverlayScrollbarsComponent>
 

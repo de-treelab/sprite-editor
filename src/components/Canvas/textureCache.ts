@@ -17,12 +17,7 @@ export class TextureCache {
    * Returns the cached texture if data hasn't changed, otherwise
    * decodes the new data URL async and updates the sprite when ready.
    */
-  getOrLoad(
-    key: string,
-    data: string,
-    sprite: PIXI.Sprite,
-    onDestroyed: () => boolean,
-  ): PIXI.Texture | null {
+  getOrLoad(key: string, data: string, sprite: PIXI.Sprite, onDestroyed: () => boolean): PIXI.Texture | null {
     const entry = this.cache.get(key);
     if (entry && entry.data === data) {
       return entry.texture;

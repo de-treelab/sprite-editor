@@ -89,9 +89,10 @@ export const KeybindingInput: React.FC<KeybindingInputProps> = ({ value, onChang
         className={`
           flex-1 px-3 py-1.5 rounded text-sm border cursor-pointer select-none
           outline-none transition-colors min-w-[140px]
-          ${recording
-            ? 'bg-indigo-900/40 border-indigo-500 text-indigo-300 animate-pulse'
-            : 'bg-slate-900 border-slate-700 text-slate-200 hover:border-slate-500'
+          ${
+            recording
+              ? 'bg-indigo-900/40 border-indigo-500 text-indigo-300 animate-pulse'
+              : 'bg-slate-900 border-slate-700 text-slate-200 hover:border-slate-500'
           }
           ${!isDefault ? 'ring-1 ring-indigo-500/30' : ''}
         `}

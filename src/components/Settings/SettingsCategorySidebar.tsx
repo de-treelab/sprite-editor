@@ -30,15 +30,16 @@ const CategoryItem: React.FC<{
         )}
         <span className="capitalize">{node.label}</span>
       </button>
-      {expanded && node.children.map((child) => (
-        <CategoryItem
-          key={child.id}
-          node={child}
-          depth={depth + 1}
-          selectedCategory={selectedCategory}
-          onSelect={onSelect}
-        />
-      ))}
+      {expanded &&
+        node.children.map((child) => (
+          <CategoryItem
+            key={child.id}
+            node={child}
+            depth={depth + 1}
+            selectedCategory={selectedCategory}
+            onSelect={onSelect}
+          />
+        ))}
     </div>
   );
 };

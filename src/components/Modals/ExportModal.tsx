@@ -23,9 +23,9 @@ interface Props {
 
 export const ExportModal: React.FC<Props> = ({ onClose }) => {
   const { t } = useTranslation();
-  const project = useProjectStore(s => s.project);
-  const activeSpritesheetId = useProjectStore(s => s.activeSpritesheetId);
-  const activeItemId = useProjectStore(s => s.activeItemId);
+  const project = useProjectStore((s) => s.project);
+  const activeSpritesheetId = useProjectStore((s) => s.activeSpritesheetId);
+  const activeItemId = useProjectStore((s) => s.activeItemId);
 
   const [format, setFormat] = useState<ExportFormat>('atlas');
   const [atlasMaxWidth, setAtlasMaxWidth] = useState(4096);
@@ -38,8 +38,8 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
 
   if (!project) return null;
 
-  const activeSheet = project.spritesheets.find(s => s.id === activeSpritesheetId);
-  const activeAnimation = activeSheet?.animations.find(a => a.id === activeItemId);
+  const activeSheet = project.spritesheets.find((s) => s.id === activeSpritesheetId);
+  const activeAnimation = activeSheet?.animations.find((a) => a.id === activeItemId);
 
   const formatOptions = [
     { value: 'atlas', label: t('export_modal.format_atlas') },
@@ -48,7 +48,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
   ];
 
   const pluginOptions = [
-    ...builtinPlugins.map(p => ({ value: p.id, label: p.name })),
+    ...builtinPlugins.map((p) => ({ value: p.id, label: p.name })),
     { value: 'python', label: t('export_modal.format_custom_script') },
   ];
 
@@ -111,7 +111,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
     const animData = buildAnimationExportData(activeSheet.animations, project.defaultCanvasSize);
     const metadata = buildAtlasMetadata(atlas, animData);
 
-    const plugin = builtinPlugins.find(p => p.id === metadataPlugin) ?? builtinPlugins[0];
+    const plugin = builtinPlugins.find((p) => p.id === metadataPlugin) ?? builtinPlugins[0];
     const metaContent = plugin.generate(metadata);
     const metaPath = pngPath.replace(/\.png$/i, plugin.fileExtension);
     await saveMetadataFile(metaPath, metaContent);
@@ -161,7 +161,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
       metaContent = await runPythonPlugin(pythonScriptPath, metadata);
       fileExtension = '.txt';
     } else {
-      const plugin = builtinPlugins.find(p => p.id === metadataPlugin) ?? builtinPlugins[0];
+      const plugin = builtinPlugins.find((p) => p.id === metadataPlugin) ?? builtinPlugins[0];
       metaContent = plugin.generate(metadata);
       fileExtension = plugin.fileExtension;
     }
@@ -180,11 +180,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
   return (
     <Modal isOpen={true} onClose={onClose} title={t('export_modal.title')} size="lg">
       <FormField label={t('export_modal.format')}>
-        <Select
-          options={formatOptions}
-          value={format}
-          onChange={(e) => setFormat(e.target.value as ExportFormat)}
-        />
+        <Select options={formatOptions} value={format} onChange={(e) => setFormat(e.target.value as ExportFormat)} />
       </FormField>
 
       {/* Atlas options */}
@@ -192,14 +188,31 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
         <>
           <div className="grid grid-cols-2 gap-3">
             <FormField label={t('export_modal.max_width')}>
-              <NumberInput value={atlasMaxWidth} onChange={(e) => setAtlasMaxWidth(Number(e.target.value))} min={64} max={8192} step={64} />
+              <NumberInput
+                value={atlasMaxWidth}
+                onChange={(e) => setAtlasMaxWidth(Number(e.target.value))}
+                min={64}
+                max={8192}
+                step={64}
+              />
             </FormField>
             <FormField label={t('export_modal.max_height')}>
-              <NumberInput value={atlasMaxHeight} onChange={(e) => setAtlasMaxHeight(Number(e.target.value))} min={64} max={8192} step={64} />
+              <NumberInput
+                value={atlasMaxHeight}
+                onChange={(e) => setAtlasMaxHeight(Number(e.target.value))}
+                min={64}
+                max={8192}
+                step={64}
+              />
             </FormField>
           </div>
           <FormField label={t('export_modal.padding')}>
-            <NumberInput value={atlasPadding} onChange={(e) => setAtlasPadding(Number(e.target.value))} min={0} max={16} />
+            <NumberInput
+              value={atlasPadding}
+              onChange={(e) => setAtlasPadding(Number(e.target.value))}
+              min={0}
+              max={16}
+            />
           </FormField>
         </>
       )}
@@ -211,11 +224,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
       {/* Metadata plugin selection */}
       {(format === 'atlas' || format === 'metadata') && (
         <FormField label={t('export_modal.metadata_format')}>
-          <Select
-            options={pluginOptions}
-            value={metadataPlugin}
-            onChange={(e) => setMetadataPlugin(e.target.value)}
-          />
+          <Select options={pluginOptions} value={metadataPlugin} onChange={(e) => setMetadataPlugin(e.target.value)} />
         </FormField>
       )}
 
@@ -242,9 +251,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
 
       {/* GIF notice */}
       {format === 'gif' && !activeAnimation && (
-        <p className="text-xs text-orange-400">
-          {t('export_modal.gif_warning')}
-        </p>
+        <p className="text-xs text-orange-400">{t('export_modal.gif_warning')}</p>
       )}
 
       {format === 'gif' && activeAnimation && (

@@ -44,10 +44,7 @@ export const StartTaskModal: React.FC<Props> = ({ onClose, onSkip }) => {
     }
   }, [generateNextTaskId, taskId]);
 
-  const finishedTasks = useMemo(
-    () => recentTasks.filter((t) => t.status === 'finished'),
-    [recentTasks],
-  );
+  const finishedTasks = useMemo(() => recentTasks.filter((t) => t.status === 'finished'), [recentTasks]);
 
   // Find similar tasks based on the typed name
   const similarTasks = useMemo(() => {

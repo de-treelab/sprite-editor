@@ -15,7 +15,8 @@ const toolCategories: { id: ToolDefinition['category']; tools: ToolId[] }[] = [
 
 export const Sidebar: React.FC = () => {
   const { t } = useTranslation();
-  const { activeTool, setActiveTool, primaryColor, secondaryColor, setPrimaryColor, setSecondaryColor } = useEditorStore();
+  const { activeTool, setActiveTool, primaryColor, secondaryColor, setPrimaryColor, setSecondaryColor } =
+    useEditorStore();
 
   const handleColorSwap = (e: React.MouseEvent) => {
     e.preventDefault();

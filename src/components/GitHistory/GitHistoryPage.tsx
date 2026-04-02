@@ -42,10 +42,7 @@ export const GitHistoryPage: React.FC<{ onClose: () => void }> = ({ onClose }) =
         return;
       }
 
-      const [logLines, remote] = await Promise.all([
-        gitLog(path),
-        gitRemoteGetUrl(path).catch(() => ''),
-      ]);
+      const [logLines, remote] = await Promise.all([gitLog(path), gitRemoteGetUrl(path).catch(() => '')]);
 
       setRemoteUrl(remote);
       setEntries(logLines.map(parseLogLine).filter(Boolean) as GitLogEntry[]);
@@ -85,9 +82,7 @@ export const GitHistoryPage: React.FC<{ onClose: () => void }> = ({ onClose }) =
           <IconRegistry.GitBranch className="text-indigo-400 w-5 h-5" />
           <h1 className="text-lg font-semibold text-slate-200">{t('git_history.title')}</h1>
           {project && (
-            <span className="text-xs text-slate-500 bg-slate-700 px-2 py-0.5 rounded-full">
-              {project.name}
-            </span>
+            <span className="text-xs text-slate-500 bg-slate-700 px-2 py-0.5 rounded-full">{project.name}</span>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -100,7 +95,9 @@ export const GitHistoryPage: React.FC<{ onClose: () => void }> = ({ onClose }) =
             >
               <option value="">{t('git_history.all_commits')}</option>
               {allTaskIds.map((id) => (
-                <option key={id} value={id}>Task {id}</option>
+                <option key={id} value={id}>
+                  Task {id}
+                </option>
               ))}
             </select>
           )}
@@ -136,11 +133,7 @@ export const GitHistoryPage: React.FC<{ onClose: () => void }> = ({ onClose }) =
           </div>
         )}
 
-        {!loading && error && (
-          <div className="flex items-center justify-center h-64 text-red-400 text-sm">
-            {error}
-          </div>
-        )}
+        {!loading && error && <div className="flex items-center justify-center h-64 text-red-400 text-sm">{error}</div>}
 
         {!loading && !isRepo && !error && (
           <div className="flex flex-col items-center justify-center h-64 text-slate-500 text-sm gap-2">
@@ -230,16 +223,13 @@ export const GitHistoryPage: React.FC<{ onClose: () => void }> = ({ onClose }) =
           }
         >
           <p className="text-sm text-slate-300">
-            {t('git_history.restore_body')}{' '}
-            <span className="font-mono text-indigo-400">{restoreEntry.hash}</span>
-            {' '}and create a new commit recording this change.
+            {t('git_history.restore_body')} <span className="font-mono text-indigo-400">{restoreEntry.hash}</span> and
+            create a new commit recording this change.
           </p>
           <p className="text-sm text-slate-200 mt-2 font-medium">
             "{restoreEntry.cleanMessage || restoreEntry.message}"
           </p>
-          <p className="text-xs text-orange-400 mt-3">
-            {t('git_history.restore_warning')}
-          </p>
+          <p className="text-xs text-orange-400 mt-3">{t('git_history.restore_warning')}</p>
         </Modal>
       )}
     </div>

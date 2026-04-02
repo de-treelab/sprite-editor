@@ -16,16 +16,22 @@ interface Props {
 
 export const NewItemModal: React.FC<Props> = ({ spritesheetId, initialTab = 'animation', onClose }) => {
   const { t } = useTranslation();
-  const project = useProjectStore(state => state.project);
-  const addAnimation = useProjectStore(state => state.addAnimation);
-  const addImage = useProjectStore(state => state.addImage);
-  const addFrame = useProjectStore(state => state.addFrame);
-  const setActiveItem = useProjectStore(state => state.setActiveItem);
-  const setActiveFrame = useProjectStore(state => state.setActiveFrame);
-  const setActiveLayer = useProjectStore(state => state.setActiveLayer);
+  const project = useProjectStore((state) => state.project);
+  const addAnimation = useProjectStore((state) => state.addAnimation);
+  const addImage = useProjectStore((state) => state.addImage);
+  const addFrame = useProjectStore((state) => state.addFrame);
+  const setActiveItem = useProjectStore((state) => state.setActiveItem);
+  const setActiveFrame = useProjectStore((state) => state.setActiveFrame);
+  const setActiveLayer = useProjectStore((state) => state.setActiveLayer);
 
   const [activeTab, setActiveTab] = useState<ItemTab>(initialTab);
-  const [name, setName] = useState(initialTab === 'image' ? t('new_item.default_image_name') : initialTab === 'import' ? '' : t('new_item.default_animation_name'));
+  const [name, setName] = useState(
+    initialTab === 'image'
+      ? t('new_item.default_image_name')
+      : initialTab === 'import'
+        ? ''
+        : t('new_item.default_animation_name'),
+  );
   const [width, setWidth] = useState(project?.defaultCanvasSize.width || 64);
   const [height, setHeight] = useState(project?.defaultCanvasSize.height || 64);
   const [importPath, setImportPath] = useState<string | null>(null);
@@ -87,12 +93,12 @@ export const NewItemModal: React.FC<Props> = ({ spritesheetId, initialTab = 'ani
       visible: true,
       locked: false,
       isReference: false,
-      data: activeTab === 'import' && importDataUrl ? importDataUrl : ''
+      data: activeTab === 'import' && importDataUrl ? importDataUrl : '',
     };
 
     const initialFrame = {
       id: frameId,
-      layers: [initialLayer]
+      layers: [initialLayer],
     };
 
     addFrame(spritesheetId, initialFrame);
@@ -102,14 +108,14 @@ export const NewItemModal: React.FC<Props> = ({ spritesheetId, initialTab = 'ani
       const initialKeyframe = {
         id: keyframeId,
         time: 0,
-        frameId: frameId
+        frameId: frameId,
       };
 
       addAnimation(spritesheetId, {
         id,
         name,
         canvasSize: { width, height },
-        keyframes: [initialKeyframe]
+        keyframes: [initialKeyframe],
       });
       setActiveItem(id, 'animation');
     } else {
@@ -127,15 +133,17 @@ export const NewItemModal: React.FC<Props> = ({ spritesheetId, initialTab = 'ani
     onClose();
   };
 
-  const nameLabel = activeTab === 'image' || activeTab === 'import'
-    ? t('modal.new_item.image_name', 'Image Name')
-    : t('modal.new_item.anim_name', 'Animation Name');
+  const nameLabel =
+    activeTab === 'image' || activeTab === 'import'
+      ? t('modal.new_item.image_name', 'Image Name')
+      : t('modal.new_item.anim_name', 'Animation Name');
 
-  const title = activeTab === 'import'
-    ? t('modal.new_item.title_import', 'Import Image')
-    : activeTab === 'image'
-      ? t('modal.new_item.title_image', 'Create Image')
-      : t('modal.new_item.title_animation', 'Create Animation');
+  const title =
+    activeTab === 'import'
+      ? t('modal.new_item.title_import', 'Import Image')
+      : activeTab === 'image'
+        ? t('modal.new_item.title_image', 'Create Image')
+        : t('modal.new_item.title_animation', 'Create Animation');
 
   const isImportReady = activeTab !== 'import' || (importDataUrl != null && !importing);
   const confirmDisabled = !name || width <= 0 || height <= 0 || !isImportReady;
@@ -174,26 +182,16 @@ export const NewItemModal: React.FC<Props> = ({ spritesheetId, initialTab = 'ani
       )}
 
       <FormField label={nameLabel}>
-        <TextInput
-          autoFocus
-          value={name}
-          onChange={e => setName(e.target.value)}
-        />
+        <TextInput autoFocus value={name} onChange={(e) => setName(e.target.value)} />
       </FormField>
 
       {activeTab !== 'import' && (
         <div className="flex space-x-4">
           <FormField label={t('modal.new_item.width', 'Width')} className="flex-1">
-            <NumberInput
-              value={width}
-              onChange={e => setWidth(Number(e.target.value))}
-            />
+            <NumberInput value={width} onChange={(e) => setWidth(Number(e.target.value))} />
           </FormField>
           <FormField label={t('modal.new_item.height', 'Height')} className="flex-1">
-            <NumberInput
-              value={height}
-              onChange={e => setHeight(Number(e.target.value))}
-            />
+            <NumberInput value={height} onChange={(e) => setHeight(Number(e.target.value))} />
           </FormField>
         </div>
       )}

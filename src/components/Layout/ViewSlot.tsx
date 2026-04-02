@@ -8,15 +8,11 @@ interface ViewSlotProps {
 }
 
 export const ViewSlot: React.FC<ViewSlotProps> = ({ viewId }) => {
-  const hiddenViewIds = useLayoutStore(s => s.layout.hiddenViewIds);
+  const hiddenViewIds = useLayoutStore((s) => s.layout.hiddenViewIds);
   const viewDef = getView(viewId);
 
   if (!viewDef) {
-    return (
-      <div className="flex-1 flex items-center justify-center text-slate-500 text-sm">
-        Unknown view: {viewId}
-      </div>
-    );
+    return <div className="flex-1 flex items-center justify-center text-slate-500 text-sm">Unknown view: {viewId}</div>;
   }
 
   if (hiddenViewIds.includes(viewId)) return null;

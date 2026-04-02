@@ -13,23 +13,20 @@ import type { ViewType } from '../../config/keybindings';
 
 export const Workspace: React.FC = () => {
   const { t } = useTranslation();
-  
-  const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
-  const activeFrameId = useProjectStore(state => state.activeFrameId);
-  const activeItemId = useProjectStore(state => state.activeItemId);
-  const activeItemType = useProjectStore(state => state.activeItemType);
-  const hiddenViews = useEditorStore(state => state.hiddenViews);
-  const fullscreenView = useEditorStore(state => state.fullscreenView);
+
+  const activeSpritesheetId = useProjectStore((state) => state.activeSpritesheetId);
+  const activeFrameId = useProjectStore((state) => state.activeFrameId);
+  const activeItemId = useProjectStore((state) => state.activeItemId);
+  const activeItemType = useProjectStore((state) => state.activeItemType);
+  const hiddenViews = useEditorStore((state) => state.hiddenViews);
+  const fullscreenView = useEditorStore((state) => state.fullscreenView);
 
   const isVisible = (view: ViewType) => !hiddenViews.has(view) && (!fullscreenView || fullscreenView === view);
 
   if (!activeSpritesheetId) {
     return (
       <div className="flex-1 bg-slate-800 flex items-center justify-center">
-        <EmptyState
-          icon={<IconRegistry.Folder />}
-          title={t('workspace.select_spritesheet')}
-        />
+        <EmptyState icon={<IconRegistry.Folder />} title={t('workspace.select_spritesheet')} />
       </div>
     );
   }
@@ -39,27 +36,34 @@ export const Workspace: React.FC = () => {
     return (
       <div className="flex flex-1 overflow-hidden bg-slate-800">
         <div className="flex flex-col flex-1 overflow-hidden">
-          {fullscreenView === 'canvas' && (
-            !activeFrameId ? (
+          {fullscreenView === 'canvas' &&
+            (!activeFrameId ? (
               <EmptyState icon={<IconRegistry.File />} title={t('canvas.select_frame')} />
             ) : (
               <PixiEditor />
-            )
-          )}
-          {fullscreenView === 'preview' && (
-            !activeItemId || activeItemType === 'image' ? (
-              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? t('preview_view.disabled_for_images') : t('preview_view.select_animation')} />
+            ))}
+          {fullscreenView === 'preview' &&
+            (!activeItemId || activeItemType === 'image' ? (
+              <EmptyState
+                icon={<IconRegistry.Play />}
+                title={
+                  activeItemType === 'image'
+                    ? t('preview_view.disabled_for_images')
+                    : t('preview_view.select_animation')
+                }
+              />
             ) : (
               <PreviewPlayer />
-            )
-          )}
-          {fullscreenView === 'timeline' && (
-            !activeItemId || activeItemType === 'image' ? (
-              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? t('timeline.disabled_for_images') : t('timeline.select_animation')} />
+            ))}
+          {fullscreenView === 'timeline' &&
+            (!activeItemId || activeItemType === 'image' ? (
+              <EmptyState
+                icon={<IconRegistry.Play />}
+                title={activeItemType === 'image' ? t('timeline.disabled_for_images') : t('timeline.select_animation')}
+              />
             ) : (
               <KeyframeEditor />
-            )
-          )}
+            ))}
           {fullscreenView === 'navigator' && <Sidebar />}
         </div>
       </div>
@@ -70,15 +74,13 @@ export const Workspace: React.FC = () => {
     <div className="flex flex-1 overflow-hidden bg-slate-800">
       {/* Main Column */}
       <div className="flex flex-col flex-1 overflow-hidden">
-        
         {/* Top Row: Frame Editor + Preview */}
         <div className="flex flex-1 overflow-hidden min-h-0">
-          
           {/* Frame Editor Container with sidebars */}
           {isVisible('canvas') && (
             <div className="flex-1 flex flex-row min-w-0">
               {isVisible('navigator') && <Sidebar />}
-              
+
               <div className="flex-1 flex flex-col min-w-0 bg-slate-800">
                 {!activeFrameId ? (
                   <EmptyState icon={<IconRegistry.File />} title={t('canvas.select_frame')} />
@@ -98,20 +100,29 @@ export const Workspace: React.FC = () => {
                 Preview
               </div>
               {!activeItemId || activeItemType === 'image' ? (
-                <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? t('preview_view.disabled_for_images') : t('preview_view.select_animation')} />
+                <EmptyState
+                  icon={<IconRegistry.Play />}
+                  title={
+                    activeItemType === 'image'
+                      ? t('preview_view.disabled_for_images')
+                      : t('preview_view.select_animation')
+                  }
+                />
               ) : (
                 <PreviewPlayer />
               )}
             </div>
           )}
-
         </div>
 
         {/* Bottom Row: Keyframe Editor */}
         {isVisible('timeline') && (
           <div className="h-64 border-t border-slate-700 flex flex-col bg-slate-900">
             {!activeItemId || activeItemType === 'image' ? (
-              <EmptyState icon={<IconRegistry.Play />} title={activeItemType === 'image' ? t('timeline.disabled_for_images') : t('timeline.select_animation')} />
+              <EmptyState
+                icon={<IconRegistry.Play />}
+                title={activeItemType === 'image' ? t('timeline.disabled_for_images') : t('timeline.select_animation')}
+              />
             ) : (
               <KeyframeEditor />
             )}

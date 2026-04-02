@@ -28,11 +28,19 @@ import type { PixiEditorContext } from './editorContext';
  */
 export function setupPointerHandlers(ec: PixiEditorContext) {
   const {
-    app, viewport, containerRef,
-    ctx, drawingTexture, drawingCanvas,
-    previewCanvas, previewCtx, previewTexture, previewSprite,
+    app,
+    viewport,
+    containerRef,
+    ctx,
+    drawingTexture,
+    drawingCanvas,
+    previewCanvas,
+    previewCtx,
+    previewTexture,
+    previewSprite,
     selectionGraphics,
-    canvasWidth, canvasHeight,
+    canvasWidth,
+    canvasHeight,
     interaction,
   } = ec;
 
@@ -60,9 +68,9 @@ export function setupPointerHandlers(ec: PixiEditorContext) {
     // Check if we can draw on the active layer
     const pState = useProjectStore.getState();
     const frame = pState.project?.spritesheets
-      .find(s => s.id === pState.activeSpritesheetId)
-      ?.frames.find(f => f.id === pState.activeFrameId);
-    const activeLayer = frame?.layers.find(l => l.id === pState.activeLayerId);
+      .find((s) => s.id === pState.activeSpritesheetId)
+      ?.frames.find((f) => f.id === pState.activeFrameId);
+    const activeLayer = frame?.layers.find((l) => l.id === pState.activeLayerId);
 
     if (!activeLayer || activeLayer.locked || activeLayer.visible === false) {
       return;
@@ -111,7 +119,11 @@ export function setupPointerHandlers(ec: PixiEditorContext) {
 
     if (tool === 'magicWand') {
       const tolerance = getToolPropLocal<number>('magicWand', 'tolerance', 15);
-      const selectionMode = getToolPropLocal<string>('magicWand', 'selectionMode', 'replace') as 'replace' | 'add' | 'subtract' | 'intersect';
+      const selectionMode = getToolPropLocal<string>('magicWand', 'selectionMode', 'replace') as
+        | 'replace'
+        | 'add'
+        | 'subtract'
+        | 'intersect';
       const contiguous = getToolPropLocal<boolean>('magicWand', 'contiguous', true);
       const newMask = createMagicWandSelection(ctx, px, py, tolerance, contiguous, canvasWidth, canvasHeight);
       const combined = combineSelections(useEditorStore.getState().selectionMask, newMask, selectionMode);
@@ -181,8 +193,14 @@ export function setupPointerHandlers(ec: PixiEditorContext) {
         drawBrush(ctx, x, y, brushSize, brushShape, edState.primaryColor, tool === 'eraser');
         if (x === px && y === py) break;
         const e2 = 2 * err;
-        if (e2 > -dy) { err -= dy; x += sx; }
-        if (e2 < dx) { err += dx; y += sy; }
+        if (e2 > -dy) {
+          err -= dy;
+          x += sx;
+        }
+        if (e2 < dx) {
+          err += dx;
+          y += sy;
+        }
       }
 
       interaction.lastDrawPos = { x: px, y: py };
@@ -203,8 +221,8 @@ export function setupPointerHandlers(ec: PixiEditorContext) {
         const dx = px - startPos.x;
         const dy = py - startPos.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const sign = (dx + dy) >= 0 ? 1 : -1;
-        const scaleFactor = Math.max(0.1, 1 + sign * distance / 50);
+        const sign = dx + dy >= 0 ? 1 : -1;
+        const scaleFactor = Math.max(0.1, 1 + (sign * distance) / 50);
         const maintainAspect = getToolPropLocal<boolean>('scale', 'maintainAspect', true);
         const interpolation = getToolPropLocal<string>('scale', 'interpolation', 'nearest') as 'nearest' | 'bilinear';
         const sx = scaleFactor;
@@ -291,14 +309,24 @@ export function setupPointerHandlers(ec: PixiEditorContext) {
 
       if (edState.activeTool === 'selection') {
         const selectionShape = getToolPropLocal<string>('selection', 'selectionShape', 'rectangle');
-        const selectionMode = getToolPropLocal<string>('selection', 'selectionMode', 'replace') as 'replace' | 'add' | 'subtract' | 'intersect';
-        const newMask = selectionShape === 'ellipse'
-          ? createEllipseSelection(startPos.x, startPos.y, lastDrawPos.x, lastDrawPos.y, canvasWidth, canvasHeight)
-          : createRectSelection(startPos.x, startPos.y, lastDrawPos.x, lastDrawPos.y, canvasWidth, canvasHeight);
+        const selectionMode = getToolPropLocal<string>('selection', 'selectionMode', 'replace') as
+          | 'replace'
+          | 'add'
+          | 'subtract'
+          | 'intersect';
+        const newMask =
+          selectionShape === 'ellipse'
+            ? createEllipseSelection(startPos.x, startPos.y, lastDrawPos.x, lastDrawPos.y, canvasWidth, canvasHeight)
+            : createRectSelection(startPos.x, startPos.y, lastDrawPos.x, lastDrawPos.y, canvasWidth, canvasHeight);
         const combined = combineSelections(edState.selectionMask, newMask, selectionMode);
         edState.setSelectionMask(isSelectionEmpty(combined) ? null : combined);
         ec.redrawSelection();
-      } else if (edState.activeTool === 'move' || edState.activeTool === 'scale' || edState.activeTool === 'rotate' || edState.activeTool === 'transform') {
+      } else if (
+        edState.activeTool === 'move' ||
+        edState.activeTool === 'scale' ||
+        edState.activeTool === 'rotate' ||
+        edState.activeTool === 'transform'
+      ) {
         if (snapshotBeforeDraw) {
           const toolName = edState.activeTool;
           commitLocal(toolName.charAt(0).toUpperCase() + toolName.slice(1), snapshotBeforeDraw);

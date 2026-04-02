@@ -41,12 +41,7 @@ export const SettingEditor: React.FC<SettingEditorProps> = ({ definition }) => {
         );
 
       case 'boolean':
-        return (
-          <Toggle
-            checked={Boolean(value)}
-            onChange={(checked) => setValue(definition.id, checked)}
-          />
-        );
+        return <Toggle checked={Boolean(value)} onChange={(checked) => setValue(definition.id, checked)} />;
 
       case 'keybinding':
         return (
@@ -85,9 +80,7 @@ export const SettingEditor: React.FC<SettingEditorProps> = ({ definition }) => {
             )}
           </div>
           <div className="text-xs text-slate-500 mt-0.5 font-mono">{definition.id}</div>
-          {definition.description && (
-            <div className="text-xs text-slate-400 mt-1">{definition.description}</div>
-          )}
+          {definition.description && <div className="text-xs text-slate-400 mt-1">{definition.description}</div>}
         </div>
         <div className="flex-shrink-0">{renderControl()}</div>
       </div>

@@ -29,9 +29,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {label && (
-        <span className="text-xs text-slate-400 shrink-0 w-16">{label}</span>
-      )}
+      {label && <span className="text-xs text-slate-400 shrink-0 w-16">{label}</span>}
       <input
         type="range"
         min={min}
@@ -52,9 +50,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
           className="w-12 px-1 py-0.5 text-xs bg-slate-700 border border-slate-600 rounded text-slate-200 text-center"
         />
       ) : showValue ? (
-        <span className="text-xs text-slate-300 w-8 text-right font-mono shrink-0">
-          {displayValue}
-        </span>
+        <span className="text-xs text-slate-300 w-8 text-right font-mono shrink-0">{displayValue}</span>
       ) : null}
     </div>
   );

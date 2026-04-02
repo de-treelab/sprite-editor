@@ -64,7 +64,9 @@ export const InlineEditInput: React.FC<InlineEditInputProps> = ({
         text-slate-200 placeholder:text-slate-500
         w-full min-w-0
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
     />
   );
 };

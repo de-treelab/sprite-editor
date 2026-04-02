@@ -1,4 +1,35 @@
-import { AppProject } from '../types/project';
+import { AppProject, Animation, ReferenceImage, Layer } from '../types/project';
+
+interface FrameManifest {
+  id: string;
+  layerOrder: string[];
+  layers: Layer[];
+  deleted_layers: string[];
+}
+
+interface SheetManifest {
+  id: string;
+  name: string;
+  deleted_animations: string[];
+  deleted_frames: string[];
+  deleted_images: string[];
+  animations: Animation[];
+  images: ReferenceImage[];
+  frames: FrameManifest[];
+}
+
+interface SaveManifest {
+  project: {
+    id: string;
+    name: string;
+    defaultCanvasSize: { width: number; height: number };
+  };
+  palettes: AppProject['palettes'];
+  deleted_palettes: string[];
+  deleted_spritesheets: string[];
+  write_gitignore: boolean;
+  spritesheets: SheetManifest[];
+}
 
 export interface ChangeTracker {
   dirtySpritesheets: Set<string>;
@@ -48,12 +79,7 @@ export function markFrameDirty(tracker: ChangeTracker, frameId: string, sheetId:
   tracker.dirtySpritesheets.add(sheetId);
 }
 
-export function markLayerDirty(
-  tracker: ChangeTracker,
-  layerId: string,
-  frameId: string,
-  sheetId: string,
-) {
+export function markLayerDirty(tracker: ChangeTracker, layerId: string, frameId: string, sheetId: string) {
   tracker.dirtyLayers.set(layerId, { frameId, spritesheetId: sheetId });
   tracker.dirtyFrames.set(frameId, sheetId);
   tracker.dirtySpritesheets.add(sheetId);
@@ -69,9 +95,7 @@ export function buildCommitMessage(tracker: ChangeTracker, project: AppProject):
   }
 
   const sheetNames = (ids: Set<string>): string[] => {
-    return [...ids]
-      .map((id) => project.spritesheets.find((s) => s.id === id)?.name)
-      .filter(Boolean) as string[];
+    return [...ids].map((id) => project.spritesheets.find((s) => s.id === id)?.name).filter(Boolean) as string[];
   };
 
   // 2. Single or multiple dirty spritesheets
@@ -114,7 +138,7 @@ export function buildCommitMessage(tracker: ChangeTracker, project: AppProject):
 export function buildSaveManifest(project: AppProject, tracker: ChangeTracker): string {
   const isFullSave = tracker.fullSave;
 
-  const manifest: any = {
+  const manifest: SaveManifest = {
     project: {
       id: project.id,
       name: project.name,
@@ -124,7 +148,7 @@ export function buildSaveManifest(project: AppProject, tracker: ChangeTracker): 
     deleted_palettes: [...tracker.deletedPalettes],
     deleted_spritesheets: [...tracker.deletedSpritesheets],
     write_gitignore: true,
-    spritesheets: [] as any[],
+    spritesheets: [],
   };
 
   for (const sheet of project.spritesheets) {
@@ -133,21 +157,17 @@ export function buildSaveManifest(project: AppProject, tracker: ChangeTracker): 
       continue;
     }
 
-    const sheetManifest: any = {
+    const sheetManifest: SheetManifest = {
       id: sheet.id,
       name: sheet.name,
       deleted_animations: [...tracker.deletedAnimations.entries()]
         .filter(([, sid]) => sid === sheet.id)
         .map(([aid]) => aid),
-      deleted_frames: [...tracker.deletedFrames.entries()]
-        .filter(([, sid]) => sid === sheet.id)
-        .map(([fid]) => fid),
-      deleted_images: [...tracker.deletedImages.entries()]
-        .filter(([, sid]) => sid === sheet.id)
-        .map(([iid]) => iid),
-      animations: [] as any[],
-      images: [] as any[],
-      frames: [] as any[],
+      deleted_frames: [...tracker.deletedFrames.entries()].filter(([, sid]) => sid === sheet.id).map(([fid]) => fid),
+      deleted_images: [...tracker.deletedImages.entries()].filter(([, sid]) => sid === sheet.id).map(([iid]) => iid),
+      animations: [],
+      images: [],
+      frames: [],
     };
 
     // Include animations that are dirty or all if full save

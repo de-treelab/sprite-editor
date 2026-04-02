@@ -41,7 +41,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
 
     for (const cmd of allCommands) {
       const displayName = cmd.displayName || commandDisplayName(cmd.key, t);
-      const viewLabel = cmd.view === 'global' ? t('common.global') : (viewDisplayNames[cmd.view as ViewType] ?? cmd.view);
+      const viewLabel =
+        cmd.view === 'global' ? t('common.global') : (viewDisplayNames[cmd.view as ViewType] ?? cmd.view);
       const searchText = `${displayName} ${cmd.key} ${viewLabel}`.toLowerCase();
 
       if (q && !searchText.includes(q)) continue;
@@ -115,10 +116,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
   );
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-black/40"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-black/40" onClick={onClose}>
       <div
         className="w-full max-w-lg bg-slate-800 border border-slate-600 rounded-lg shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}

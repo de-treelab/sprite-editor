@@ -51,7 +51,7 @@ export interface Layer {
   id: string;
   name: string;
   opacity: number; // 0.0 to 1.0
-  blendMode: 'normal' | 'multiply' | 'screen' | 'overlay'; 
+  blendMode: 'normal' | 'multiply' | 'screen' | 'overlay';
   visible: boolean;
   locked: boolean;
   isReference: boolean;

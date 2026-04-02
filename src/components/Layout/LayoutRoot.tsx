@@ -14,7 +14,7 @@ export const LayoutNodeRenderer: React.FC<{ node: LayoutNode }> = ({ node }) => 
 };
 
 export const LayoutRoot: React.FC = () => {
-  const layout = useLayoutStore(s => s.layout);
+  const layout = useLayoutStore((s) => s.layout);
 
   // Fullscreen mode: render only that view
   if (layout.fullscreenViewId) {
@@ -38,7 +38,7 @@ export const LayoutRoot: React.FC = () => {
       {/* Floating panels layer */}
       {layout.floating.length > 0 && (
         <div className="absolute inset-0 pointer-events-none z-50">
-          {layout.floating.map(fp => (
+          {layout.floating.map((fp) => (
             <div key={fp.panelId} className="pointer-events-auto">
               <FloatingPanel panel={fp} />
             </div>

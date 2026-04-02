@@ -2,7 +2,18 @@ import { useProjectStore } from '../store/projectStore';
 import { useLoadingStore } from '../store/loadingStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { useLayoutStore } from '../store/layoutStore';
-import { saveProjectV2, gitCommit, gitPush, gitHasRemote, loadProjectV2, gitPull, gitIsRepo, gitInit, gitRemoteSetUrl, gitCurrentBranch } from './backend';
+import {
+  saveProjectV2,
+  gitCommit,
+  gitPush,
+  gitHasRemote,
+  loadProjectV2,
+  gitPull,
+  gitIsRepo,
+  gitInit,
+  gitRemoteSetUrl,
+  gitCurrentBranch,
+} from './backend';
 import { buildCommitMessage, buildSaveManifest } from '../store/changeTracker';
 import { toast } from 'react-toastify';
 import i18n from '../i18n';
@@ -24,11 +35,11 @@ export function resolveProjectPath(): string | null {
   // Legacy fallback: search recentProjects in localStorage
   try {
     const recents: string[] = JSON.parse(localStorage.getItem('recentProjects') || '[]');
-    const match = recents.find(
-      (p: string) => p.endsWith(`/${project.name}`) || p.endsWith(`\\${project.name}`),
-    );
+    const match = recents.find((p: string) => p.endsWith(`/${project.name}`) || p.endsWith(`\\${project.name}`));
     if (match) return match;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return null;
 }
 
@@ -116,7 +127,8 @@ export async function saveCurrentProject(options?: { skipTaskCheck?: boolean }):
  * Pulls latest from remote first if available.
  */
 export async function loadProjectFromDisk(dir: string): Promise<void> {
-  const { setProject, setProjectPath, setActiveSpritesheet, setActiveItem, setActiveFrame, setActiveLayer } = useProjectStore.getState();
+  const { setProject, setProjectPath, setActiveSpritesheet, setActiveItem, setActiveFrame, setActiveLayer } =
+    useProjectStore.getState();
   const { setLoading } = useLoadingStore.getState();
 
   setLoading(true, i18n.t('loading.opening', 'Opening project…'));
@@ -177,11 +189,16 @@ export async function loadProjectFromDisk(dir: string): Promise<void> {
       const recents = JSON.parse(localStorage.getItem('recentProjects') || '[]');
       const updated = [dir, ...recents.filter((p: string) => p !== dir)].slice(0, 5);
       localStorage.setItem('recentProjects', JSON.stringify(updated));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     // Sync task state from git
     if (isGitEnabled()) {
-      useTaskStore.getState().syncFromGit().catch(() => {});
+      useTaskStore
+        .getState()
+        .syncFromGit()
+        .catch(() => {});
     }
 
     // Restore layout for this project

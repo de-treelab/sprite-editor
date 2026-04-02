@@ -36,13 +36,12 @@ export const ListItem: React.FC<ListItemProps> = ({
       className={`
         flex items-center p-2 rounded cursor-pointer border transition-colors
         ${isDragOver ? 'border-t-indigo-400' : 'border-transparent'}
-        ${isSelected
-          ? 'bg-indigo-900/40 border-indigo-500/50'
-          : 'bg-slate-700/50 hover:bg-slate-700'
-        }
+        ${isSelected ? 'bg-indigo-900/40 border-indigo-500/50' : 'bg-slate-700/50 hover:bg-slate-700'}
         ${isDragging ? 'opacity-50' : ''}
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       draggable={draggable}
@@ -77,12 +76,11 @@ export const SimpleListItem: React.FC<SimpleListItemProps> = ({
     <div
       className={`
         flex items-center p-1 rounded cursor-pointer
-        ${isSelected
-          ? 'bg-indigo-600 text-white'
-          : 'text-slate-300 hover:bg-slate-700'
-        }
+        ${isSelected ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-700'}
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
     >

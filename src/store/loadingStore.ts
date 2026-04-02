@@ -13,6 +13,5 @@ export const useLoadingStore = create<LoadingState>((set) => ({
   isLoading: false,
   message: 'Loading…',
   mode: 'overlay',
-  setLoading: (loading, message = 'Loading…', mode = 'overlay') =>
-    set({ isLoading: loading, message, mode }),
+  setLoading: (loading, message = 'Loading…', mode = 'overlay') => set({ isLoading: loading, message, mode }),
 }));

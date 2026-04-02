@@ -12,15 +12,15 @@ type NavLevel = 'sheets' | 'items';
 
 export const ProjectNavigator: React.FC = () => {
   const { t } = useTranslation();
-  const project = useProjectStore(state => state.project);
-  const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
-  const setActiveSpritesheet = useProjectStore(state => state.setActiveSpritesheet);
-  const activeItemId = useProjectStore(state => state.activeItemId);
-  const setActiveItem = useProjectStore(state => state.setActiveItem);
-  const updateSpritesheet = useProjectStore(state => state.updateSpritesheet);
-  const updateAnimation = useProjectStore(state => state.updateAnimation);
-  const updateImage = useProjectStore(state => state.updateImage);
-  const setFocusedView = useEditorStore(state => state.setFocusedView);
+  const project = useProjectStore((state) => state.project);
+  const activeSpritesheetId = useProjectStore((state) => state.activeSpritesheetId);
+  const setActiveSpritesheet = useProjectStore((state) => state.setActiveSpritesheet);
+  const activeItemId = useProjectStore((state) => state.activeItemId);
+  const setActiveItem = useProjectStore((state) => state.setActiveItem);
+  const updateSpritesheet = useProjectStore((state) => state.updateSpritesheet);
+  const updateAnimation = useProjectStore((state) => state.updateAnimation);
+  const updateImage = useProjectStore((state) => state.updateImage);
+  const setFocusedView = useEditorStore((state) => state.setFocusedView);
 
   const [showSpriteModal, setShowSpriteModal] = useState(false);
   const [itemModalSheetId, setItemModalSheetId] = useState<string | null>(null);
@@ -45,86 +45,101 @@ export const ProjectNavigator: React.FC = () => {
   };
 
   /** Build a flat list of animations + images for the given sheet. */
-  const getSheetItems = useCallback((sheet: { animations: { id: string; name: string }[]; images?: { id: string; name: string }[] }) => {
-    const items: { id: string; name: string; type: 'animation' | 'image' }[] = [];
-    for (const a of sheet.animations) items.push({ id: a.id, name: a.name, type: 'animation' });
-    for (const i of (sheet.images || [])) items.push({ id: i.id, name: i.name, type: 'image' });
-    return items;
-  }, []);
+  const getSheetItems = useCallback(
+    (sheet: { animations: { id: string; name: string }[]; images?: { id: string; name: string }[] }) => {
+      const items: { id: string; name: string; type: 'animation' | 'image' }[] = [];
+      for (const a of sheet.animations) items.push({ id: a.id, name: a.name, type: 'animation' });
+      for (const i of sheet.images || []) items.push({ id: i.id, name: i.name, type: 'image' });
+      return items;
+    },
+    [],
+  );
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!project || editingId) return;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!project || editingId) return;
 
-    const sheets = project.spritesheets;
-    if (sheets.length === 0) return;
+      const sheets = project.spritesheets;
+      if (sheets.length === 0) return;
 
-    const activeSheet = sheets.find(s => s.id === activeSpritesheetId);
+      const activeSheet = sheets.find((s) => s.id === activeSpritesheetId);
 
-    if (navLevel === 'sheets') {
-      switch (e.key) {
-        case 'ArrowDown': {
-          e.preventDefault();
-          const next = Math.min(highlightedIndex + 1, sheets.length - 1);
-          setHighlightedIndex(next);
-          break;
-        }
-        case 'ArrowUp': {
-          e.preventDefault();
-          const prev = Math.max(highlightedIndex - 1, 0);
-          setHighlightedIndex(prev);
-          break;
-        }
-        case ' ':
-        case 'ArrowRight': {
-          e.preventDefault();
-          const sheet = sheets[highlightedIndex];
-          if (sheet) {
-            setActiveSpritesheet(sheet.id);
-            const items = getSheetItems(sheet);
-            if (items.length > 0) {
-              setNavLevel('items');
-              setHighlightedIndex(0);
-            }
+      if (navLevel === 'sheets') {
+        switch (e.key) {
+          case 'ArrowDown': {
+            e.preventDefault();
+            const next = Math.min(highlightedIndex + 1, sheets.length - 1);
+            setHighlightedIndex(next);
+            break;
           }
-          break;
+          case 'ArrowUp': {
+            e.preventDefault();
+            const prev = Math.max(highlightedIndex - 1, 0);
+            setHighlightedIndex(prev);
+            break;
+          }
+          case ' ':
+          case 'ArrowRight': {
+            e.preventDefault();
+            const sheet = sheets[highlightedIndex];
+            if (sheet) {
+              setActiveSpritesheet(sheet.id);
+              const items = getSheetItems(sheet);
+              if (items.length > 0) {
+                setNavLevel('items');
+                setHighlightedIndex(0);
+              }
+            }
+            break;
+          }
+        }
+      } else if (navLevel === 'items' && activeSheet) {
+        const items = getSheetItems(activeSheet);
+        switch (e.key) {
+          case 'ArrowDown': {
+            e.preventDefault();
+            const next = Math.min(highlightedIndex + 1, items.length - 1);
+            setHighlightedIndex(next);
+            const item = items[next];
+            if (item) setActiveItem(item.id, item.type);
+            break;
+          }
+          case 'ArrowUp': {
+            e.preventDefault();
+            const prev = Math.max(highlightedIndex - 1, 0);
+            setHighlightedIndex(prev);
+            const item = items[prev];
+            if (item) setActiveItem(item.id, item.type);
+            break;
+          }
+          case 'ArrowLeft': {
+            e.preventDefault();
+            setNavLevel('sheets');
+            const sheetIdx = sheets.findIndex((s) => s.id === activeSpritesheetId);
+            setHighlightedIndex(sheetIdx >= 0 ? sheetIdx : 0);
+            break;
+          }
+          case ' ':
+          case 'Enter': {
+            e.preventDefault();
+            const item = items[highlightedIndex];
+            if (item) setActiveItem(item.id, item.type);
+            break;
+          }
         }
       }
-    } else if (navLevel === 'items' && activeSheet) {
-      const items = getSheetItems(activeSheet);
-      switch (e.key) {
-        case 'ArrowDown': {
-          e.preventDefault();
-          const next = Math.min(highlightedIndex + 1, items.length - 1);
-          setHighlightedIndex(next);
-          const item = items[next];
-          if (item) setActiveItem(item.id, item.type);
-          break;
-        }
-        case 'ArrowUp': {
-          e.preventDefault();
-          const prev = Math.max(highlightedIndex - 1, 0);
-          setHighlightedIndex(prev);
-          const item = items[prev];
-          if (item) setActiveItem(item.id, item.type);
-          break;
-        }
-        case 'ArrowLeft': {
-          e.preventDefault();
-          setNavLevel('sheets');
-          const sheetIdx = sheets.findIndex(s => s.id === activeSpritesheetId);
-          setHighlightedIndex(sheetIdx >= 0 ? sheetIdx : 0);
-          break;
-        }
-        case ' ':
-        case 'Enter': {
-          e.preventDefault();
-          const item = items[highlightedIndex];
-          if (item) setActiveItem(item.id, item.type);
-          break;
-        }
-      }
-    }
-  }, [project, activeSpritesheetId, navLevel, highlightedIndex, editingId, setActiveSpritesheet, setActiveItem, getSheetItems]);
+    },
+    [
+      project,
+      activeSpritesheetId,
+      navLevel,
+      highlightedIndex,
+      editingId,
+      setActiveSpritesheet,
+      setActiveItem,
+      getSheetItems,
+    ],
+  );
 
   if (!project) return null;
 
@@ -190,14 +205,18 @@ export const ProjectNavigator: React.FC = () => {
                         sheetId={sheet.id}
                         isSelected={activeItemId === item.id}
                         isEditing={editingId === item.id}
-                        className={navLevel === 'items' && highlightedIndex === itemIndex ? 'ring-1 ring-indigo-400' : ''}
+                        className={
+                          navLevel === 'items' && highlightedIndex === itemIndex ? 'ring-1 ring-indigo-400' : ''
+                        }
                         onSelect={() => {
                           setActiveItem(item.id, item.type);
                           setNavLevel('items');
                           setHighlightedIndex(itemIndex);
                         }}
                         onStartEdit={() => setEditingId(item.id)}
-                        onSaveEdit={(name) => handleRenameSave(item.type === 'image' ? 'image' : 'anim', sheet.id, item.id, name)}
+                        onSaveEdit={(name) =>
+                          handleRenameSave(item.type === 'image' ? 'image' : 'anim', sheet.id, item.id, name)
+                        }
                         onCancelEdit={() => setEditingId(null)}
                       />
                     ))}

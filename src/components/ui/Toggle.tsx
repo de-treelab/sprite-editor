@@ -7,12 +7,7 @@ interface ToggleProps {
   className?: string;
 }
 
-export const Toggle: React.FC<ToggleProps> = ({
-  checked,
-  onChange,
-  disabled = false,
-  className = '',
-}) => {
+export const Toggle: React.FC<ToggleProps> = ({ checked, onChange, disabled = false, className = '' }) => {
   return (
     <button
       type="button"
@@ -25,13 +20,17 @@ export const Toggle: React.FC<ToggleProps> = ({
         ${checked ? 'bg-indigo-500' : 'bg-slate-700'}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
     >
       <div
         className={`
           w-3 h-3 rounded-full bg-white transition-transform
           ${checked ? 'translate-x-4' : 'translate-x-0'}
-        `.trim().replace(/\s+/g, ' ')}
+        `
+          .trim()
+          .replace(/\s+/g, ' ')}
       />
     </button>
   );

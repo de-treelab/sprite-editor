@@ -13,12 +13,7 @@ const paddingStyles = {
   md: 'p-4',
 };
 
-export const Panel: React.FC<PanelProps> = ({
-  children,
-  className = '',
-  padding = 'md',
-  border = true,
-}) => {
+export const Panel: React.FC<PanelProps> = ({ children, className = '', padding = 'md', border = true }) => {
   return (
     <div
       className={`
@@ -26,7 +21,9 @@ export const Panel: React.FC<PanelProps> = ({
         ${border ? 'border border-slate-700' : ''}
         ${paddingStyles[padding]}
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
     >
       {children}
     </div>
@@ -39,13 +36,6 @@ interface SectionPanelProps {
   className?: string;
 }
 
-export const SectionPanel: React.FC<SectionPanelProps> = ({
-  children,
-  className = '',
-}) => {
-  return (
-    <div className={`border-b border-slate-700 py-3 px-4 ${className}`}>
-      {children}
-    </div>
-  );
+export const SectionPanel: React.FC<SectionPanelProps> = ({ children, className = '' }) => {
+  return <div className={`border-b border-slate-700 py-3 px-4 ${className}`}>{children}</div>;
 };

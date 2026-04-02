@@ -8,11 +8,7 @@ import { drawSelectionOverlay } from './selectionOverlay';
  *
  * Returns all the created objects so they can be wired into the editor context.
  */
-export function setupViewport(
-  app: PIXI.Application,
-  canvasWidth: number,
-  canvasHeight: number,
-) {
+export function setupViewport(app: PIXI.Application, canvasWidth: number, canvasHeight: number) {
   const viewport = new PIXI.Container();
   const currentZoom = useEditorStore.getState().zoomLevel / 10;
   viewport.scale.set(currentZoom);

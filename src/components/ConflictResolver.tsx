@@ -25,9 +25,7 @@ export const ConflictResolver: React.FC = () => {
           <IconRegistry.Alert className="text-amber-400 w-5 h-5" />
           <h1 className="text-lg font-semibold text-slate-200">{t('conflict.title')}</h1>
           {activeTask && (
-            <span className="text-xs text-slate-500 bg-slate-700 px-2 py-0.5 rounded-full">
-              {activeTask.name}
-            </span>
+            <span className="text-xs text-slate-500 bg-slate-700 px-2 py-0.5 rounded-full">{activeTask.name}</span>
           )}
         </div>
         <Button variant="ghost" size="sm" onClick={abortConflictResolution}>
@@ -37,9 +35,7 @@ export const ConflictResolver: React.FC = () => {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
-        <p className="text-sm text-slate-400 mb-4">
-          {t('conflict.description')}
-        </p>
+        <p className="text-sm text-slate-400 mb-4">{t('conflict.description')}</p>
 
         {/* Bulk actions */}
         {!allResolved && (

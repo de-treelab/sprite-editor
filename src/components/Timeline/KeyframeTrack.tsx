@@ -24,7 +24,10 @@ export const KeyframeTrack: React.FC<KeyframeTrackProps> = ({
         <div
           key={k.id}
           onPointerDown={(e) => onPointerDown(e, k.id)}
-          onContextMenu={(e) => { e.preventDefault(); onDeleteKeyframe(e, k.id); }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            onDeleteKeyframe(e, k.id);
+          }}
           className={`absolute top-1 bottom-1 w-3 rounded-sm transform -translate-x-1/2 cursor-ew-resize flex items-center justify-center transition-all ${
             draggingKeyframeId === k.id
               ? 'bg-indigo-400 ring-2 ring-indigo-200 z-10 scale-110'

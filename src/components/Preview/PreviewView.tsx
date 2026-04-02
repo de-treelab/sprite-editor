@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 /** Preview view wrapper for the layout system */
 export const PreviewView: React.FC = () => {
   const { t } = useTranslation();
-  const activeItemId = useProjectStore(state => state.activeItemId);
-  const activeItemType = useProjectStore(state => state.activeItemType);
+  const activeItemId = useProjectStore((state) => state.activeItemId);
+  const activeItemType = useProjectStore((state) => state.activeItemType);
 
   if (!activeItemId || activeItemType === 'image') {
     return (

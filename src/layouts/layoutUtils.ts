@@ -63,15 +63,13 @@ export function removeViewFromTree(root: LayoutNode, viewId: string): LayoutNode
 function removeViewFromNode(node: LayoutNode, viewId: string): LayoutNode {
   if (node.type === 'panel') {
     if (!node.viewIds.includes(viewId)) return node;
-    const newViewIds = node.viewIds.filter(id => id !== viewId);
-    const newActiveViewId = node.activeViewId === viewId
-      ? (newViewIds[0] ?? '')
-      : node.activeViewId;
+    const newViewIds = node.viewIds.filter((id) => id !== viewId);
+    const newActiveViewId = node.activeViewId === viewId ? (newViewIds[0] ?? '') : node.activeViewId;
     return { ...node, viewIds: newViewIds, activeViewId: newActiveViewId };
   }
   return {
     ...node,
-    children: node.children.map(child => removeViewFromNode(child, viewId)),
+    children: node.children.map((child) => removeViewFromNode(child, viewId)),
   };
 }
 
@@ -99,7 +97,7 @@ export function cleanupTree(node: LayoutNode): LayoutNode {
   if (sizes.length > 0) {
     const total = sizes.reduce((a, b) => a + b, 0);
     if (total > 0) {
-      sizes = sizes.map(s => s / total);
+      sizes = sizes.map((s) => s / total);
     }
   }
 
@@ -114,7 +112,7 @@ export function cleanupTree(node: LayoutNode): LayoutNode {
   return { ...node, children, sizes };
 }
 
-/** 
+/**
  * Insert a view into the tree at a given panel + anchor.
  * - 'center': adds as a tab in the target panel
  * - other anchors: wraps the target panel in a split
@@ -139,7 +137,7 @@ function addViewToPanel(node: LayoutNode, panelId: string, viewId: string): Layo
   }
   return {
     ...node,
-    children: node.children.map(child => addViewToPanel(child, panelId, viewId)),
+    children: node.children.map((child) => addViewToPanel(child, panelId, viewId)),
   };
 }
 
@@ -155,9 +153,7 @@ function splitPanelAtAnchor(
   }
   return {
     ...node,
-    children: node.children.map(child =>
-      splitPanelAtAnchor(child, targetPanelId, viewId, anchor),
-    ),
+    children: node.children.map((child) => splitPanelAtAnchor(child, targetPanelId, viewId, anchor)),
   };
 }
 
@@ -166,7 +162,7 @@ function createSplitFromAnchor(
   viewId: string,
   anchor: 'left' | 'right' | 'top' | 'bottom',
 ): LayoutSplit {
-  const direction: SplitDirection = (anchor === 'left' || anchor === 'right') ? 'horizontal' : 'vertical';
+  const direction: SplitDirection = anchor === 'left' || anchor === 'right' ? 'horizontal' : 'vertical';
   const newPanel: LayoutPanel = {
     type: 'panel',
     id: generatePanelId(),
@@ -175,9 +171,7 @@ function createSplitFromAnchor(
   };
 
   const isBeforeExisting = anchor === 'left' || anchor === 'top';
-  const children: LayoutNode[] = isBeforeExisting
-    ? [newPanel, existingPanel]
-    : [existingPanel, newPanel];
+  const children: LayoutNode[] = isBeforeExisting ? [newPanel, existingPanel] : [existingPanel, newPanel];
 
   return {
     type: 'split',
@@ -194,7 +188,7 @@ export function replaceNode(root: LayoutNode, nodeId: string, replacement: Layou
   if (root.type === 'panel') return root;
   return {
     ...root,
-    children: root.children.map(child => replaceNode(child, nodeId, replacement)),
+    children: root.children.map((child) => replaceNode(child, nodeId, replacement)),
   };
 }
 

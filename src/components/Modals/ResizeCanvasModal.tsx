@@ -54,12 +54,12 @@ function resizeLayerData(
 
 export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId, onClose }) => {
   const { t } = useTranslation();
-  const project = useProjectStore(state => state.project);
-  const updateAnimation = useProjectStore(state => state.updateAnimation);
-  const updateLayer = useProjectStore(state => state.updateLayer);
+  const project = useProjectStore((state) => state.project);
+  const updateAnimation = useProjectStore((state) => state.updateAnimation);
+  const updateLayer = useProjectStore((state) => state.updateLayer);
 
-  const sheet = project?.spritesheets.find(s => s.id === spritesheetId);
-  const anim = sheet?.animations.find(a => a.id === animationId);
+  const sheet = project?.spritesheets.find((s) => s.id === spritesheetId);
+  const anim = sheet?.animations.find((a) => a.id === animationId);
   const currentSize = anim?.canvasSize || project?.defaultCanvasSize || { width: 32, height: 32 };
 
   const [width, setWidth] = useState(currentSize.width);
@@ -72,7 +72,7 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
   // Get all frames referenced by this animation
   const affectedFrameIds = useMemo(() => {
     if (!anim) return new Set<string>();
-    return new Set(anim.keyframes.map(k => k.frameId));
+    return new Set(anim.keyframes.map((k) => k.frameId));
   }, [anim]);
 
   const handleResize = async () => {
@@ -82,7 +82,7 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
     try {
       // Transform layer data for all affected frames
       for (const frameId of affectedFrameIds) {
-        const frame = sheet.frames.find(f => f.id === frameId);
+        const frame = sheet.frames.find((f) => f.id === frameId);
         if (!frame) continue;
 
         for (const layer of frame.layers) {
@@ -112,9 +112,15 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
   };
 
   const anchorPositions: { x: AnchorX; y: AnchorY }[] = [
-    { x: 0, y: 0 }, { x: 0.5, y: 0 }, { x: 1, y: 0 },
-    { x: 0, y: 0.5 }, { x: 0.5, y: 0.5 }, { x: 1, y: 0.5 },
-    { x: 0, y: 1 }, { x: 0.5, y: 1 }, { x: 1, y: 1 },
+    { x: 0, y: 0 },
+    { x: 0.5, y: 0 },
+    { x: 1, y: 0 },
+    { x: 0, y: 0.5 },
+    { x: 0.5, y: 0.5 },
+    { x: 1, y: 0.5 },
+    { x: 0, y: 1 },
+    { x: 0.5, y: 1 },
+    { x: 1, y: 1 },
   ];
 
   return (
@@ -128,7 +134,9 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
           onCancel={onClose}
           onConfirm={handleResize}
           confirmText={isProcessing ? t('resize_modal.resizing') : t('resize_modal.resize')}
-          confirmDisabled={isProcessing || width <= 0 || height <= 0 || (width === currentSize.width && height === currentSize.height)}
+          confirmDisabled={
+            isProcessing || width <= 0 || height <= 0 || (width === currentSize.width && height === currentSize.height)
+          }
         />
       }
     >
@@ -139,20 +147,10 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
 
       <div className="flex gap-4">
         <FormField label="Width (px)" className="flex-1">
-          <NumberInput
-            value={width}
-            onChange={(e) => setWidth(parseInt(e.target.value) || 1)}
-            min={1}
-            max={4096}
-          />
+          <NumberInput value={width} onChange={(e) => setWidth(parseInt(e.target.value) || 1)} min={1} max={4096} />
         </FormField>
         <FormField label="Height (px)" className="flex-1">
-          <NumberInput
-            value={height}
-            onChange={(e) => setHeight(parseInt(e.target.value) || 1)}
-            min={1}
-            max={4096}
-          />
+          <NumberInput value={height} onChange={(e) => setHeight(parseInt(e.target.value) || 1)} min={1} max={4096} />
         </FormField>
       </div>
 
@@ -194,7 +192,10 @@ export const ResizeCanvasModal: React.FC<Props> = ({ spritesheetId, animationId,
                       ? 'bg-indigo-500 border-indigo-400'
                       : 'bg-slate-700 border-slate-600 hover:border-slate-500'
                   }`}
-                  onClick={() => { setAnchorX(x); setAnchorY(y); }}
+                  onClick={() => {
+                    setAnchorX(x);
+                    setAnchorY(y);
+                  }}
                   title={`Anchor ${x === 0 ? 'left' : x === 1 ? 'right' : 'center'} ${y === 0 ? 'top' : y === 1 ? 'bottom' : 'middle'}`}
                 />
               );

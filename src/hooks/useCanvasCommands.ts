@@ -23,20 +23,90 @@ export function useCanvasCommands() {
 
   useEffect(() => {
     // Tool commands
-    registerCommand({ key: 'canvas.toolPencil', view: 'canvas', icon: IconRegistry.ToolPencil, handler: () => setActiveTool('pencil') });
-    registerCommand({ key: 'canvas.toolEraser', view: 'canvas', icon: IconRegistry.ToolEraser, handler: () => setActiveTool('eraser') });
-    registerCommand({ key: 'canvas.toolFill', view: 'canvas', icon: IconRegistry.ToolFill, handler: () => setActiveTool('fill') });
-    registerCommand({ key: 'canvas.toolPicker', view: 'canvas', icon: IconRegistry.ToolPicker, handler: () => setActiveTool('picker') });
-    registerCommand({ key: 'canvas.toolMove', view: 'canvas', icon: IconRegistry.ToolMove, handler: () => setActiveTool('move') });
-    registerCommand({ key: 'canvas.toolPan', view: 'canvas', icon: IconRegistry.ToolPan, handler: () => setActiveTool('pan') });
-    registerCommand({ key: 'canvas.toolScale', view: 'canvas', icon: IconRegistry.ToolScale, handler: () => setActiveTool('scale') });
-    registerCommand({ key: 'canvas.toolRotate', view: 'canvas', icon: IconRegistry.ToolRotate, handler: () => setActiveTool('rotate') });
-    registerCommand({ key: 'canvas.toolTransform', view: 'canvas', icon: IconRegistry.ToolTransform, handler: () => setActiveTool('transform') });
-    registerCommand({ key: 'canvas.toolSelection', view: 'canvas', icon: IconRegistry.ToolSelect, handler: () => setActiveTool('selection') });
-    registerCommand({ key: 'canvas.toolMagicWand', view: 'canvas', icon: IconRegistry.ToolMagicWand, handler: () => setActiveTool('magicWand') });
-    registerCommand({ key: 'canvas.toolLine', view: 'canvas', icon: IconRegistry.ToolLine, handler: () => setActiveTool('line') });
-    registerCommand({ key: 'canvas.toolRectangle', view: 'canvas', icon: IconRegistry.ToolRectangle, handler: () => setActiveTool('rectangle') });
-    registerCommand({ key: 'canvas.toolEllipse', view: 'canvas', icon: IconRegistry.ToolEllipse, handler: () => setActiveTool('ellipse') });
+    registerCommand({
+      key: 'canvas.toolPencil',
+      view: 'canvas',
+      icon: IconRegistry.ToolPencil,
+      handler: () => setActiveTool('pencil'),
+    });
+    registerCommand({
+      key: 'canvas.toolEraser',
+      view: 'canvas',
+      icon: IconRegistry.ToolEraser,
+      handler: () => setActiveTool('eraser'),
+    });
+    registerCommand({
+      key: 'canvas.toolFill',
+      view: 'canvas',
+      icon: IconRegistry.ToolFill,
+      handler: () => setActiveTool('fill'),
+    });
+    registerCommand({
+      key: 'canvas.toolPicker',
+      view: 'canvas',
+      icon: IconRegistry.ToolPicker,
+      handler: () => setActiveTool('picker'),
+    });
+    registerCommand({
+      key: 'canvas.toolMove',
+      view: 'canvas',
+      icon: IconRegistry.ToolMove,
+      handler: () => setActiveTool('move'),
+    });
+    registerCommand({
+      key: 'canvas.toolPan',
+      view: 'canvas',
+      icon: IconRegistry.ToolPan,
+      handler: () => setActiveTool('pan'),
+    });
+    registerCommand({
+      key: 'canvas.toolScale',
+      view: 'canvas',
+      icon: IconRegistry.ToolScale,
+      handler: () => setActiveTool('scale'),
+    });
+    registerCommand({
+      key: 'canvas.toolRotate',
+      view: 'canvas',
+      icon: IconRegistry.ToolRotate,
+      handler: () => setActiveTool('rotate'),
+    });
+    registerCommand({
+      key: 'canvas.toolTransform',
+      view: 'canvas',
+      icon: IconRegistry.ToolTransform,
+      handler: () => setActiveTool('transform'),
+    });
+    registerCommand({
+      key: 'canvas.toolSelection',
+      view: 'canvas',
+      icon: IconRegistry.ToolSelect,
+      handler: () => setActiveTool('selection'),
+    });
+    registerCommand({
+      key: 'canvas.toolMagicWand',
+      view: 'canvas',
+      icon: IconRegistry.ToolMagicWand,
+      handler: () => setActiveTool('magicWand'),
+    });
+    registerCommand({
+      key: 'canvas.toolLine',
+      view: 'canvas',
+      icon: IconRegistry.ToolLine,
+      handler: () => setActiveTool('line'),
+    });
+    registerCommand({
+      key: 'canvas.toolRectangle',
+      view: 'canvas',
+      icon: IconRegistry.ToolRectangle,
+      handler: () => setActiveTool('rectangle'),
+    });
+    registerCommand({
+      key: 'canvas.toolEllipse',
+      view: 'canvas',
+      icon: IconRegistry.ToolEllipse,
+      handler: () => setActiveTool('ellipse'),
+    });
 
     // Flip commands
     registerCommand({
@@ -163,16 +233,35 @@ export function useCanvasCommands() {
 
     return () => {
       for (const key of [
-        'canvas.toolPencil', 'canvas.toolEraser', 'canvas.toolFill', 'canvas.toolPicker',
-        'canvas.toolMove', 'canvas.toolPan', 'canvas.toolScale', 'canvas.toolRotate', 'canvas.toolTransform',
-        'canvas.toolSelection', 'canvas.toolMagicWand', 'canvas.toolLine',
-        'canvas.toolRectangle', 'canvas.toolEllipse', 'canvas.flipHorizontal', 'canvas.flipVertical',
-        'canvas.rotateCw', 'canvas.rotateCcw',
-        'canvas.selectAll', 'canvas.clearSelection',
-        'canvas.zoomIn', 'canvas.zoomOut', 'canvas.zoomReset',
-        'canvas.fitToScreen', 'canvas.zoomToSelection',
-        'canvas.toggleGrid', 'canvas.toggleCenterLines',
-        'canvas.copy', 'canvas.paste',
+        'canvas.toolPencil',
+        'canvas.toolEraser',
+        'canvas.toolFill',
+        'canvas.toolPicker',
+        'canvas.toolMove',
+        'canvas.toolPan',
+        'canvas.toolScale',
+        'canvas.toolRotate',
+        'canvas.toolTransform',
+        'canvas.toolSelection',
+        'canvas.toolMagicWand',
+        'canvas.toolLine',
+        'canvas.toolRectangle',
+        'canvas.toolEllipse',
+        'canvas.flipHorizontal',
+        'canvas.flipVertical',
+        'canvas.rotateCw',
+        'canvas.rotateCcw',
+        'canvas.selectAll',
+        'canvas.clearSelection',
+        'canvas.zoomIn',
+        'canvas.zoomOut',
+        'canvas.zoomReset',
+        'canvas.fitToScreen',
+        'canvas.zoomToSelection',
+        'canvas.toggleGrid',
+        'canvas.toggleCenterLines',
+        'canvas.copy',
+        'canvas.paste',
         'canvas.swapColors',
       ]) {
         unregisterCommand(key);

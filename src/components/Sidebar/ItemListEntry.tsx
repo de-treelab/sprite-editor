@@ -34,9 +34,7 @@ export const ItemListEntry: React.FC<ItemListEntryProps> = ({
 }) => (
   <div
     className={`flex items-center p-1 text-xs rounded cursor-pointer ${
-      isSelected
-        ? 'bg-indigo-500/50 text-white'
-        : 'text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+      isSelected ? 'bg-indigo-500/50 text-white' : 'text-slate-400 hover:bg-slate-700 hover:text-slate-200'
     } ${className}`}
     onClick={(e) => {
       e.stopPropagation();
@@ -53,11 +51,7 @@ export const ItemListEntry: React.FC<ItemListEntryProps> = ({
       <IconRegistry.Play className="mr-2 text-xs flex-shrink-0" />
     )}
     {isEditing ? (
-      <InlineEditInput
-        value={item.name}
-        onSave={onSaveEdit}
-        onCancel={onCancelEdit}
-      />
+      <InlineEditInput value={item.name} onSave={onSaveEdit} onCancel={onCancelEdit} />
     ) : (
       <span className="truncate select-none">{item.name}</span>
     )}

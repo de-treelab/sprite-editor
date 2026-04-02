@@ -14,16 +14,16 @@ import { getCanvasActions } from '../../hooks/canvasActions';
 
 export const RightSidebar = () => {
   const { t } = useTranslation();
-  const project = useProjectStore(state => state.project);
-  const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
-  const activeFrameId = useProjectStore(state => state.activeFrameId);
-  const activeSheet = project?.spritesheets?.find(s => s.id === activeSpritesheetId);
-  const activeLayerId = useProjectStore(state => state.activeLayerId);
-  const setActiveLayer = useProjectStore(state => state.setActiveLayer);
-  const addLayer = useProjectStore(state => state.addLayer);
-  const removeLayer = useProjectStore(state => state.removeLayer);
-  const reorderLayers = useProjectStore(state => state.reorderLayers);
-  const setFocusedView = useEditorStore(state => state.setFocusedView);
+  const project = useProjectStore((state) => state.project);
+  const activeSpritesheetId = useProjectStore((state) => state.activeSpritesheetId);
+  const activeFrameId = useProjectStore((state) => state.activeFrameId);
+  const activeSheet = project?.spritesheets?.find((s) => s.id === activeSpritesheetId);
+  const activeLayerId = useProjectStore((state) => state.activeLayerId);
+  const setActiveLayer = useProjectStore((state) => state.setActiveLayer);
+  const addLayer = useProjectStore((state) => state.addLayer);
+  const removeLayer = useProjectStore((state) => state.removeLayer);
+  const reorderLayers = useProjectStore((state) => state.reorderLayers);
+  const setFocusedView = useEditorStore((state) => state.setFocusedView);
 
   const activeFrame = activeSheet?.frames.find((f) => f.id === activeFrameId);
   const layers = activeFrame?.layers || [];
@@ -33,7 +33,7 @@ export const RightSidebar = () => {
 
   useEffect(() => {
     if (layers.length > 0) {
-      if (!activeLayerId || !layers.some(l => l.id === activeLayerId)) {
+      if (!activeLayerId || !layers.some((l) => l.id === activeLayerId)) {
         setActiveLayer(layers[0].id);
       }
     } else {
@@ -53,7 +53,7 @@ export const RightSidebar = () => {
       visible: true,
       locked: false,
       isReference: false,
-      data: ''
+      data: '',
     };
     addLayer(sheetId, frameId, newLayer);
     setActiveLayer(newLayer.id);
@@ -77,14 +77,14 @@ export const RightSidebar = () => {
     const layerId = activeLayerId;
 
     // Capture the layer data before removal
-    const removedLayer = layers.find(l => l.id === layerId);
-    const removedIndex = layers.findIndex(l => l.id === layerId);
+    const removedLayer = layers.find((l) => l.id === layerId);
+    const removedIndex = layers.findIndex((l) => l.id === layerId);
     if (!removedLayer) return;
     const layerSnapshot = { ...removedLayer };
 
     removeLayer(sheetId, frameId, layerId);
     if (layers.length > 1) {
-      const remaining = layers.filter(l => l.id !== layerId);
+      const remaining = layers.filter((l) => l.id !== layerId);
       setActiveLayer(remaining[0].id);
     } else {
       setActiveLayer(null);
@@ -97,8 +97,8 @@ export const RightSidebar = () => {
         const ps = useProjectStore.getState();
         ps.addLayer(sheetId, frameId, layerSnapshot);
         // Move from end to original index
-        const sheet = ps.project?.spritesheets.find(s => s.id === sheetId);
-        const frame = sheet?.frames.find(f => f.id === frameId);
+        const sheet = ps.project?.spritesheets.find((s) => s.id === sheetId);
+        const frame = sheet?.frames.find((f) => f.id === frameId);
         if (frame) {
           const currentIndex = frame.layers.length - 1;
           if (currentIndex !== removedIndex) {
@@ -164,14 +164,14 @@ export const RightSidebar = () => {
 
   const handleMergeDown = () => {
     const actions = getCanvasActions();
-    if (actions && 'mergeDown' in actions) {
-      (actions as any).mergeDown();
+    if (actions) {
+      actions.mergeDown();
     }
   };
 
   const canMergeDown = (() => {
     if (!activeLayerId || layers.length < 2) return false;
-    const idx = layers.findIndex(l => l.id === activeLayerId);
+    const idx = layers.findIndex((l) => l.id === activeLayerId);
     return idx > 0; // Can merge if not the bottom layer
   })();
 
@@ -194,12 +194,7 @@ export const RightSidebar = () => {
       <div className="p-2 border-b border-slate-700 font-bold text-sm text-slate-300 flex justify-between items-center">
         <span>{t('sidebar.layers', 'Layers')}</span>
         <div className="flex gap-1">
-          <IconButton
-            icon={IconRegistry.Add}
-            size="sm"
-            onClick={handleAddLayer}
-            label={t('sidebar.new_layer')}
-          />
+          <IconButton icon={IconRegistry.Add} size="sm" onClick={handleAddLayer} label={t('sidebar.new_layer')} />
           <IconButton
             icon={IconRegistry.Merge}
             size="sm"

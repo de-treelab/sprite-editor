@@ -71,7 +71,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
             min-w-[180px] py-1
             bg-slate-800 border border-slate-700 rounded-lg shadow-xl
             ${menuClassName}
-          `.trim().replace(/\s+/g, ' ')}
+          `
+            .trim()
+            .replace(/\s+/g, ' ')}
           onClick={handleMenuClick}
         >
           {children}
@@ -105,17 +107,23 @@ export const ControlledDropdown: React.FC<ControlledDropdownProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-      onOpenChange(false);
-    }
-  }, [onOpenChange]);
+  const handleClickOutside = useCallback(
+    (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        onOpenChange(false);
+      }
+    },
+    [onOpenChange],
+  );
 
-  const handleEscape = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onOpenChange(false);
-    }
-  }, [onOpenChange]);
+  const handleEscape = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onOpenChange(false);
+      }
+    },
+    [onOpenChange],
+  );
 
   useEffect(() => {
     if (isOpen) {
@@ -143,7 +151,9 @@ export const ControlledDropdown: React.FC<ControlledDropdownProps> = ({
             min-w-[180px] py-1
             bg-slate-800 border border-slate-700 rounded-lg shadow-xl
             ${menuClassName}
-          `.trim().replace(/\s+/g, ' ')}
+          `
+            .trim()
+            .replace(/\s+/g, ' ')}
         >
           {children}
         </div>

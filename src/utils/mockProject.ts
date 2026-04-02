@@ -51,9 +51,9 @@ export const createMockProject = (): AppProject => {
                 data: '',
               },
             ],
-          }
-        ]
-      }
-    ]
+          },
+        ],
+      },
+    ],
   };
 };

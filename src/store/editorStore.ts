@@ -67,7 +67,9 @@ interface EditorState {
   setShowGrid: (show: boolean) => void;
   setShowCenterLines: (show: boolean) => void;
 
-  setClipboard: (clip: { data: string; width: number; height: number; offsetX: number; offsetY: number } | null) => void;
+  setClipboard: (
+    clip: { data: string; width: number; height: number; offsetX: number; offsetY: number } | null,
+  ) => void;
 
   setIsPlaying: (playing: boolean) => void;
   setPlaybackTime: (time: number) => void;
@@ -119,15 +121,16 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   setActiveTool: (tool) => set({ activeTool: tool }),
 
-  setToolProperty: (tool, key, value) => set((state) => ({
-    toolProperties: {
-      ...state.toolProperties,
-      [tool]: {
-        ...state.toolProperties[tool],
-        [key]: value,
+  setToolProperty: (tool, key, value) =>
+    set((state) => ({
+      toolProperties: {
+        ...state.toolProperties,
+        [tool]: {
+          ...state.toolProperties[tool],
+          [key]: value,
+        },
       },
-    },
-  })),
+    })),
 
   getToolProperty: <T extends number | string | boolean>(tool: Tool, key: string): T => {
     return get().toolProperties[tool]?.[key] as T;
@@ -137,18 +140,20 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setSecondaryColor: (color) => set({ secondaryColor: color }),
   setZoomLevel: (zoom) => set({ zoomLevel: zoom }),
   setFocusedView: (view) => set({ focusedView: view }),
-  toggleHiddenView: (view) => set((state) => {
-    const next = new Set(state.hiddenViews);
-    if (next.has(view)) {
-      next.delete(view);
-    } else {
-      next.add(view);
-    }
-    return { hiddenViews: next, fullscreenView: state.fullscreenView === view ? null : state.fullscreenView };
-  }),
-  toggleFullscreenView: (view) => set((state) => ({
-    fullscreenView: state.fullscreenView === view ? null : view,
-  })),
+  toggleHiddenView: (view) =>
+    set((state) => {
+      const next = new Set(state.hiddenViews);
+      if (next.has(view)) {
+        next.delete(view);
+      } else {
+        next.add(view);
+      }
+      return { hiddenViews: next, fullscreenView: state.fullscreenView === view ? null : state.fullscreenView };
+    }),
+  toggleFullscreenView: (view) =>
+    set((state) => ({
+      fullscreenView: state.fullscreenView === view ? null : view,
+    })),
   setKeybindings: (keybindings) => set({ keybindings }),
 
   setOnionSkinEnabled: (enabled) => set({ onionSkinEnabled: enabled }),

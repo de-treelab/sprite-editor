@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { IconRegistry } from '../IconRegistry';
 import { useProjectStore } from '../../store/projectStore';
 import { useTranslation } from 'react-i18next';
-import {
-  RangeSlider,
-  IconButton,
-  ListItem,
-  InlineEditInput,
-} from '../ui';
+import { RangeSlider, IconButton, ListItem, InlineEditInput } from '../ui';
 
 interface Layer {
   id: string;
@@ -51,9 +46,9 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
 }) => {
   const [editingName, setEditingName] = useState(false);
   const { t } = useTranslation();
-  const activeSpritesheetId = useProjectStore(state => state.activeSpritesheetId);
-  const activeFrameId = useProjectStore(state => state.activeFrameId);
-  const updateLayer = useProjectStore(state => state.updateLayer);
+  const activeSpritesheetId = useProjectStore((state) => state.activeSpritesheetId);
+  const activeFrameId = useProjectStore((state) => state.activeFrameId);
+  const updateLayer = useProjectStore((state) => state.updateLayer);
 
   return (
     <ListItem
@@ -75,7 +70,10 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
           size="sm"
           variant="toggle"
           isActive={layer.visible}
-          onClick={(e) => { e.stopPropagation(); updateLayer(activeSpritesheetId!, activeFrameId!, layer.id, { visible: !layer.visible }); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            updateLayer(activeSpritesheetId!, activeFrameId!, layer.id, { visible: !layer.visible });
+          }}
           label={layer.visible ? t('sidebar.hide_layer') : t('sidebar.show_layer')}
         />
 
@@ -84,7 +82,10 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
           size="sm"
           variant="toggle"
           isActive={layer.locked}
-          onClick={(e) => { e.stopPropagation(); updateLayer(activeSpritesheetId!, activeFrameId!, layer.id, { locked: !layer.locked }); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            updateLayer(activeSpritesheetId!, activeFrameId!, layer.id, { locked: !layer.locked });
+          }}
           label={layer.locked ? t('sidebar.unlock_layer') : t('sidebar.lock_layer')}
           className={layer.locked ? '!text-rose-400' : ''}
         />
@@ -126,7 +127,10 @@ export const LayerListItem: React.FC<LayerListItemProps> = ({
           icon={IconRegistry.Delete}
           size="sm"
           variant="danger"
-          onClick={(e) => { e.stopPropagation(); onRemove(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
           label={t('sidebar.delete_layer')}
         />
       </div>

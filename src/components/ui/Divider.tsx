@@ -5,10 +5,7 @@ interface DividerProps {
   className?: string;
 }
 
-export const Divider: React.FC<DividerProps> = ({
-  orientation = 'horizontal',
-  className = '',
-}) => {
+export const Divider: React.FC<DividerProps> = ({ orientation = 'horizontal', className = '' }) => {
   if (orientation === 'vertical') {
     return <div className={`w-px h-full bg-slate-700 ${className}`} />;
   }

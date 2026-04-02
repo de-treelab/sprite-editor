@@ -1,11 +1,11 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { OverlayScrollbars } from "overlayscrollbars";
-import "overlayscrollbars/overlayscrollbars.css";
-import App from "./App";
-import "./i18n";
-import "./styles/globals.css";
-import { registerBuiltinViews } from "./layouts/registerViews";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { OverlayScrollbars } from 'overlayscrollbars';
+import 'overlayscrollbars/overlayscrollbars.css';
+import App from './App';
+import './i18n';
+import './styles/globals.css';
+import { registerBuiltinViews } from './layouts/registerViews';
 
 registerBuiltinViews();
 
@@ -24,7 +24,7 @@ const osOptions = {
 const managed = new WeakSet<Element>();
 
 function initScrollbars(root: Element) {
-  root.querySelectorAll('[data-os-scrollbar]').forEach(el => {
+  root.querySelectorAll('[data-os-scrollbar]').forEach((el) => {
     if (el instanceof HTMLElement && !managed.has(el)) {
       managed.add(el);
       OverlayScrollbars(el, osOptions);
@@ -35,10 +35,13 @@ function initScrollbars(root: Element) {
 // Observe DOM changes to catch dynamically added opt-in scrollable elements
 let scanQueued = false;
 const observer = new MutationObserver((mutations) => {
-  const hasRelevant = mutations.some(m =>
-    Array.from(m.addedNodes).some(n =>
-      n instanceof HTMLElement && !n.classList.contains('os-scrollbar') && !n.hasAttribute('data-overlayscrollbars-contents')
-    )
+  const hasRelevant = mutations.some((m) =>
+    Array.from(m.addedNodes).some(
+      (n) =>
+        n instanceof HTMLElement &&
+        !n.classList.contains('os-scrollbar') &&
+        !n.hasAttribute('data-overlayscrollbars-contents'),
+    ),
   );
   if (!hasRelevant || scanQueued) return;
   scanQueued = true;
@@ -56,8 +59,8 @@ requestAnimationFrame(() => {
   observer.observe(document.body, { childList: true, subtree: true });
 });
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );

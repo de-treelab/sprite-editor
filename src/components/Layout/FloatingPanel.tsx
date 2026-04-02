@@ -9,80 +9,89 @@ interface FloatingPanelProps {
 }
 
 export const FloatingPanel: React.FC<FloatingPanelProps> = ({ panel }) => {
-  const moveFloating = useLayoutStore(s => s.moveFloating);
-  const resizeFloating = useLayoutStore(s => s.resizeFloating);
-  const bringFloatingToFront = useLayoutStore(s => s.bringFloatingToFront);
-  const setActiveTab = useLayoutStore(s => s.setActiveTab);
-  const removeView = useLayoutStore(s => s.removeView);
+  const moveFloating = useLayoutStore((s) => s.moveFloating);
+  const resizeFloating = useLayoutStore((s) => s.resizeFloating);
+  const bringFloatingToFront = useLayoutStore((s) => s.bringFloatingToFront);
+  const setActiveTab = useLayoutStore((s) => s.setActiveTab);
+  const removeView = useLayoutStore((s) => s.removeView);
   const containerRef = useRef<HTMLDivElement>(null);
   const [, setIsDragging] = useState(false);
   const [, setIsResizing] = useState(false);
 
-  const handleTitleBarMouseDown = useCallback((e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('button')) return;
-    e.preventDefault();
-    setIsDragging(true);
-    bringFloatingToFront(panel.panelId);
+  const handleTitleBarMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest('button')) return;
+      e.preventDefault();
+      setIsDragging(true);
+      bringFloatingToFront(panel.panelId);
 
-    const startX = e.clientX - panel.x;
-    const startY = e.clientY - panel.y;
+      const startX = e.clientX - panel.x;
+      const startY = e.clientY - panel.y;
 
-    const handleMouseMove = (me: MouseEvent) => {
-      moveFloating(panel.panelId, {
-        x: Math.max(0, me.clientX - startX),
-        y: Math.max(0, me.clientY - startY),
-      });
-    };
+      const handleMouseMove = (me: MouseEvent) => {
+        moveFloating(panel.panelId, {
+          x: Math.max(0, me.clientX - startX),
+          y: Math.max(0, me.clientY - startY),
+        });
+      };
 
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
+      const handleMouseUp = () => {
+        setIsDragging(false);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.body.style.cursor = 'grabbing';
-    document.body.style.userSelect = 'none';
-  }, [panel.panelId, panel.x, panel.y, moveFloating, bringFloatingToFront]);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'grabbing';
+      document.body.style.userSelect = 'none';
+    },
+    [panel.panelId, panel.x, panel.y, moveFloating, bringFloatingToFront],
+  );
 
-  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsResizing(true);
-    bringFloatingToFront(panel.panelId);
+  const handleResizeMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsResizing(true);
+      bringFloatingToFront(panel.panelId);
 
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startWidth = panel.width;
-    const startHeight = panel.height;
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startWidth = panel.width;
+      const startHeight = panel.height;
 
-    const handleMouseMove = (me: MouseEvent) => {
-      resizeFloating(panel.panelId, {
-        width: Math.max(200, startWidth + (me.clientX - startX)),
-        height: Math.max(150, startHeight + (me.clientY - startY)),
-      });
-    };
+      const handleMouseMove = (me: MouseEvent) => {
+        resizeFloating(panel.panelId, {
+          width: Math.max(200, startWidth + (me.clientX - startX)),
+          height: Math.max(150, startHeight + (me.clientY - startY)),
+        });
+      };
 
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
+      const handleMouseUp = () => {
+        setIsResizing(false);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.body.style.cursor = 'nwse-resize';
-    document.body.style.userSelect = 'none';
-  }, [panel.panelId, panel.width, panel.height, resizeFloating, bringFloatingToFront]);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'nwse-resize';
+      document.body.style.userSelect = 'none';
+    },
+    [panel.panelId, panel.width, panel.height, resizeFloating, bringFloatingToFront],
+  );
 
-  const handleCloseView = useCallback((viewId: string) => {
-    removeView(viewId);
-  }, [removeView]);
+  const handleCloseView = useCallback(
+    (viewId: string) => {
+      removeView(viewId);
+    },
+    [removeView],
+  );
 
   const activeViewDef = getView(panel.activeViewId);
 
@@ -121,7 +130,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({ panel }) => {
           </>
         ) : (
           <div className="flex items-center flex-1 overflow-x-auto gap-0.5">
-            {panel.viewIds.map(viewId => {
+            {panel.viewIds.map((viewId) => {
               const vDef = getView(viewId);
               if (!vDef) return null;
               const isActive = viewId === panel.activeViewId;
@@ -157,10 +166,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({ panel }) => {
       </div>
 
       {/* Resize handle */}
-      <div
-        className="absolute bottom-0 right-0 w-3 h-3 cursor-nwse-resize"
-        onMouseDown={handleResizeMouseDown}
-      >
+      <div className="absolute bottom-0 right-0 w-3 h-3 cursor-nwse-resize" onMouseDown={handleResizeMouseDown}>
         <svg className="w-3 h-3 text-slate-500" viewBox="0 0 12 12">
           <path d="M10 2L2 10M10 6L6 10M10 10L10 10" stroke="currentColor" strokeWidth="1.5" fill="none" />
         </svg>

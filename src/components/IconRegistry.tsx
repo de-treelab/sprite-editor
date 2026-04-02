@@ -92,7 +92,7 @@ export const IconRegistry = {
   Delete: LuTrash,
   ArrowUp: LuArrowUp,
   ArrowDown: LuArrowDown,
-  
+
   // Generic
   Folder: LuFolderOpen,
   FolderOpen: LuFolderOpen,

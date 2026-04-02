@@ -175,7 +175,13 @@ export function useGlobalCommands(handlers: {
       unregisterCommand('global.redo');
       unregisterCommand('global.openCommandPalette');
     };
-  }, [handlers.onSave, handlers.onSaveWithoutTask, handlers.onOpen, handlers.onNewProject, handlers.onOpenCommandPalette]);
+  }, [
+    handlers.onSave,
+    handlers.onSaveWithoutTask,
+    handlers.onOpen,
+    handlers.onNewProject,
+    handlers.onOpenCommandPalette,
+  ]);
 
   // Layout commands
   const resetLayout = useLayoutStore((s) => s.resetLayout);

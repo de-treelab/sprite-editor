@@ -46,11 +46,20 @@ export function useNavigatorCommands(handlers: {
 
     return () => {
       for (const key of [
-        'navigator.newFrame', 'navigator.deleteFrame', 'navigator.duplicateFrame',
-        'navigator.newLayer', 'navigator.deleteLayer',
+        'navigator.newFrame',
+        'navigator.deleteFrame',
+        'navigator.duplicateFrame',
+        'navigator.newLayer',
+        'navigator.deleteLayer',
       ]) {
         unregisterCommand(key);
       }
     };
-  }, [handlers.onNewFrame, handlers.onDeleteFrame, handlers.onDuplicateFrame, handlers.onNewLayer, handlers.onDeleteLayer]);
+  }, [
+    handlers.onNewFrame,
+    handlers.onDeleteFrame,
+    handlers.onDuplicateFrame,
+    handlers.onNewLayer,
+    handlers.onDeleteLayer,
+  ]);
 }

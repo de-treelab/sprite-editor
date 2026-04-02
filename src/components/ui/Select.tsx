@@ -18,13 +18,7 @@ const sizeStyles: Record<SelectSize, string> = {
   md: 'px-3 py-2 text-sm',
 };
 
-export const Select: React.FC<SelectProps> = ({
-  options,
-  size = 'sm',
-  placeholder,
-  className = '',
-  ...props
-}) => {
+export const Select: React.FC<SelectProps> = ({ options, size = 'sm', placeholder, className = '', ...props }) => {
   return (
     <div className={`relative ${className}`}>
       <select
@@ -35,7 +29,9 @@ export const Select: React.FC<SelectProps> = ({
           focus:outline-none focus:ring-1 focus:ring-indigo-500
           transition-colors
           ${sizeStyles[size]}
-        `.trim().replace(/\s+/g, ' ')}
+        `
+          .trim()
+          .replace(/\s+/g, ' ')}
         {...props}
       >
         {placeholder && (

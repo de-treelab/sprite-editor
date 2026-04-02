@@ -13,15 +13,20 @@ import { EditMenu } from './EditMenu';
 import { TaskMenu } from './TaskMenu';
 import { ViewMenu } from './ViewMenu';
 
-export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHistory: () => void; onRequestResizeCanvas?: () => void; onRequestExport?: () => void }> = ({ onRequestNewProject, onRequestTaskHistory, onRequestResizeCanvas, onRequestExport }) => {
+export const TopBar: React.FC<{
+  onRequestNewProject: () => void;
+  onRequestTaskHistory: () => void;
+  onRequestResizeCanvas?: () => void;
+  onRequestExport?: () => void;
+}> = ({ onRequestNewProject, onRequestTaskHistory, onRequestResizeCanvas, onRequestExport }) => {
   const { t } = useTranslation();
-  const project = useProjectStore(state => state.project);
-  const setProject = useProjectStore(state => state.setProject);
-  const setProjectPath = useProjectStore(state => state.setProjectPath);
-  const activeTask = useTaskStore(state => state.activeTask);
-  const finishTask = useTaskStore(state => state.finishTask);
-  const requestStartTaskPrompt = useTaskStore(state => state.requestStartTaskPrompt);
-  const openSettings = useSettingsStore(state => state.openSettings);
+  const project = useProjectStore((state) => state.project);
+  const setProject = useProjectStore((state) => state.setProject);
+  const setProjectPath = useProjectStore((state) => state.setProjectPath);
+  const activeTask = useTaskStore((state) => state.activeTask);
+  const finishTask = useTaskStore((state) => state.finishTask);
+  const requestStartTaskPrompt = useTaskStore((state) => state.requestStartTaskPrompt);
+  const openSettings = useSettingsStore((state) => state.openSettings);
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [recentProjects, setRecentProjects] = useState<string[]>([]);
@@ -30,7 +35,9 @@ export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHi
     try {
       const recents = JSON.parse(localStorage.getItem('recentProjects') || '[]');
       setRecentProjects(recents);
-    } catch (e) { }
+    } catch {
+      /* ignore */
+    }
   }, [activeMenu]);
 
   const handleSave = async () => {
@@ -45,7 +52,9 @@ export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHi
       try {
         const recents = JSON.parse(localStorage.getItem('recentProjects') || '[]');
         setRecentProjects(recents);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     } catch (e) {
       console.error(e);
       toast.error(t('topbar.file.open_failed', 'Failed to open project.') + '\n' + e);
@@ -63,7 +72,6 @@ export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHi
     }
     setActiveMenu(null);
   };
-
 
   const MenuButton: React.FC<{ menuId: string; label: string }> = ({ menuId, label }) => (
     <button
@@ -136,7 +144,9 @@ export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHi
           }}
           onFinishTask={async () => {
             setActiveMenu(null);
-            try { await finishTask(); } catch (e) {
+            try {
+              await finishTask();
+            } catch (e) {
               console.error(e);
               toast.error(t('task.finish_error') + e);
             }
@@ -163,9 +173,7 @@ export const TopBar: React.FC<{ onRequestNewProject: () => void; onRequestTaskHi
         </div>
       )}
 
-      {project && (
-        <FocusIndicator className="mr-4" />
-      )}
+      {project && <FocusIndicator className="mr-4" />}
 
       {project && (
         <div className="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700">

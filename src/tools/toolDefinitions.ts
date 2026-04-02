@@ -474,7 +474,7 @@ export const toolDefinitions: Record<ToolId, ToolDefinition> = {
 
 // Helper to get tools by category
 export const getToolsByCategory = (category: ToolDefinition['category']): ToolDefinition[] => {
-  return Object.values(toolDefinitions).filter(t => t.category === category);
+  return Object.values(toolDefinitions).filter((t) => t.category === category);
 };
 
 // Helper to get all tool ids

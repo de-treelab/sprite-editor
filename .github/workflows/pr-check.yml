@@ -59,5 +59,11 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Lint check
+        run: npm run lint
+
+      - name: Style check
+        run: npm run style
+
       - name: Build Tauri app
         run: npx tauri build

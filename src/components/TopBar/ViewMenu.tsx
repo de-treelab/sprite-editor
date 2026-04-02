@@ -15,22 +15,20 @@ interface ViewMenuProps {
 
 export const ViewMenu: React.FC<ViewMenuProps> = ({ isOpen, onOpenChange, trigger }) => {
   const { t } = useTranslation();
-  const layout = useLayoutStore(s => s.layout);
-  const floatView = useLayoutStore(s => s.floatView);
-  const toggleViewHidden = useLayoutStore(s => s.toggleViewHidden);
-  const resetLayout = useLayoutStore(s => s.resetLayout);
-  const setFullscreenView = useLayoutStore(s => s.setFullscreenView);
-  const savedLayouts = useLayoutStore(s => s.savedLayouts);
-  const loadLayout = useLayoutStore(s => s.loadLayout);
+  const layout = useLayoutStore((s) => s.layout);
+  const floatView = useLayoutStore((s) => s.floatView);
+  const toggleViewHidden = useLayoutStore((s) => s.toggleViewHidden);
+  const resetLayout = useLayoutStore((s) => s.resetLayout);
+  const setFullscreenView = useLayoutStore((s) => s.setFullscreenView);
+  const savedLayouts = useLayoutStore((s) => s.savedLayouts);
+  const loadLayout = useLayoutStore((s) => s.loadLayout);
 
   const allViews = getAllViews();
 
   const isViewPresent = (viewId: string) =>
-    viewExistsInTree(layout.root, viewId) ||
-    layout.floating.some(f => f.viewIds.includes(viewId));
+    viewExistsInTree(layout.root, viewId) || layout.floating.some((f) => f.viewIds.includes(viewId));
 
-  const isViewVisible = (viewId: string) =>
-    isViewPresent(viewId) && !layout.hiddenViewIds.includes(viewId);
+  const isViewVisible = (viewId: string) => isViewPresent(viewId) && !layout.hiddenViewIds.includes(viewId);
 
   const handleViewClick = (viewId: string) => {
     if (isViewPresent(viewId)) {
@@ -67,12 +65,8 @@ export const ViewMenu: React.FC<ViewMenuProps> = ({ isOpen, onOpenChange, trigge
   };
 
   return (
-    <ControlledDropdown
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      trigger={trigger}
-    >
-      {allViews.map(view => (
+    <ControlledDropdown isOpen={isOpen} onOpenChange={onOpenChange} trigger={trigger}>
+      {allViews.map((view) => (
         <MenuItem
           key={view.id}
           label={view.title}
@@ -83,39 +77,33 @@ export const ViewMenu: React.FC<ViewMenuProps> = ({ isOpen, onOpenChange, trigge
 
       <MenuDivider />
 
-      {layout.fullscreenViewId && (
-        <MenuItem
-          label={t('topbar.view.exit_fullscreen')}
-          onClick={handleExitFullscreen}
-        />
-      )}
+      {layout.fullscreenViewId && <MenuItem label={t('topbar.view.exit_fullscreen')} onClick={handleExitFullscreen} />}
 
-      <MenuItem
-        label={t('topbar.view.reset_layout')}
-        onClick={handleResetLayout}
-      />
+      <MenuItem label={t('topbar.view.reset_layout')} onClick={handleResetLayout} />
 
       <MenuItem
         label={t('topbar.view.save_layout')}
         icon={IconRegistry.Save}
-        onClick={() => { executeCommand('global.saveLayout'); onOpenChange(false); }}
+        onClick={() => {
+          executeCommand('global.saveLayout');
+          onOpenChange(false);
+        }}
       />
 
       <MenuItem
         label={t('topbar.view.manage_layouts')}
         icon={IconRegistry.Layout}
-        onClick={() => { executeCommand('global.manageLayouts'); onOpenChange(false); }}
+        onClick={() => {
+          executeCommand('global.manageLayouts');
+          onOpenChange(false);
+        }}
       />
 
       {savedLayouts.length > 0 && (
         <>
           <MenuDivider />
-          {savedLayouts.map(sl => (
-            <MenuItem
-              key={sl.id}
-              label={sl.name}
-              onClick={() => handleLoadLayout(sl.id)}
-            />
+          {savedLayouts.map((sl) => (
+            <MenuItem key={sl.id} label={sl.name} onClick={() => handleLoadLayout(sl.id)} />
           ))}
         </>
       )}

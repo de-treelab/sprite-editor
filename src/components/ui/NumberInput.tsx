@@ -11,11 +11,7 @@ const sizeStyles: Record<NumberInputSize, string> = {
   md: 'px-3 py-2 text-sm',
 };
 
-export const NumberInput: React.FC<NumberInputProps> = ({
-  size = 'md',
-  className = '',
-  ...props
-}) => {
+export const NumberInput: React.FC<NumberInputProps> = ({ size = 'md', className = '', ...props }) => {
   return (
     <input
       type="number"
@@ -25,7 +21,9 @@ export const NumberInput: React.FC<NumberInputProps> = ({
         [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
         ${sizeStyles[size]}
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
       {...props}
     />
   );

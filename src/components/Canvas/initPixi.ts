@@ -6,6 +6,7 @@ import { setCanvasActions } from '../../hooks/canvasActions';
 import { CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM } from './canvasUtils';
 import { clamp } from '../../utils/math';
 import { toolDefinitions, ToolId } from '../../tools/toolDefinitions';
+import { useSettingsStore } from '../../store/settingsStore';
 import { setupViewport } from './viewportSetup';
 import { setupCanvasActions } from './canvasActionsSetup';
 import { setupPointerHandlers } from './pointerHandlers';
@@ -107,24 +108,34 @@ export function initPixiEditor(params: InitPixiParams): InitPixiCleanup {
         const h = containerRef.current.clientHeight;
         const tw = w > 0 ? w : 800;
         const th = h > 0 ? h : 600;
-        viewport.x = (tw / 2) - ((canvasWidth * currentZoom) / 2);
-        viewport.y = (th / 2) - ((canvasHeight * currentZoom) / 2);
+        viewport.x = tw / 2 - (canvasWidth * currentZoom) / 2;
+        viewport.y = th / 2 - (canvasHeight * currentZoom) / 2;
       }
     };
     updateViewportPlacement();
     window.addEventListener('resize', updateViewportPlacement);
     const cleanupResize = () => window.removeEventListener('resize', updateViewportPlacement);
     app.canvas.addEventListener('DOMNodeRemovedFromDocument', cleanupResize);
-    (app as any)._cleanupResize = cleanupResize;
+    (app as unknown as { _cleanupResize: () => void })._cleanupResize = cleanupResize;
 
     // ── Layer synchronisation ──
-    let currentActiveLayerId: string | null = null;
-    let lastKnownFrameId: string | null = null;
+    const currentActiveLayerId: string | null = null;
+    const lastKnownFrameId: string | null = null;
     const currentActiveLayerRef = { current: currentActiveLayerId };
     const lastKnownFrameRef = { current: lastKnownFrameId };
 
     const doSyncLayers = () => {
-      syncLayers(layerContainer, vp.drawingTexture, vp.drawingCanvas, vp.ctx, canvasWidth, canvasHeight, appRef, currentActiveLayerRef, lastKnownFrameRef);
+      syncLayers(
+        layerContainer,
+        vp.drawingTexture,
+        vp.drawingCanvas,
+        vp.ctx,
+        canvasWidth,
+        canvasHeight,
+        appRef,
+        currentActiveLayerRef,
+        lastKnownFrameRef,
+      );
     };
 
     // ── Build editor context ──
@@ -185,20 +196,28 @@ export function initPixiEditor(params: InitPixiParams): InitPixiCleanup {
     doSyncLayers();
 
     // ── Wheel Zoom ──
-    app.canvas.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const edState = useEditorStore.getState();
-      const delta = e.deltaY < 0 ? 10 : -10;
-      const newZoom = clamp(edState.zoomLevel + delta, CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM);
-      edState.setZoomLevel(newZoom);
-      const pointerX = e.offsetX;
-      const pointerY = e.offsetY;
-      const worldPos = { x: (pointerX - viewport.x) / viewport.scale.x, y: (pointerY - viewport.y) / viewport.scale.y };
-      viewport.scale.set(newZoom / 10);
-      viewport.x = pointerX - (worldPos.x * viewport.scale.x);
-      viewport.y = pointerY - (worldPos.y * viewport.scale.y);
-      redrawGrid();
-    }, { passive: false });
+    app.canvas.addEventListener(
+      'wheel',
+      (e) => {
+        e.preventDefault();
+        const edState = useEditorStore.getState();
+        const zoomStep = useSettingsStore.getState().getValue<number>('editor.canvas.zoomStep');
+        const delta = e.deltaY < 0 ? zoomStep : -zoomStep;
+        const newZoom = clamp(edState.zoomLevel + delta, CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM);
+        edState.setZoomLevel(newZoom);
+        const pointerX = e.offsetX;
+        const pointerY = e.offsetY;
+        const worldPos = {
+          x: (pointerX - viewport.x) / viewport.scale.x,
+          y: (pointerY - viewport.y) / viewport.scale.y,
+        };
+        viewport.scale.set(newZoom / 10);
+        viewport.x = pointerX - worldPos.x * viewport.scale.x;
+        viewport.y = pointerY - worldPos.y * viewport.scale.y;
+        redrawGrid();
+      },
+      { passive: false },
+    );
   };
 
   boot();
@@ -213,9 +232,8 @@ export function initPixiEditor(params: InitPixiParams): InitPixiCleanup {
       window.removeEventListener('keyup', onKeyUp);
       if (appRef.current) {
         try {
-          if ((appRef.current as any)._cleanupResize) {
-            (appRef.current as any)._cleanupResize();
-          }
+          const appWithCleanup = appRef.current as unknown as { _cleanupResize?: () => void };
+          appWithCleanup._cleanupResize?.();
           appRef.current.destroy(true, { children: true });
         } catch (e) {
           console.warn('Pixi destroy error caught:', e);

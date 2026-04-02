@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useProjectStore } from '../../store/projectStore';
 import { useEditorStore } from '../../store/editorStore';
 import { useKeyframeEditorCommands } from '../../hooks/useKeyframeEditorCommands';
-import { Keyframe } from '../../types/project';
+import { Keyframe, Spritesheet, Animation, SpriteFrame } from '../../types/project';
 import { TimelineToolbar } from './TimelineToolbar';
 import { TimelineRuler } from './TimelineRuler';
 import { KeyframeTrack } from './KeyframeTrack';
@@ -24,19 +24,19 @@ export const KeyframeEditor: React.FC = () => {
     removeKeyframe,
     addFrame,
     setActiveFrame,
-    setActiveLayer
+    setActiveLayer,
   } = useProjectStore();
 
-  const activeSheet = project?.spritesheets?.find((s: any) => s.id === activeSpritesheetId);
-  const animation = activeSheet?.animations?.find((a: any) => a.id === activeItemId);
+  const activeSheet = project?.spritesheets?.find((s: Spritesheet) => s.id === activeSpritesheetId);
+  const animation = activeSheet?.animations?.find((a: Animation) => a.id === activeItemId);
 
   const { isPlaying, setIsPlaying, playbackSpeed, setPlaybackSpeed, setPlaybackFrameId } = useEditorStore();
-  const loopStart = useEditorStore(s => s.loopStart);
-  const loopEnd = useEditorStore(s => s.loopEnd);
-  const setLoopStart = useEditorStore(s => s.setLoopStart);
-  const setLoopEnd = useEditorStore(s => s.setLoopEnd);
-  const snapInterval = useEditorStore(s => s.snapInterval);
-  const setSnapInterval = useEditorStore(s => s.setSnapInterval);
+  const loopStart = useEditorStore((s) => s.loopStart);
+  const loopEnd = useEditorStore((s) => s.loopEnd);
+  const setLoopStart = useEditorStore((s) => s.setLoopStart);
+  const setLoopEnd = useEditorStore((s) => s.setLoopEnd);
+  const snapInterval = useEditorStore((s) => s.snapInterval);
+  const setSnapInterval = useEditorStore((s) => s.setSnapInterval);
   const setFocusedView = useEditorStore((state) => state.setFocusedView);
   const [zoom, setZoom] = useState(PIXELS_PER_MS_DEFAULT);
   const [currentTime, setCurrentTime] = useState(0);
@@ -56,49 +56,52 @@ export const KeyframeEditor: React.FC = () => {
   const effectiveStart = loopStart != null ? loopStart : 0;
   const effectiveEnd = loopEnd != null ? loopEnd : maxKeyframeTime + 100;
 
-  const advancePlayhead = useCallback((time: number) => {
-    if (lastTimeRef.current != null && isPlaying) {
-      const edState = useEditorStore.getState();
-      const delta = (time - lastTimeRef.current) * playbackSpeed;
-      const eStart = edState.loopStart != null ? edState.loopStart : 0;
-      const eEnd = edState.loopEnd != null ? edState.loopEnd : maxKeyframeTime + 100;
-      const range = eEnd - eStart;
+  const advancePlayhead = useCallback(
+    (time: number) => {
+      if (lastTimeRef.current != null && isPlaying) {
+        const edState = useEditorStore.getState();
+        const delta = (time - lastTimeRef.current) * playbackSpeed;
+        const eStart = edState.loopStart != null ? edState.loopStart : 0;
+        const eEnd = edState.loopEnd != null ? edState.loopEnd : maxKeyframeTime + 100;
+        const range = eEnd - eStart;
 
-      setCurrentTime(prev => {
-        let next = prev;
-        if (edState.loopMode === 'pingpong') {
-          if (edState.pingpongReverse) {
-            next = prev - delta;
-            if (next <= eStart) {
-              next = eStart;
-              useEditorStore.getState().setPingpongReverse(false);
+        setCurrentTime((prev) => {
+          let next: number;
+          if (edState.loopMode === 'pingpong') {
+            if (edState.pingpongReverse) {
+              next = prev - delta;
+              if (next <= eStart) {
+                next = eStart;
+                useEditorStore.getState().setPingpongReverse(false);
+              }
+            } else {
+              next = prev + delta;
+              if (next >= eEnd) {
+                next = eEnd;
+                useEditorStore.getState().setPingpongReverse(true);
+              }
             }
           } else {
             next = prev + delta;
             if (next >= eEnd) {
-              next = eEnd;
-              useEditorStore.getState().setPingpongReverse(true);
+              if (edState.loopMode === 'oneshot') {
+                next = eEnd;
+                useEditorStore.getState().setIsPlaying(false);
+              } else {
+                next = eStart + ((next - eStart) % range);
+              }
             }
           }
-        } else {
-          next = prev + delta;
-          if (next >= eEnd) {
-            if (edState.loopMode === 'oneshot') {
-              next = eEnd;
-              useEditorStore.getState().setIsPlaying(false);
-            } else {
-              next = eStart + ((next - eStart) % range);
-            }
-          }
-        }
-        return next;
-      });
-    }
-    lastTimeRef.current = time;
-    if (isPlaying) {
-      requestRef.current = requestAnimationFrame(advancePlayhead);
-    }
-  }, [isPlaying, maxKeyframeTime, playbackSpeed]);
+          return next;
+        });
+      }
+      lastTimeRef.current = time;
+      if (isPlaying) {
+        requestRef.current = requestAnimationFrame(advancePlayhead);
+      }
+    },
+    [isPlaying, maxKeyframeTime, playbackSpeed],
+  );
 
   useEffect(() => {
     if (isPlaying) {
@@ -133,8 +136,8 @@ export const KeyframeEditor: React.FC = () => {
     const kf = keyframes.find((k: Keyframe) => k.id === keyframeId);
     if (kf && kf.frameId) {
       setActiveFrame(kf.frameId);
-      const sheet = project?.spritesheets?.find((s: any) => s.id === activeSpritesheetId);
-      const frame = sheet?.frames?.find((f: any) => f.id === kf.frameId);
+      const sheet = project?.spritesheets?.find((s: Spritesheet) => s.id === activeSpritesheetId);
+      const frame = sheet?.frames?.find((f: SpriteFrame) => f.id === kf.frameId);
       if (frame && frame.layers.length > 0) {
         useProjectStore.getState().setActiveLayer(frame.layers[frame.layers.length - 1].id);
       }
@@ -222,12 +225,12 @@ export const KeyframeEditor: React.FC = () => {
       visible: true,
       locked: false,
       isReference: false,
-      data: ''
+      data: '',
     };
 
     const newFrame = {
       id: crypto.randomUUID(),
-      layers: [newLayer]
+      layers: [newLayer],
     };
 
     addFrame(activeSpritesheetId, newFrame);
@@ -235,7 +238,7 @@ export const KeyframeEditor: React.FC = () => {
     const newKf: Keyframe = {
       id: crypto.randomUUID(),
       time: Math.round(currentTime),
-      frameId: newFrame.id
+      frameId: newFrame.id,
     };
 
     addKeyframe(activeSpritesheetId, activeItemId, newKf);
@@ -315,7 +318,10 @@ export const KeyframeEditor: React.FC = () => {
             <div
               className="absolute top-0 bottom-0 w-1 bg-green-500 cursor-ew-resize z-30 hover:bg-green-400"
               style={{ left: `${loopStart * zoom}px` }}
-              onPointerDown={(e) => { e.stopPropagation(); setDraggingMarker('A'); }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                setDraggingMarker('A');
+              }}
               title="Loop Start (A)"
             >
               <div className="absolute -top-0 -left-1 w-3 text-[8px] font-bold text-green-400 select-none">A</div>
@@ -325,7 +331,10 @@ export const KeyframeEditor: React.FC = () => {
             <div
               className="absolute top-0 bottom-0 w-1 bg-red-400 cursor-ew-resize z-30 hover:bg-red-300"
               style={{ left: `${loopEnd * zoom}px` }}
-              onPointerDown={(e) => { e.stopPropagation(); setDraggingMarker('B'); }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                setDraggingMarker('B');
+              }}
               title="Loop End (B)"
             >
               <div className="absolute -top-0 -left-1 w-3 text-[8px] font-bold text-red-400 select-none">B</div>

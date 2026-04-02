@@ -38,7 +38,10 @@ function computeDirtyBounds(
   width: number,
   height: number,
 ): { x: number; y: number; w: number; h: number } | null {
-  let minX = width, minY = height, maxX = -1, maxY = -1;
+  let minX = width,
+    minY = height,
+    maxX = -1,
+    maxY = -1;
   const bd = before.data;
   const ad = after.data;
 

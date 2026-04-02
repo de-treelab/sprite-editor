@@ -14,7 +14,7 @@ export const drawBrush = (
   size: number,
   shape: BrushShape,
   color: string,
-  isEraser: boolean
+  isEraser: boolean,
 ) => {
   const half = Math.floor(size / 2);
 
@@ -43,7 +43,7 @@ const drawFilledCircle = (
   cy: number,
   radius: number,
   _color: string,
-  isEraser: boolean
+  isEraser: boolean,
 ) => {
   if (radius <= 0) {
     if (isEraser) {
@@ -78,7 +78,7 @@ export const drawLine = (
   y1: number,
   color: string,
   thickness: number,
-  brushShape: BrushShape
+  brushShape: BrushShape,
 ) => {
   ctx.fillStyle = color;
 
@@ -92,8 +92,14 @@ export const drawLine = (
     drawBrush(ctx, x0, y0, thickness, brushShape, color, false);
     if (x0 === x1 && y0 === y1) break;
     const e2 = 2 * err;
-    if (e2 > -dy) { err -= dy; x0 += sx; }
-    if (e2 < dx) { err += dx; y0 += sy; }
+    if (e2 > -dy) {
+      err -= dy;
+      x0 += sx;
+    }
+    if (e2 < dx) {
+      err += dx;
+      y0 += sy;
+    }
   }
 };
 
@@ -108,7 +114,7 @@ export const drawRectangle = (
   y1: number,
   color: string,
   filled: boolean,
-  strokeWidth: number
+  strokeWidth: number,
 ) => {
   ctx.fillStyle = color;
 
@@ -163,7 +169,7 @@ export const drawEllipse = (
   y1: number,
   color: string,
   filled: boolean,
-  strokeWidth: number
+  strokeWidth: number,
 ) => {
   ctx.fillStyle = color;
 
@@ -205,9 +211,8 @@ export const drawEllipse = (
           const innerRy = Math.max(0, ry - half - 1);
 
           const outerDist = (x * x) / (outerRx * outerRx) + (y * y) / (outerRy * outerRy);
-          const innerDist = innerRx > 0 && innerRy > 0
-            ? (x * x) / (innerRx * innerRx) + (y * y) / (innerRy * innerRy)
-            : 2; // Force inclusion if inner radius is 0
+          const innerDist =
+            innerRx > 0 && innerRy > 0 ? (x * x) / (innerRx * innerRx) + (y * y) / (innerRy * innerRy) : 2; // Force inclusion if inner radius is 0
 
           if (outerDist <= 1 && innerDist > 1) {
             ctx.fillRect(cx + x, cy + y, 1, 1);
@@ -229,7 +234,7 @@ export const floodFill = (
   tolerance: number,
   contiguous: boolean,
   canvasWidth: number,
-  canvasHeight: number
+  canvasHeight: number,
 ) => {
   const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
   const data = imageData.data;
@@ -313,7 +318,7 @@ export const pickColor = (
   y: number,
   canvasWidth: number,
   canvasHeight: number,
-  _sampleMerged: boolean = false
+  _sampleMerged: boolean = false,
 ): string | null => {
   if (x < 0 || x >= canvasWidth || y < 0 || y >= canvasHeight) return null;
 
@@ -451,7 +456,10 @@ export const getSelectionBounds = (
   width: number,
   height: number,
 ): { minX: number; minY: number; maxX: number; maxY: number } | null => {
-  let minX = width, minY = height, maxX = -1, maxY = -1;
+  let minX = width,
+    minY = height,
+    maxX = -1,
+    maxY = -1;
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -472,9 +480,12 @@ export const getSelectionBounds = (
  * Create a rectangular selection mask.
  */
 export const createRectSelection = (
-  x0: number, y0: number,
-  x1: number, y1: number,
-  width: number, height: number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  width: number,
+  height: number,
 ): Uint8Array => {
   const mask = new Uint8Array(width * height);
   const minX = Math.max(0, Math.min(x0, x1));
@@ -494,9 +505,12 @@ export const createRectSelection = (
  * Create an elliptical selection mask.
  */
 export const createEllipseSelection = (
-  x0: number, y0: number,
-  x1: number, y1: number,
-  width: number, height: number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  width: number,
+  height: number,
 ): Uint8Array => {
   const mask = new Uint8Array(width * height);
   const cx = (x0 + x1) / 2;
@@ -528,17 +542,22 @@ export const createEllipseSelection = (
  */
 export const createMagicWandSelection = (
   ctx: CanvasRenderingContext2D,
-  startX: number, startY: number,
+  startX: number,
+  startY: number,
   tolerance: number,
   contiguous: boolean,
-  width: number, height: number,
+  width: number,
+  height: number,
 ): Uint8Array => {
   const mask = new Uint8Array(width * height);
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
   const idx = (startY * width + startX) * 4;
-  const tR = data[idx], tG = data[idx + 1], tB = data[idx + 2], tA = data[idx + 3];
+  const tR = data[idx],
+    tG = data[idx + 1],
+    tB = data[idx + 2],
+    tA = data[idx + 3];
 
   const matches = (i: number) =>
     Math.abs(data[i] - tR) <= tolerance &&
@@ -619,7 +638,10 @@ export const movePixels = (
   const imageData = ctx.getImageData(0, 0, width, height);
   const src = new Uint8ClampedArray(imageData.data);
 
-  let minX = 0, minY = 0, maxX = width - 1, maxY = height - 1;
+  let minX = 0,
+    minY = 0,
+    maxX = width - 1,
+    maxY = height - 1;
   let useSelection = false;
 
   if (selectionMask && selectionMask.length === width * height) {
@@ -676,7 +698,10 @@ export const scalePixels = (
   const imageData = ctx.getImageData(0, 0, width, height);
   const src = new Uint8ClampedArray(imageData.data);
 
-  let minX = 0, minY = 0, maxX = width - 1, maxY = height - 1;
+  let minX = 0,
+    minY = 0,
+    maxX = width - 1,
+    maxY = height - 1;
   let useSelection = false;
 
   if (selectionMask && selectionMask.length === width * height) {
@@ -708,8 +733,8 @@ export const scalePixels = (
     for (let dx = minX; dx <= maxX; dx++) {
       if (useSelection && !selectionMask![dy * width + dx]) continue;
 
-      const relX = (dx - minX) - cx + 0.5;
-      const relY = (dy - minY) - cy + 0.5;
+      const relX = dx - minX - cx + 0.5;
+      const relY = dy - minY - cy + 0.5;
 
       const srcRelX = relX / scaleX;
       const srcRelY = relY / scaleY;
@@ -739,10 +764,18 @@ export const scalePixels = (
         const [r01, g01, b01, a01] = sample(x0, y1);
         const [r11, g11, b11, a11] = sample(x1, y1);
 
-        imageData.data[dstIdx] = Math.round(r00 * (1 - fx) * (1 - fy) + r10 * fx * (1 - fy) + r01 * (1 - fx) * fy + r11 * fx * fy);
-        imageData.data[dstIdx + 1] = Math.round(g00 * (1 - fx) * (1 - fy) + g10 * fx * (1 - fy) + g01 * (1 - fx) * fy + g11 * fx * fy);
-        imageData.data[dstIdx + 2] = Math.round(b00 * (1 - fx) * (1 - fy) + b10 * fx * (1 - fy) + b01 * (1 - fx) * fy + b11 * fx * fy);
-        imageData.data[dstIdx + 3] = Math.round(a00 * (1 - fx) * (1 - fy) + a10 * fx * (1 - fy) + a01 * (1 - fx) * fy + a11 * fx * fy);
+        imageData.data[dstIdx] = Math.round(
+          r00 * (1 - fx) * (1 - fy) + r10 * fx * (1 - fy) + r01 * (1 - fx) * fy + r11 * fx * fy,
+        );
+        imageData.data[dstIdx + 1] = Math.round(
+          g00 * (1 - fx) * (1 - fy) + g10 * fx * (1 - fy) + g01 * (1 - fx) * fy + g11 * fx * fy,
+        );
+        imageData.data[dstIdx + 2] = Math.round(
+          b00 * (1 - fx) * (1 - fy) + b10 * fx * (1 - fy) + b01 * (1 - fx) * fy + b11 * fx * fy,
+        );
+        imageData.data[dstIdx + 3] = Math.round(
+          a00 * (1 - fx) * (1 - fy) + a10 * fx * (1 - fy) + a01 * (1 - fx) * fy + a11 * fx * fy,
+        );
       } else {
         const sx = Math.round(srcXf);
         const sy = Math.round(srcYf);
@@ -774,7 +807,7 @@ const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
 };
 
 const rgbToHex = (r: number, g: number, b: number): string => {
-  return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+  return '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('');
 };
 
 /**
@@ -839,7 +872,10 @@ export const rotateByArbitraryAngle = (
   const imageData = ctx.getImageData(0, 0, width, height);
   const src = new Uint8ClampedArray(imageData.data);
 
-  let minX = 0, minY = 0, maxX = width - 1, maxY = height - 1;
+  let minX = 0,
+    minY = 0,
+    maxX = width - 1,
+    maxY = height - 1;
   let useSelection = false;
 
   if (selectionMask && selectionMask.length === width * height) {
@@ -878,8 +914,8 @@ export const rotateByArbitraryAngle = (
       if (useSelection && !selectionMask![dy * width + dx]) continue;
 
       // Coordinates relative to center of bounding box
-      const relX = (dx - minX) - cx + 0.5;
-      const relY = (dy - minY) - cy + 0.5;
+      const relX = dx - minX - cx + 0.5;
+      const relY = dy - minY - cy + 0.5;
 
       // Inverse-rotate to find source coordinates
       const srcRelX = cosA * relX - sinA * relY;
@@ -911,10 +947,18 @@ export const rotateByArbitraryAngle = (
         const [r01, g01, b01, a01] = sample(x0, y1);
         const [r11, g11, b11, a11] = sample(x1, y1);
 
-        imageData.data[dstIdx] = Math.round(r00 * (1 - fx) * (1 - fy) + r10 * fx * (1 - fy) + r01 * (1 - fx) * fy + r11 * fx * fy);
-        imageData.data[dstIdx + 1] = Math.round(g00 * (1 - fx) * (1 - fy) + g10 * fx * (1 - fy) + g01 * (1 - fx) * fy + g11 * fx * fy);
-        imageData.data[dstIdx + 2] = Math.round(b00 * (1 - fx) * (1 - fy) + b10 * fx * (1 - fy) + b01 * (1 - fx) * fy + b11 * fx * fy);
-        imageData.data[dstIdx + 3] = Math.round(a00 * (1 - fx) * (1 - fy) + a10 * fx * (1 - fy) + a01 * (1 - fx) * fy + a11 * fx * fy);
+        imageData.data[dstIdx] = Math.round(
+          r00 * (1 - fx) * (1 - fy) + r10 * fx * (1 - fy) + r01 * (1 - fx) * fy + r11 * fx * fy,
+        );
+        imageData.data[dstIdx + 1] = Math.round(
+          g00 * (1 - fx) * (1 - fy) + g10 * fx * (1 - fy) + g01 * (1 - fx) * fy + g11 * fx * fy,
+        );
+        imageData.data[dstIdx + 2] = Math.round(
+          b00 * (1 - fx) * (1 - fy) + b10 * fx * (1 - fy) + b01 * (1 - fx) * fy + b11 * fx * fy,
+        );
+        imageData.data[dstIdx + 3] = Math.round(
+          a00 * (1 - fx) * (1 - fy) + a10 * fx * (1 - fy) + a01 * (1 - fx) * fy + a11 * fx * fy,
+        );
       } else {
         // Nearest neighbor
         const sx = Math.round(srcX);

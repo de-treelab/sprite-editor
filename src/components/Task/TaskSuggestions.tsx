@@ -8,11 +8,7 @@ interface TaskSuggestionsProps {
   onAmend: (task: TaskInfo) => void;
 }
 
-export const TaskSuggestions: React.FC<TaskSuggestionsProps> = ({
-  suggestedTasks,
-  hasSimilarMatches,
-  onAmend,
-}) => {
+export const TaskSuggestions: React.FC<TaskSuggestionsProps> = ({ suggestedTasks, hasSimilarMatches, onAmend }) => {
   if (suggestedTasks.length === 0) return null;
 
   const { t } = useTranslation();
@@ -34,9 +30,7 @@ export const TaskSuggestions: React.FC<TaskSuggestionsProps> = ({
                 <span className="text-xs text-slate-500 font-mono mr-1.5">{task.id}</span>
                 {task.name}
               </div>
-              <div className="text-xs text-slate-500">
-                {new Date(task.createdAt).toLocaleDateString()}
-              </div>
+              <div className="text-xs text-slate-500">{new Date(task.createdAt).toLocaleDateString()}</div>
             </div>
             <span className="text-xs text-slate-500 group-hover:text-indigo-400 flex-shrink-0 ml-2">
               {t('common.amend')}

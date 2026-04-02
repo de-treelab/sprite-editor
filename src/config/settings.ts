@@ -56,7 +56,7 @@ export type SettingDefinition =
 
 // Category tree node for sidebar
 export interface CategoryNode {
-  id: string;       // dotted path
+  id: string; // dotted path
   label: string;
   children: CategoryNode[];
 }
