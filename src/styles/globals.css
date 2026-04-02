@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* OverlayScrollbars dark theme overrides */
 .os-theme-light > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {

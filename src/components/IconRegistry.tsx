@@ -51,6 +51,7 @@ import {
   LuHand,
   LuMaximize,
   LuSquareDashedMousePointer,
+  LuBookOpen,
 } from 'react-icons/lu';
 
 export const IconRegistry = {
@@ -119,4 +120,5 @@ export const IconRegistry = {
   Edit: LuPenLine,
   Link: LuLink,
   Layout: LuLayoutDashboard,
+  Wiki: LuBookOpen,
 };

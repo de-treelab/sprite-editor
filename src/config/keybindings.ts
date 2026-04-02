@@ -40,6 +40,9 @@ export interface GlobalKeybindings {
   saveLayout: string;
   manageLayouts: string;
   resetLayout: string;
+
+  // Wiki
+  openWiki: string;
 }
 
 // Canvas-specific keybindings
@@ -136,6 +139,7 @@ export const defaultKeybindings: KeybindingsConfig = {
     saveLayout: 'ctrl+shift+l',
     manageLayouts: 'ctrl+alt+l',
     resetLayout: '',
+    openWiki: 'f1',
   },
   canvas: {
     toolPencil: 'b',

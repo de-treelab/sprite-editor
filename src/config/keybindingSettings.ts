@@ -36,6 +36,7 @@ export const keybindingSettings: SettingDefinition[] = [
   kb('global', 'saveLayout', 'Save Layout', defaultKeybindings.global.saveLayout),
   kb('global', 'manageLayouts', 'Manage Layouts', defaultKeybindings.global.manageLayouts),
   kb('global', 'resetLayout', 'Reset Layout', defaultKeybindings.global.resetLayout),
+  kb('global', 'openWiki', 'Open Wiki', defaultKeybindings.global.openWiki),
 
   // Canvas
   kb('canvas', 'toolPencil', 'Pencil Tool', defaultKeybindings.canvas.toolPencil),

@@ -30,6 +30,7 @@ import { GitHistoryPage } from "./components/GitHistory/GitHistoryPage";
 import { StartTaskModal } from "./components/StartTaskModal";
 import { ConflictResolver } from "./components/ConflictResolver";
 import { useTaskStore } from "./store/taskStore";
+import { WikiPage } from "./components/Wiki/WikiPage";
 
 function App() {
   const { t } = useTranslation();
@@ -41,6 +42,7 @@ function App() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSaveLayout, setShowSaveLayout] = useState(false);
   const [showLayoutManager, setShowLayoutManager] = useState(false);
+  const [showWiki, setShowWiki] = useState(false);
   const [recentProjects, setRecentProjects] = useState<string[]>([]);
   
   const loadRecentProjects = () => {
@@ -91,6 +93,7 @@ function App() {
     onSaveWithoutTask: () => saveCurrentProject({ skipTaskCheck: true }),
     onSaveLayout: () => setShowSaveLayout(true),
     onManageLayouts: () => setShowLayoutManager(true),
+    onOpenWiki: () => setShowWiki(true),
   });
 
   // Register dynamic project commands (open spritesheet/animation)
@@ -117,6 +120,7 @@ function App() {
       {isLoading && loadingMode === 'overlay' && <LoadingOverlay message={loadingMessage} />}
       {isLoading && loadingMode === 'status' && <StatusIndicator message={loadingMessage} />}
       {isSettingsOpen && <SettingsPage />}
+      {showWiki && <WikiPage onClose={() => setShowWiki(false)} />}
       {conflict && <ConflictResolver />}
       {showTaskHistory && <GitHistoryPage onClose={() => setShowTaskHistory(false)} />}
       {showCommandPalette && <CommandPalette onClose={() => setShowCommandPalette(false)} />}

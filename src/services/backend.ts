@@ -151,3 +151,17 @@ export async function gitLoadProjectAtCommit(path: string, commit: string): Prom
 export async function gitRestoreToCommit(path: string, commit: string, message: string): Promise<string> {
   return await invoke('git_restore_to_commit', { path, commit, message });
 }
+
+// ── Wiki commands ──
+
+export async function wikiSync(cacheDir: string, url: string): Promise<string[]> {
+  return await invoke('wiki_sync', { cacheDir, url });
+}
+
+export async function wikiListPages(cacheDir: string): Promise<string[]> {
+  return await invoke('wiki_list_pages', { cacheDir });
+}
+
+export async function wikiReadPage(cacheDir: string, page: string): Promise<string> {
+  return await invoke('wiki_read_page', { cacheDir, page });
+}

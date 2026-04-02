@@ -42,10 +42,12 @@ const observer = new MutationObserver((mutations) => {
   );
   if (!hasRelevant || scanQueued) return;
   scanQueued = true;
-  requestAnimationFrame(() => {
+  // Use setTimeout instead of rAF to let React fully finish its commit
+  // phase before OverlayScrollbars restructures the DOM.
+  setTimeout(() => {
     initScrollbars(document.body);
     scanQueued = false;
-  });
+  }, 0);
 });
 
 // Initial pass + start observing

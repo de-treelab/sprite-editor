@@ -19,6 +19,7 @@ export function useGlobalCommands(handlers: {
   onOpenCommandPalette?: () => void;
   onSaveLayout?: () => void;
   onManageLayouts?: () => void;
+  onOpenWiki?: () => void;
 }) {
   const toggleViewHidden = useLayoutStore((s) => s.toggleViewHidden);
   const setFullscreenView = useLayoutStore((s) => s.setFullscreenView);
@@ -198,11 +199,18 @@ export function useGlobalCommands(handlers: {
       icon: IconRegistry.Layout,
       handler: () => handlers.onManageLayouts?.(),
     });
+    registerCommand({
+      key: 'global.openWiki',
+      view: 'global',
+      icon: IconRegistry.Wiki,
+      handler: () => handlers.onOpenWiki?.(),
+    });
 
     return () => {
       unregisterCommand('global.resetLayout');
       unregisterCommand('global.saveLayout');
       unregisterCommand('global.manageLayouts');
+      unregisterCommand('global.openWiki');
     };
-  }, [resetLayout, handlers.onSaveLayout, handlers.onManageLayouts]);
+  }, [resetLayout, handlers.onSaveLayout, handlers.onManageLayouts, handlers.onOpenWiki]);
 }

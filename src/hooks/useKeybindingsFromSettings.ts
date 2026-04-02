@@ -41,6 +41,7 @@ export function useKeybindingsFromSettings() {
         saveLayout: get('editor.keybindings.global.saveLayout', defaultKeybindings.global.saveLayout),
         manageLayouts: get('editor.keybindings.global.manageLayouts', defaultKeybindings.global.manageLayouts),
         resetLayout: get('editor.keybindings.global.resetLayout', defaultKeybindings.global.resetLayout),
+        openWiki: get('editor.keybindings.global.openWiki', defaultKeybindings.global.openWiki),
       },
       canvas: {
         toolPencil: get('editor.keybindings.canvas.toolPencil', defaultKeybindings.canvas.toolPencil),
