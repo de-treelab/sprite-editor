@@ -3,6 +3,8 @@ import { registerCommand, unregisterCommand } from '../config/commandRegistry';
 import { useEditorStore } from '../store/editorStore';
 import { IconRegistry } from '../components/IconRegistry';
 import { getCanvasActions } from './canvasActions';
+import { clamp } from '../utils/math';
+import { CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM } from '../components/Canvas/canvasUtils';
 
 function swapColors() {
   const state = useEditorStore.getState();
@@ -88,7 +90,7 @@ export function useCanvasCommands() {
       view: 'canvas',
       handler: () => {
         const zoom = useEditorStore.getState().zoomLevel;
-        useEditorStore.getState().setZoomLevel(Math.min(zoom * 1.25, 3200));
+        useEditorStore.getState().setZoomLevel(clamp(zoom * 1.25, CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM));
       },
     });
     registerCommand({
@@ -96,7 +98,7 @@ export function useCanvasCommands() {
       view: 'canvas',
       handler: () => {
         const zoom = useEditorStore.getState().zoomLevel;
-        useEditorStore.getState().setZoomLevel(Math.max(zoom / 1.25, 25));
+        useEditorStore.getState().setZoomLevel(clamp(zoom / 1.25, CANVAS_MIN_ZOOM, CANVAS_MAX_ZOOM));
       },
     });
     registerCommand({

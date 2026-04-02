@@ -10,6 +10,7 @@ export interface ChangeTracker {
   deletedFrames: Map<string, string>; // frame ID → spritesheet ID
   deletedLayers: Map<string, { frameId: string; spritesheetId: string }>;
   deletedPalettes: Set<string>;
+  deletedImages: Map<string, string>; // image ID → spritesheet ID
   structuralChanges: string[];
   projectDirty: boolean;
   fullSave: boolean; // true for first save / migration — writes everything
@@ -26,6 +27,7 @@ export function createChangeTracker(fullSave = false): ChangeTracker {
     deletedFrames: new Map(),
     deletedLayers: new Map(),
     deletedPalettes: new Set(),
+    deletedImages: new Map(),
     structuralChanges: [],
     projectDirty: fullSave,
     fullSave,
@@ -140,7 +142,11 @@ export function buildSaveManifest(project: AppProject, tracker: ChangeTracker): 
       deleted_frames: [...tracker.deletedFrames.entries()]
         .filter(([, sid]) => sid === sheet.id)
         .map(([fid]) => fid),
+      deleted_images: [...tracker.deletedImages.entries()]
+        .filter(([, sid]) => sid === sheet.id)
+        .map(([iid]) => iid),
       animations: [] as any[],
+      images: [] as any[],
       frames: [] as any[],
     };
 
@@ -149,6 +155,11 @@ export function buildSaveManifest(project: AppProject, tracker: ChangeTracker): 
       if (isFullSave || tracker.dirtyAnimations.has(anim.id)) {
         sheetManifest.animations.push(anim);
       }
+    }
+
+    // Include images (always write all for dirty spritesheets)
+    if (isFullSave || tracker.dirtySpritesheets.has(sheet.id)) {
+      sheetManifest.images = sheet.images || [];
     }
 
     // Include frames that are dirty or all if full save
@@ -167,6 +178,7 @@ export function buildSaveManifest(project: AppProject, tracker: ChangeTracker): 
 
         sheetManifest.frames.push({
           id: frame.id,
+          layerOrder: frame.layers.map((l) => l.id),
           layers: frameLayers,
           deleted_layers: deletedLayers,
         });

@@ -1,6 +1,22 @@
 import * as PIXI from 'pixi.js';
 import { useProjectStore } from '../../store/projectStore';
 import { useEditorStore } from '../../store/editorStore';
+import { TextureCache } from './textureCache';
+
+const layerTextureCache = new TextureCache();
+const onionTextureCache = new TextureCache();
+
+/** Managed sprite map for diff-based updates */
+const layerSprites = new Map<string, PIXI.Sprite>();
+/** Onion skin containers keyed by frameId+offset */
+const onionContainers = new Map<string, PIXI.Container>();
+
+export function disposeLayerSync() {
+  layerTextureCache.dispose();
+  onionTextureCache.dispose();
+  layerSprites.clear();
+  onionContainers.clear();
+}
 
 export function syncLayers(
   layerContainer: PIXI.Container,
@@ -39,40 +55,100 @@ export function syncLayers(
     }
   }
 
-  layerContainer.removeChildren();
+  // --- Diff-based layer sprite management ---
+  const currentLayerIds = new Set<string>();
+  const activeTextureCacheKeys = new Set<string>();
+
+  frame.layers.forEach((layer, index) => {
+    currentLayerIds.add(layer.id);
+
+    if (!layer.visible) {
+      // If we have a sprite for a now-hidden layer, remove it
+      const existing = layerSprites.get(layer.id);
+      if (existing) {
+        existing.removeFromParent();
+        existing.destroy();
+        layerSprites.delete(layer.id);
+      }
+      return;
+    }
+
+    let sprite = layerSprites.get(layer.id);
+
+    if (layer.id === state.activeLayerId) {
+      // Active layer uses the live drawing texture
+      if (sprite) {
+        // If existing sprite has a different texture, update it
+        if (sprite.texture !== drawingTexture) {
+          sprite.texture = drawingTexture;
+        }
+      } else {
+        sprite = new PIXI.Sprite(drawingTexture);
+        layerSprites.set(layer.id, sprite);
+        layerContainer.addChild(sprite);
+      }
+    } else if (layer.data) {
+      const cacheKey = `layer:${layer.id}`;
+      activeTextureCacheKeys.add(cacheKey);
+
+      if (!sprite) {
+        sprite = new PIXI.Sprite();
+        layerSprites.set(layer.id, sprite);
+        layerContainer.addChild(sprite);
+      }
+
+      // Use texture cache — only re-decodes if layer.data changed
+      const cached = layerTextureCache.getOrLoad(
+        cacheKey,
+        layer.data,
+        sprite,
+        () => !appRef.current || sprite!.destroyed,
+      );
+      if (cached) {
+        sprite.texture = cached;
+      }
+    } else {
+      // No data and not active — remove if exists
+      if (sprite) {
+        sprite.removeFromParent();
+        sprite.destroy();
+        layerSprites.delete(layer.id);
+      }
+      return;
+    }
+
+    // Update properties in-place
+    sprite.zIndex = index;
+    sprite.alpha = layer.opacity !== undefined ? layer.opacity : 1.0;
+    applyBlendMode(sprite, layer.blendMode);
+  });
+
+  // Remove sprites for layers that no longer exist
+  for (const [id, sprite] of layerSprites) {
+    if (!currentLayerIds.has(id)) {
+      sprite.removeFromParent();
+      sprite.destroy();
+      layerSprites.delete(id);
+    }
+  }
+
+  // Prune stale texture cache entries
+  layerTextureCache.prune(activeTextureCacheKeys);
+
+  layerContainer.sortChildren();
+
+  // --- Onion skins ---
+  // Remove old onion containers first
+  for (const [, container] of onionContainers) {
+    container.removeFromParent();
+    container.destroy({ children: true });
+  }
+  onionContainers.clear();
 
   const edState = useEditorStore.getState();
   if (edState.onionSkinEnabled && activeSheet) {
     renderOnionSkins(layerContainer, activeSheet, state, edState, appRef);
   }
-
-  frame.layers.forEach((layer, index) => {
-    if (!layer.visible) return;
-
-    if (layer.id === state.activeLayerId) {
-      const sprite = new PIXI.Sprite(drawingTexture);
-      sprite.zIndex = index;
-      sprite.alpha = layer.opacity !== undefined ? layer.opacity : 1.0;
-      applyBlendMode(sprite, layer.blendMode);
-      layerContainer.addChild(sprite);
-    } else if (layer.data) {
-      const sprite = new PIXI.Sprite();
-      sprite.zIndex = index;
-      sprite.alpha = layer.opacity !== undefined ? layer.opacity : 1.0;
-      applyBlendMode(sprite, layer.blendMode);
-      layerContainer.addChild(sprite);
-
-      const img = new Image();
-      img.src = layer.data;
-      img.onload = () => {
-        if (!appRef.current || sprite.destroyed) return;
-        sprite.texture = PIXI.Texture.from(img);
-        sprite.texture.source.scaleMode = 'nearest';
-      };
-    }
-  });
-
-  layerContainer.sortChildren();
 }
 
 function renderOnionSkins(
@@ -101,9 +177,11 @@ function renderOnionSkins(
     const targetFrame = activeSheet.frames.find((f: any) => f.id === frameId);
     if (!targetFrame) return;
 
+    const containerKey = `${frameId}:${offset}`;
     const onionContainer = new PIXI.Container();
     onionContainer.zIndex = -10 - offset;
     onionContainer.alpha = edState.onionSkinOpacity / offset;
+    onionContainers.set(containerKey, onionContainer);
 
     targetFrame.layers.forEach((layer: any) => {
       if (!layer.visible) return;
@@ -114,13 +192,16 @@ function renderOnionSkins(
         applyBlendMode(spr, layer.blendMode);
         onionContainer.addChild(spr);
 
-        const im = new Image();
-        im.src = layer.data;
-        im.onload = () => {
-          if (!appRef.current || spr.destroyed) return;
-          spr.texture = PIXI.Texture.from(im);
-          spr.texture.source.scaleMode = 'nearest';
-        };
+        const cacheKey = `onion:${frameId}:${layer.id}`;
+        const cached = onionTextureCache.getOrLoad(
+          cacheKey,
+          layer.data,
+          spr,
+          () => !appRef.current || spr.destroyed,
+        );
+        if (cached) {
+          spr.texture = cached;
+        }
       }
     });
 

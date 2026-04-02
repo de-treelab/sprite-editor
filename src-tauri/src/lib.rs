@@ -46,9 +46,11 @@ struct SpritesheetManifest {
     id: String,
     name: String,
     animations: Vec<AnimationMeta>,
+    images: Vec<ReferenceImageMeta>,
     frames: Vec<FrameManifest>,
     deleted_animations: Vec<String>,
     deleted_frames: Vec<String>,
+    deleted_images: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -58,6 +60,16 @@ struct AnimationMeta {
     #[serde(rename = "canvasSize", skip_serializing_if = "Option::is_none")]
     canvas_size: Option<CanvasSize>,
     keyframes: Vec<KeyframeMeta>,
+}
+
+#[derive(Deserialize, Serialize)]
+struct ReferenceImageMeta {
+    id: String,
+    name: String,
+    #[serde(rename = "canvasSize", skip_serializing_if = "Option::is_none")]
+    canvas_size: Option<CanvasSize>,
+    #[serde(rename = "frameId")]
+    frame_id: String,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -71,6 +83,8 @@ struct KeyframeMeta {
 #[derive(Deserialize)]
 struct FrameManifest {
     id: String,
+    #[serde(rename = "layerOrder")]
+    layer_order: Vec<String>,
     layers: Vec<LayerManifest>,
     deleted_layers: Vec<String>,
 }
@@ -133,6 +147,7 @@ struct LoadedSpritesheet {
     id: String,
     name: String,
     animations: Vec<AnimationMeta>,
+    images: Vec<ReferenceImageMeta>,
     frames: Vec<LoadedFrame>,
 }
 
@@ -357,6 +372,25 @@ fn save_project_v2(path: String, manifest_json: String) -> Result<(), String> {
             }
         }
 
+        // Write images
+        let images_dir = sheet_dir.join("images");
+        if !sheet.images.is_empty() {
+            fs::create_dir_all(&images_dir).map_err(|e| e.to_string())?;
+        }
+        for img in &sheet.images {
+            let ij = serde_json::to_string_pretty(img).map_err(|e| e.to_string())?;
+            fs::write(images_dir.join(format!("{}.json", img.id)), ij)
+                .map_err(|e| e.to_string())?;
+        }
+
+        // Delete removed images
+        for iid in &sheet.deleted_images {
+            let ipath = images_dir.join(format!("{}.json", iid));
+            if ipath.exists() {
+                fs::remove_file(ipath).map_err(|e| e.to_string())?;
+            }
+        }
+
         // Write frames
         let frames_dir = sheet_dir.join("frames");
         for frame in &sheet.frames {
@@ -367,7 +401,7 @@ fn save_project_v2(path: String, manifest_json: String) -> Result<(), String> {
             // frame.json with layer order
             let fmeta = FrameMetaJson {
                 id: frame.id.clone(),
-                layer_order: frame.layers.iter().map(|l| l.id.clone()).collect(),
+                layer_order: frame.layer_order.clone(),
             };
             let fj = serde_json::to_string_pretty(&fmeta).map_err(|e| e.to_string())?;
             fs::write(frame_dir.join("frame.json"), fj).map_err(|e| e.to_string())?;
@@ -508,6 +542,22 @@ fn load_project_v2(path: String) -> Result<String, String> {
                 }
             }
 
+            // Load images
+            let mut images: Vec<ReferenceImageMeta> = Vec::new();
+            let images_dir = sheet_dir.join("images");
+            if images_dir.exists() {
+                for ientry in fs::read_dir(&images_dir).map_err(|e| e.to_string())? {
+                    let ientry = ientry.map_err(|e| e.to_string())?;
+                    let ipath = ientry.path();
+                    if ipath.extension().and_then(|e| e.to_str()) == Some("json") {
+                        let icontent = fs::read_to_string(&ipath).map_err(|e| e.to_string())?;
+                        let img: ReferenceImageMeta =
+                            serde_json::from_str(&icontent).map_err(|e| e.to_string())?;
+                        images.push(img);
+                    }
+                }
+            }
+
             // Load frames
             let mut frames: Vec<LoadedFrame> = Vec::new();
             let frames_dir = sheet_dir.join("frames");
@@ -574,6 +624,7 @@ fn load_project_v2(path: String) -> Result<String, String> {
                 id: smeta.id,
                 name: smeta.name,
                 animations,
+                images,
                 frames,
             });
         }
@@ -1286,6 +1337,7 @@ fn git_load_project_at_commit(path: String, commit: String) -> Result<String, St
             id: smeta.id,
             name: smeta.name,
             animations,
+            images: Vec::new(),
             frames,
         });
     }

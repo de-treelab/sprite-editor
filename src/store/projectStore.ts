@@ -173,6 +173,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     set((state) => {
       if (!state.project) return state;
       const tracker = state.changeTracker;
+      tracker.deletedImages.set(imageId, spritesheetId);
       markSpritesheetDirty(tracker, spritesheetId);
       const sheet = state.project.spritesheets.find((s) => s.id === spritesheetId);
       const img = (sheet?.images || []).find((i) => i.id === imageId);
@@ -200,7 +201,37 @@ export const useProjectStore = create<ProjectState>((set) => ({
     }),
 
   setActiveSpritesheet: (sheetId) => set({ activeSpritesheetId: sheetId, activeItemId: null, activeItemType: null, activeFrameId: null, activeLayerId: null }),
-  setActiveItem: (itemId, itemType = null) => set({ activeItemId: itemId, activeItemType: itemId ? (itemType ?? null) : null, activeFrameId: null, activeLayerId: null }),
+  setActiveItem: (itemId, itemType = null) => set((state) => {
+    const base = { activeItemId: itemId, activeItemType: itemId ? (itemType ?? null) : null, activeFrameId: null as string | null, activeLayerId: null as string | null };
+    if (!itemId || !state.project) return base;
+
+    const sheet = state.project.spritesheets.find(s => s.id === state.activeSpritesheetId);
+    if (!sheet) return base;
+
+    let frameId: string | null = null;
+
+    if (itemType === 'animation') {
+      const anim = sheet.animations.find(a => a.id === itemId);
+      if (anim && anim.keyframes.length > 0) {
+        // Pick the first keyframe by time order
+        const sorted = [...anim.keyframes].sort((a, b) => a.time - b.time);
+        frameId = sorted[0].frameId;
+      }
+    } else if (itemType === 'image') {
+      const img = (sheet.images || []).find(i => i.id === itemId);
+      if (img) {
+        frameId = img.frameId;
+      }
+    }
+
+    if (frameId) {
+      const frame = sheet.frames.find(f => f.id === frameId);
+      const layerId = frame?.layers?.[0]?.id ?? null;
+      return { ...base, activeFrameId: frameId, activeLayerId: layerId };
+    }
+
+    return base;
+  }),
   setActiveFrame: (frameId) => set({ activeFrameId: frameId }),
   setActiveLayer: (layerId) => set({ activeLayerId: layerId }),
 
