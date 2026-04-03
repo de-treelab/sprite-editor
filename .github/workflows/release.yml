@@ -30,10 +30,7 @@ jobs:
         id: version
         uses: paulhatch/semantic-version@v5.4.0
         with:
-          tag_prefix: "v"
-          major_pattern: "/^\\w+(?:\\(.*\\))?!:|BREAKING CHANGE/"
           minor_pattern: "/^feat/"
-          version_format: "${major}.${minor}.${patch}"
 
       - name: Print version
         run: echo "Release version ${{ steps.version.outputs.version }}"
