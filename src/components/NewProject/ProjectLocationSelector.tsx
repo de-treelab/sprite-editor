@@ -28,17 +28,14 @@ export const ProjectLocationSelector: React.FC<ProjectLocationSelectorProps> = (
           size="sm"
           className="flex-1"
         />
-        <Button
-          variant="secondary"
-          onClick={onBrowse}
-        >
+        <Button variant="secondary" onClick={onBrowse}>
           {t('new_project.browse', 'Browse')}
         </Button>
       </div>
       {fullPath && (
         <div className="mt-2 flex items-start space-x-2">
           <p className="text-xs text-slate-500 break-all">
-            {t('new_project.will_be_created_at', 'Project will be created at:')} <br/>
+            {t('new_project.will_be_created_at', 'Project will be created at:')} <br />
             <span className="text-indigo-400 font-mono">{fullPath}</span>
           </p>
           {folderExists && (

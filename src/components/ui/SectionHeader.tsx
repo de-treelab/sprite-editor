@@ -11,22 +11,13 @@ interface SectionHeaderProps {
   className?: string;
 }
 
-export const SectionHeader: React.FC<SectionHeaderProps> = ({
-  title,
-  actions,
-  toggle,
-  className = '',
-}) => {
+export const SectionHeader: React.FC<SectionHeaderProps> = ({ title, actions, toggle, className = '' }) => {
   return (
     <div className={`flex items-center justify-between ${className}`}>
-      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-        {title}
-      </h3>
+      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{title}</h3>
       <div className="flex items-center gap-2">
         {actions}
-        {toggle && (
-          <Toggle checked={toggle.checked} onChange={toggle.onChange} />
-        )}
+        {toggle && <Toggle checked={toggle.checked} onChange={toggle.onChange} />}
       </div>
     </div>
   );

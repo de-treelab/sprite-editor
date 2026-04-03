@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { gitLoadProjectAtCommit } from '../../services/backend';
 import { resolveProjectPath } from '../../services/projectActions';
 import type { AppProject, SpriteFrame } from '../../types/project';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   commitHash: string;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export const VersionPreviewModal: React.FC<Props> = ({ commitHash, commitMessage, onClose }) => {
+  const { t } = useTranslation();
   const [project, setProject] = useState<AppProject | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,29 +51,27 @@ export const VersionPreviewModal: React.FC<Props> = ({ commitHash, commitMessage
     load();
   }, [commitHash]);
 
-  const activeSheet = project?.spritesheets.find(s => s.id === selectedSheetId);
-  const activeAnim = activeSheet?.animations.find(a => a.id === selectedAnimId);
-  const activeFrame = activeSheet?.frames.find(f => f.id === selectedFrameId);
+  const activeSheet = project?.spritesheets.find((s) => s.id === selectedSheetId);
+  const activeAnim = activeSheet?.animations.find((a) => a.id === selectedAnimId);
+  const activeFrame = activeSheet?.frames.find((f) => f.id === selectedFrameId);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-slate-900">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-3 border-b border-slate-700 bg-slate-800">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-semibold text-slate-200">Version Preview</h1>
-          <span className="text-xs font-mono text-indigo-400 bg-indigo-900/30 px-2 py-0.5 rounded">
-            {commitHash}
-          </span>
+          <h1 className="text-lg font-semibold text-slate-200">{t('version_preview.title')}</h1>
+          <span className="text-xs font-mono text-indigo-400 bg-indigo-900/30 px-2 py-0.5 rounded">{commitHash}</span>
           <span className="text-sm text-slate-400 truncate max-w-md">{commitMessage}</span>
           <span className="text-xs text-orange-400 bg-orange-900/20 px-2 py-0.5 rounded">
-            READ-ONLY
+            {t('version_preview.readonly_badge')}
           </span>
         </div>
         <button
           className="text-slate-400 hover:text-white px-4 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-sm transition-colors"
           onClick={onClose}
         >
-          Close Preview
+          {t('version_preview.close')}
         </button>
       </div>
 
@@ -80,13 +80,14 @@ export const VersionPreviewModal: React.FC<Props> = ({ commitHash, commitMessage
         {loading && (
           <div className="flex-1 flex items-center justify-center text-slate-500">
             <div className="w-6 h-6 border-2 border-slate-600 border-t-indigo-500 rounded-full animate-spin mr-3" />
-            Loading version...
+            {t('version_preview.loading')}
           </div>
         )}
 
         {error && (
           <div className="flex-1 flex items-center justify-center text-red-400">
-            Failed to load version: {error}
+            {t('version_preview.load_error')}
+            {error}
           </div>
         )}
 
@@ -103,7 +104,7 @@ export const VersionPreviewModal: React.FC<Props> = ({ commitHash, commitMessage
               </div>
 
               {/* Spritesheets */}
-              {project.spritesheets.map(sheet => (
+              {project.spritesheets.map((sheet) => (
                 <div key={sheet.id} className="border-b border-slate-700/50">
                   <button
                     className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-700/50 transition-colors ${selectedSheetId === sheet.id ? 'bg-slate-700/50 text-white' : 'text-slate-300'}`}
@@ -125,7 +126,7 @@ export const VersionPreviewModal: React.FC<Props> = ({ commitHash, commitMessage
                       <div className="px-2 py-1">
                         <span className="text-xs text-slate-500 uppercase">Animations</span>
                       </div>
-                      {sheet.animations.map(anim => (
+                      {sheet.animations.map((anim) => (
                         <button
                           key={anim.id}
                           className={`w-full text-left px-3 py-1 text-xs hover:bg-slate-700/50 ${selectedAnimId === anim.id ? 'text-indigo-400' : 'text-slate-400'}`}
@@ -157,7 +158,7 @@ export const VersionPreviewModal: React.FC<Props> = ({ commitHash, commitMessage
               {project.palettes.length > 0 && (
                 <div className="p-3">
                   <span className="text-xs text-slate-500 uppercase">Palettes</span>
-                  {project.palettes.map(p => (
+                  {project.palettes.map((p) => (
                     <div key={p.id} className="mt-2">
                       <p className="text-xs text-slate-300">{p.name}</p>
                       <div className="flex flex-wrap gap-1 mt-1">
@@ -211,12 +212,9 @@ export const VersionPreviewModal: React.FC<Props> = ({ commitHash, commitMessage
               {/* Frame canvas preview */}
               <div className="flex-1 flex items-center justify-center p-4 bg-[repeating-conic-gradient(#374151_0%_25%,#1e293b_0%_50%)] bg-[length:16px_16px]">
                 {activeFrame ? (
-                  <FramePreview
-                    frame={activeFrame}
-                    canvasSize={activeAnim?.canvasSize ?? project.defaultCanvasSize}
-                  />
+                  <FramePreview frame={activeFrame} canvasSize={activeAnim?.canvasSize ?? project.defaultCanvasSize} />
                 ) : (
-                  <p className="text-slate-500 text-sm">Select a frame to preview</p>
+                  <p className="text-slate-500 text-sm">{t('canvas.select_frame_preview')}</p>
                 )}
               </div>
 
@@ -293,11 +291,7 @@ const FramePreview: React.FC<{
   }, [frame, canvasSize]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="border border-slate-600 shadow-lg"
-      style={{ imageRendering: 'pixelated' }}
-    />
+    <canvas ref={canvasRef} className="border border-slate-600 shadow-lg" style={{ imageRendering: 'pixelated' }} />
   );
 };
 
@@ -312,9 +306,13 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 
 function blendToComposite(mode: string): GlobalCompositeOperation {
   switch (mode) {
-    case 'multiply': return 'multiply';
-    case 'screen': return 'screen';
-    case 'overlay': return 'overlay';
-    default: return 'source-over';
+    case 'multiply':
+      return 'multiply';
+    case 'screen':
+      return 'screen';
+    case 'overlay':
+      return 'overlay';
+    default:
+      return 'source-over';
   }
 }

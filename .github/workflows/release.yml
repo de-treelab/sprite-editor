@@ -30,10 +30,7 @@ jobs:
         id: version
         uses: paulhatch/semantic-version@v5.4.0
         with:
-          tag_prefix: "v"
-          major_pattern: "/^\\w+(?:\\(.*\\))?!:|BREAKING CHANGE/"
           minor_pattern: "/^feat/"
-          version_format: "${major}.${minor}.${patch}"
 
       - name: Print version
         run: echo "Release version ${{ steps.version.outputs.version }}"
@@ -82,6 +79,19 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
+
+      - name: Stamp version into Cargo.toml and tauri.conf.json
+        shell: bash
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          sed -i 's/^version = ".*"/version = "'"$VERSION"'"/' src-tauri/Cargo.toml
+          node -e "
+            const fs = require('fs');
+            const p = 'src-tauri/tauri.conf.json';
+            const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+            j.version = process.argv[1];
+            fs.writeFileSync(p, JSON.stringify(j, null, 2) + '\n');
+          " "$VERSION"
 
       - name: Install frontend dependencies
         run: npm ci

@@ -8,13 +8,7 @@ interface EmptyStateProps {
   className?: string;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon,
-  title,
-  description,
-  action,
-  className = '',
-}) => {
+export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description, action, className = '' }) => {
   return (
     <div
       className={`
@@ -22,15 +16,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         text-slate-500 bg-slate-900 border border-slate-700
         m-2 rounded-lg p-8
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
     >
       {icon && <div className="text-4xl mb-4">{icon}</div>}
       <div className="text-lg font-medium">{title}</div>
-      {description && (
-        <div className="text-sm text-slate-600 mt-2 text-center max-w-xs">
-          {description}
-        </div>
-      )}
+      {description && <div className="text-sm text-slate-600 mt-2 text-center max-w-xs">{description}</div>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
@@ -42,17 +34,16 @@ interface CompactEmptyStateProps {
   className?: string;
 }
 
-export const CompactEmptyState: React.FC<CompactEmptyStateProps> = ({
-  text,
-  className = '',
-}) => {
+export const CompactEmptyState: React.FC<CompactEmptyStateProps> = ({ text, className = '' }) => {
   return (
     <div
       className={`
         flex items-center justify-center p-4
         text-sm text-slate-500 italic
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
     >
       {text}
     </div>

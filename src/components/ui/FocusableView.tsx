@@ -57,7 +57,9 @@ export const FocusableView: React.FC<FocusableViewProps> = ({
         outline-none
         transition-shadow duration-150
         ${isFocused ? focusClassName : ''}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
       onFocus={handleFocus}
       onClick={handleClick}
     >

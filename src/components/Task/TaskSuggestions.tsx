@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { TaskInfo } from '../../store/taskStore';
 
 interface TaskSuggestionsProps {
@@ -7,17 +8,15 @@ interface TaskSuggestionsProps {
   onAmend: (task: TaskInfo) => void;
 }
 
-export const TaskSuggestions: React.FC<TaskSuggestionsProps> = ({
-  suggestedTasks,
-  hasSimilarMatches,
-  onAmend,
-}) => {
+export const TaskSuggestions: React.FC<TaskSuggestionsProps> = ({ suggestedTasks, hasSimilarMatches, onAmend }) => {
   if (suggestedTasks.length === 0) return null;
+
+  const { t } = useTranslation();
 
   return (
     <div>
       <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-        {hasSimilarMatches ? 'Similar existing tasks — click to amend' : 'Recent tasks — click to amend'}
+        {hasSimilarMatches ? t('task.similar_tasks') : t('task.recent_tasks')}
       </h3>
       <div className="space-y-1 max-h-48 overflow-y-auto">
         {suggestedTasks.map((task) => (
@@ -31,12 +30,10 @@ export const TaskSuggestions: React.FC<TaskSuggestionsProps> = ({
                 <span className="text-xs text-slate-500 font-mono mr-1.5">{task.id}</span>
                 {task.name}
               </div>
-              <div className="text-xs text-slate-500">
-                {new Date(task.createdAt).toLocaleDateString()}
-              </div>
+              <div className="text-xs text-slate-500">{new Date(task.createdAt).toLocaleDateString()}</div>
             </div>
             <span className="text-xs text-slate-500 group-hover:text-indigo-400 flex-shrink-0 ml-2">
-              Amend
+              {t('common.amend')}
             </span>
           </button>
         ))}

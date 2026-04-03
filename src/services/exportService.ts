@@ -1,4 +1,4 @@
-import { MaxRectsPacker } from 'maxrects-packer';
+import { MaxRectsPacker, IRectangle } from 'maxrects-packer';
 import type { AppProject, Spritesheet, Animation, SpriteFrame } from '../types/project';
 import { exportWriteBytes, exportGif } from './backend';
 
@@ -44,11 +44,7 @@ export interface AtlasMetadata {
  * Composite all visible layers of a frame into a single canvas.
  * Returns a canvas with the composited result.
  */
-export function compositeFrame(
-  frame: SpriteFrame,
-  width: number,
-  height: number,
-): HTMLCanvasElement {
+export function compositeFrame(frame: SpriteFrame, width: number, height: number): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -114,10 +110,14 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 
 function blendModeToComposite(mode: string): GlobalCompositeOperation {
   switch (mode) {
-    case 'multiply': return 'multiply';
-    case 'screen': return 'screen';
-    case 'overlay': return 'overlay';
-    default: return 'source-over';
+    case 'multiply':
+      return 'multiply';
+    case 'screen':
+      return 'screen';
+    case 'overlay':
+      return 'overlay';
+    default:
+      return 'source-over';
   }
 }
 
@@ -161,9 +161,7 @@ export async function packAtlas(
   for (const frame of spritesheet.frames) {
     if (!usedFrameIds.has(frame.id)) continue;
     // Find any animation using this frame to get canvas size
-    const anim = spritesheet.animations.find(a =>
-      a.keyframes.some(k => k.frameId === frame.id)
-    );
+    const anim = spritesheet.animations.find((a) => a.keyframes.some((k) => k.frameId === frame.id));
     const cs = anim?.canvasSize ?? defaultCanvas;
     const w = Math.round(cs.width * opts.scale);
     const h = Math.round(cs.height * opts.scale);
@@ -172,19 +170,26 @@ export async function packAtlas(
   }
 
   // Pack using maxrects-packer
-  const packer = new MaxRectsPacker(opts.maxWidth, opts.maxHeight, opts.padding, {
-    smart: true,
-    pot: false,
-    square: false,
-  });
+  const packer = new MaxRectsPacker<IRectangle & { data: { frameId: string } }>(
+    opts.maxWidth,
+    opts.maxHeight,
+    opts.padding,
+    {
+      smart: true,
+      pot: false,
+      square: false,
+    },
+  );
 
   const inputs = Array.from(frameCanvases.entries()).map(([id, canvas]) => ({
     width: canvas.width,
     height: canvas.height,
+    x: 0,
+    y: 0,
     data: { frameId: id },
   }));
 
-  packer.addArray(inputs as any);
+  packer.addArray(inputs);
 
   if (packer.bins.length === 0) {
     throw new Error('Atlas packing failed: no bins produced');
@@ -202,7 +207,7 @@ export async function packAtlas(
   const rects: AtlasRect[] = [];
 
   for (const rect of bin.rects) {
-    const frameId = (rect as any).data?.frameId;
+    const frameId = rect.data?.frameId;
     if (!frameId) continue;
     const frameCanvas = frameCanvases.get(frameId);
     if (!frameCanvas) continue;
@@ -210,7 +215,7 @@ export async function packAtlas(
     atlasCtx.drawImage(frameCanvas, rect.x, rect.y);
 
     // Find a name for the frame
-    const frameIndex = spritesheet.frames.findIndex(f => f.id === frameId);
+    const frameIndex = spritesheet.frames.findIndex((f) => f.id === frameId);
     const frameName = `frame_${frameIndex}`;
 
     rects.push({
@@ -237,7 +242,7 @@ export function buildAnimationExportData(
   animations: Animation[],
   defaultCanvasSize: { width: number; height: number },
 ): AnimationExportData[] {
-  return animations.map(anim => {
+  return animations.map((anim) => {
     const sorted = [...anim.keyframes].sort((a, b) => a.time - b.time);
     const cs = anim.canvasSize ?? defaultCanvasSize;
     const keyframes = sorted.map((kf, idx) => {
@@ -259,10 +264,7 @@ export function buildAnimationExportData(
 
 // ── Build metadata object ──
 
-export function buildAtlasMetadata(
-  atlas: AtlasResult,
-  animations: AnimationExportData[],
-): AtlasMetadata {
+export function buildAtlasMetadata(atlas: AtlasResult, animations: AnimationExportData[]): AtlasMetadata {
   return {
     atlasWidth: atlas.atlasWidth,
     atlasHeight: atlas.atlasHeight,
@@ -319,7 +321,7 @@ export async function exportAnimationGif(
 
   for (let i = 0; i < sorted.length; i++) {
     const kf = sorted[i];
-    const frame = spritesheet.frames.find(f => f.id === kf.frameId);
+    const frame = spritesheet.frames.find((f) => f.id === kf.frameId);
     if (!frame) continue;
 
     const canvas = await compositeFrameAsync(frame, w, h);

@@ -8,15 +8,11 @@ interface CheckboxProps {
   className?: string;
 }
 
-export const Checkbox: React.FC<CheckboxProps> = ({
-  checked,
-  onChange,
-  label,
-  disabled = false,
-  className = '',
-}) => {
+export const Checkbox: React.FC<CheckboxProps> = ({ checked, onChange, label, disabled = false, className = '' }) => {
   return (
-    <label className={`flex items-center gap-2 cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}>
+    <label
+      className={`flex items-center gap-2 cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+    >
       <input
         type="checkbox"
         checked={checked}

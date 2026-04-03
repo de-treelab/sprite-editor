@@ -20,6 +20,7 @@ export const createMockProject = (): AppProject => {
             ],
           },
         ],
+        images: [],
         frames: [
           {
             id: 'frame_1',
@@ -50,9 +51,9 @@ export const createMockProject = (): AppProject => {
                 data: '',
               },
             ],
-          }
-        ]
-      }
-    ]
+          },
+        ],
+      },
+    ],
   };
 };

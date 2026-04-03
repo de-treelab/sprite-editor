@@ -13,6 +13,7 @@ import {
 } from '../../services/exportService';
 import { builtinPlugins, runPythonPlugin } from '../../services/exportPlugins';
 import { open } from '@tauri-apps/plugin-dialog';
+import { useTranslation } from 'react-i18next';
 
 type ExportFormat = 'atlas' | 'gif' | 'metadata';
 
@@ -21,9 +22,10 @@ interface Props {
 }
 
 export const ExportModal: React.FC<Props> = ({ onClose }) => {
-  const project = useProjectStore(s => s.project);
-  const activeSpritesheetId = useProjectStore(s => s.activeSpritesheetId);
-  const activeAnimationId = useProjectStore(s => s.activeAnimationId);
+  const { t } = useTranslation();
+  const project = useProjectStore((s) => s.project);
+  const activeSpritesheetId = useProjectStore((s) => s.activeSpritesheetId);
+  const activeItemId = useProjectStore((s) => s.activeItemId);
 
   const [format, setFormat] = useState<ExportFormat>('atlas');
   const [atlasMaxWidth, setAtlasMaxWidth] = useState(4096);
@@ -36,18 +38,18 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
 
   if (!project) return null;
 
-  const activeSheet = project.spritesheets.find(s => s.id === activeSpritesheetId);
-  const activeAnimation = activeSheet?.animations.find(a => a.id === activeAnimationId);
+  const activeSheet = project.spritesheets.find((s) => s.id === activeSpritesheetId);
+  const activeAnimation = activeSheet?.animations.find((a) => a.id === activeItemId);
 
   const formatOptions = [
-    { value: 'atlas', label: 'Spritesheet Atlas (PNG)' },
-    { value: 'gif', label: 'Animated GIF' },
-    { value: 'metadata', label: 'Metadata Only' },
+    { value: 'atlas', label: t('export_modal.format_atlas') },
+    { value: 'gif', label: t('export_modal.format_gif') },
+    { value: 'metadata', label: t('export_modal.format_metadata') },
   ];
 
   const pluginOptions = [
-    ...builtinPlugins.map(p => ({ value: p.id, label: p.name })),
-    { value: 'python', label: 'Custom Python Script...' },
+    ...builtinPlugins.map((p) => ({ value: p.id, label: p.name })),
+    { value: 'python', label: t('export_modal.format_custom_script') },
   ];
 
   const handleBrowsePythonScript = async () => {
@@ -62,7 +64,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
 
   const handleExport = async () => {
     if (!activeSheet) {
-      toast.error('No active spritesheet selected.');
+      toast.error(t('export_modal.error_no_spritesheet'));
       return;
     }
 
@@ -109,7 +111,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
     const animData = buildAnimationExportData(activeSheet.animations, project.defaultCanvasSize);
     const metadata = buildAtlasMetadata(atlas, animData);
 
-    const plugin = builtinPlugins.find(p => p.id === metadataPlugin) ?? builtinPlugins[0];
+    const plugin = builtinPlugins.find((p) => p.id === metadataPlugin) ?? builtinPlugins[0];
     const metaContent = plugin.generate(metadata);
     const metaPath = pngPath.replace(/\.png$/i, plugin.fileExtension);
     await saveMetadataFile(metaPath, metaContent);
@@ -119,7 +121,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
 
   const handleExportGif = async () => {
     if (!activeSheet || !activeAnimation) {
-      toast.error('Select an animation to export as GIF.');
+      toast.error(t('export_modal.error_no_animation'));
       return;
     }
 
@@ -153,13 +155,13 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
 
     if (metadataPlugin === 'python') {
       if (!pythonScriptPath) {
-        toast.error('Select a Python script first.');
+        toast.error(t('export_modal.error_no_script'));
         return;
       }
       metaContent = await runPythonPlugin(pythonScriptPath, metadata);
       fileExtension = '.txt';
     } else {
-      const plugin = builtinPlugins.find(p => p.id === metadataPlugin) ?? builtinPlugins[0];
+      const plugin = builtinPlugins.find((p) => p.id === metadataPlugin) ?? builtinPlugins[0];
       metaContent = plugin.generate(metadata);
       fileExtension = plugin.fileExtension;
     }
@@ -170,69 +172,78 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
     if (!savePath) return;
 
     await saveMetadataFile(savePath, metaContent);
-    toast.success('Metadata exported.');
+    toast.success(t('export_modal.success_metadata'));
   };
 
   const canExport = activeSheet && (format !== 'gif' || activeAnimation);
 
   return (
-    <Modal isOpen={true} onClose={onClose} title="Export" size="lg">
-      <FormField label="Format">
-        <Select
-          options={formatOptions}
-          value={format}
-          onChange={(e) => setFormat(e.target.value as ExportFormat)}
-        />
+    <Modal isOpen={true} onClose={onClose} title={t('export_modal.title')} size="lg">
+      <FormField label={t('export_modal.format')}>
+        <Select options={formatOptions} value={format} onChange={(e) => setFormat(e.target.value as ExportFormat)} />
       </FormField>
 
       {/* Atlas options */}
       {(format === 'atlas' || format === 'metadata') && (
         <>
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Max Width">
-              <NumberInput value={atlasMaxWidth} onChange={(e) => setAtlasMaxWidth(Number(e.target.value))} min={64} max={8192} step={64} />
+            <FormField label={t('export_modal.max_width')}>
+              <NumberInput
+                value={atlasMaxWidth}
+                onChange={(e) => setAtlasMaxWidth(Number(e.target.value))}
+                min={64}
+                max={8192}
+                step={64}
+              />
             </FormField>
-            <FormField label="Max Height">
-              <NumberInput value={atlasMaxHeight} onChange={(e) => setAtlasMaxHeight(Number(e.target.value))} min={64} max={8192} step={64} />
+            <FormField label={t('export_modal.max_height')}>
+              <NumberInput
+                value={atlasMaxHeight}
+                onChange={(e) => setAtlasMaxHeight(Number(e.target.value))}
+                min={64}
+                max={8192}
+                step={64}
+              />
             </FormField>
           </div>
-          <FormField label="Padding (px)">
-            <NumberInput value={atlasPadding} onChange={(e) => setAtlasPadding(Number(e.target.value))} min={0} max={16} />
+          <FormField label={t('export_modal.padding')}>
+            <NumberInput
+              value={atlasPadding}
+              onChange={(e) => setAtlasPadding(Number(e.target.value))}
+              min={0}
+              max={16}
+            />
           </FormField>
         </>
       )}
 
-      <FormField label="Scale">
+      <FormField label={t('common.scale')}>
         <NumberInput value={scale} onChange={(e) => setScale(Number(e.target.value))} min={0.25} max={4} step={0.25} />
       </FormField>
 
       {/* Metadata plugin selection */}
       {(format === 'atlas' || format === 'metadata') && (
-        <FormField label="Metadata Format">
-          <Select
-            options={pluginOptions}
-            value={metadataPlugin}
-            onChange={(e) => setMetadataPlugin(e.target.value)}
-          />
+        <FormField label={t('export_modal.metadata_format')}>
+          <Select options={pluginOptions} value={metadataPlugin} onChange={(e) => setMetadataPlugin(e.target.value)} />
         </FormField>
       )}
 
       {/* Python script path */}
       {metadataPlugin === 'python' && (format === 'atlas' || format === 'metadata') && (
-        <FormField label="Python Script">
+        <FormField label={t('export_modal.python_script')}>
           <div className="flex gap-2">
             <input
               type="text"
               readOnly
               value={pythonScriptPath}
-              placeholder="No script selected"
+              placeholder={t('export_modal.no_script_selected')}
               className="flex-1 bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-xs text-slate-300"
             />
             <button
               onClick={handleBrowsePythonScript}
               className="px-3 py-1.5 bg-slate-700 text-slate-300 text-xs rounded hover:bg-slate-600"
             >
-              Browse...
+              {t('common.browse')}
             </button>
           </div>
         </FormField>
@@ -240,9 +251,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
 
       {/* GIF notice */}
       {format === 'gif' && !activeAnimation && (
-        <p className="text-xs text-orange-400">
-          Select an animation in the timeline to export as GIF.
-        </p>
+        <p className="text-xs text-orange-400">{t('export_modal.gif_warning')}</p>
       )}
 
       {format === 'gif' && activeAnimation && (
@@ -255,7 +264,7 @@ export const ExportModal: React.FC<Props> = ({ onClose }) => {
         <ModalFooter
           onCancel={onClose}
           onConfirm={handleExport}
-          confirmText={isExporting ? 'Exporting...' : 'Export'}
+          confirmText={isExporting ? t('common.exporting') : t('common.export')}
           confirmDisabled={!canExport || isExporting}
         />
       </div>

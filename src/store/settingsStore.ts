@@ -8,7 +8,9 @@ function loadPersistedValues(): Record<string, unknown> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
-  } catch { /* ignore corrupt storage */ }
+  } catch {
+    /* ignore corrupt storage */
+  }
   return {};
 }
 

@@ -40,8 +40,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
     const scored: ScoredCommand[] = [];
 
     for (const cmd of allCommands) {
-      const displayName = commandDisplayName(cmd.key, t);
-      const viewLabel = cmd.view === 'global' ? 'Global' : (viewDisplayNames[cmd.view as ViewType] ?? cmd.view);
+      const displayName = cmd.displayName || commandDisplayName(cmd.key, t);
+      const viewLabel =
+        cmd.view === 'global' ? t('common.global') : (viewDisplayNames[cmd.view as ViewType] ?? cmd.view);
       const searchText = `${displayName} ${cmd.key} ${viewLabel}`.toLowerCase();
 
       if (q && !searchText.includes(q)) continue;
@@ -77,7 +78,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
-    const item = list.children[selectedIndex] as HTMLElement | undefined;
+    const item = list.querySelector(`[data-cmd-index="${selectedIndex}"]`) as HTMLElement | null;
     item?.scrollIntoView({ block: 'nearest' });
   }, [selectedIndex]);
 
@@ -115,10 +116,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
   );
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-black/40"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-black/40" onClick={onClose}>
       <div
         className="w-full max-w-lg bg-slate-800 border border-slate-600 rounded-lg shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -130,7 +128,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onClose }) => {
             ref={inputRef}
             type="text"
             className="w-full bg-transparent text-slate-200 text-sm outline-none placeholder:text-slate-500"
-            placeholder="Type a command…"
+            placeholder={t('command_palette.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

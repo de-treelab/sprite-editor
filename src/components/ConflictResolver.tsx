@@ -2,6 +2,7 @@ import React from 'react';
 import { useTaskStore } from '../store/taskStore';
 import { IconRegistry } from './IconRegistry';
 import { Button } from './ui';
+import { useTranslation } from 'react-i18next';
 
 export const ConflictResolver: React.FC = () => {
   const conflict = useTaskStore((s) => s.conflict);
@@ -13,6 +14,7 @@ export const ConflictResolver: React.FC = () => {
 
   if (!conflict) return null;
 
+  const { t } = useTranslation();
   const allResolved = conflict.files.length === 0;
 
   return (
@@ -21,33 +23,28 @@ export const ConflictResolver: React.FC = () => {
       <div className="flex items-center justify-between px-6 py-3 border-b border-slate-700 bg-slate-800">
         <div className="flex items-center gap-3">
           <IconRegistry.Alert className="text-amber-400 w-5 h-5" />
-          <h1 className="text-lg font-semibold text-slate-200">Resolve Conflicts</h1>
+          <h1 className="text-lg font-semibold text-slate-200">{t('conflict.title')}</h1>
           {activeTask && (
-            <span className="text-xs text-slate-500 bg-slate-700 px-2 py-0.5 rounded-full">
-              {activeTask.name}
-            </span>
+            <span className="text-xs text-slate-500 bg-slate-700 px-2 py-0.5 rounded-full">{activeTask.name}</span>
           )}
         </div>
         <Button variant="ghost" size="sm" onClick={abortConflictResolution}>
-          Abort
+          {t('common.abort')}
         </Button>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
-        <p className="text-sm text-slate-400 mb-4">
-          Some files have changes on both your task branch and the main branch.
-          Choose which version to keep for each file.
-        </p>
+        <p className="text-sm text-slate-400 mb-4">{t('conflict.description')}</p>
 
         {/* Bulk actions */}
         {!allResolved && (
           <div className="flex gap-2 mb-4">
             <Button variant="secondary" size="sm" onClick={() => resolveAllConflicts('ours')}>
-              Keep All Mine
+              {t('conflict.keep_all_mine')}
             </Button>
             <Button variant="secondary" size="sm" onClick={() => resolveAllConflicts('theirs')}>
-              Keep All Theirs
+              {t('conflict.keep_all_theirs')}
             </Button>
           </div>
         )}
@@ -55,10 +52,10 @@ export const ConflictResolver: React.FC = () => {
         {allResolved ? (
           <div className="text-center py-12">
             <IconRegistry.GitCommit className="w-10 h-10 text-green-400 mx-auto mb-3" />
-            <p className="text-slate-300 mb-1">All conflicts resolved</p>
-            <p className="text-sm text-slate-500 mb-6">Click continue to proceed.</p>
+            <p className="text-slate-300 mb-1">{t('conflict.all_resolved')}</p>
+            <p className="text-sm text-slate-500 mb-6">{t('conflict.click_continue')}</p>
             <Button variant="primary" onClick={continueRebase}>
-              Continue
+              {t('common.continue')}
             </Button>
           </div>
         ) : (
@@ -74,10 +71,10 @@ export const ConflictResolver: React.FC = () => {
                 </div>
                 <div className="flex gap-2 flex-shrink-0 ml-4">
                   <Button variant="secondary" size="sm" onClick={() => resolveConflict(file, 'ours')}>
-                    Keep Mine
+                    {t('conflict.keep_mine')}
                   </Button>
                   <Button variant="secondary" size="sm" onClick={() => resolveConflict(file, 'theirs')}>
-                    Keep Theirs
+                    {t('conflict.keep_theirs')}
                   </Button>
                 </div>
               </div>

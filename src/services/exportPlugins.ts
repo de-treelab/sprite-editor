@@ -25,7 +25,7 @@ export const genericJsonPlugin: ExportPlugin = {
         height: metadata.atlasHeight,
       },
       frames: Object.fromEntries(
-        metadata.frames.map(f => [
+        metadata.frames.map((f) => [
           f.frameName,
           {
             frame: { x: f.x, y: f.y, w: f.width, h: f.height },
@@ -34,12 +34,12 @@ export const genericJsonPlugin: ExportPlugin = {
         ]),
       ),
       animations: Object.fromEntries(
-        metadata.animations.map(a => [
+        metadata.animations.map((a) => [
           a.name,
           {
             canvasSize: { w: a.canvasWidth, h: a.canvasHeight },
-            frames: a.keyframes.map(kf => {
-              const rect = metadata.frames.find(r => r.frameId === kf.frameId);
+            frames: a.keyframes.map((kf) => {
+              const rect = metadata.frames.find((r) => r.frameId === kf.frameId);
               return {
                 frame: rect?.frameName ?? kf.frameId,
                 time: kf.time,
@@ -67,9 +67,9 @@ export const godotPlugin: ExportPlugin = {
     lines.push('');
     lines.push('[resource]');
 
-    const animations = metadata.animations.map(anim => {
-      const frames = anim.keyframes.map(kf => {
-        const rect = metadata.frames.find(r => r.frameId === kf.frameId);
+    const animations = metadata.animations.map((anim) => {
+      const frames = anim.keyframes.map((kf) => {
+        const rect = metadata.frames.find((r) => r.frameId === kf.frameId);
         if (!rect) return '';
         return `SubResource("AtlasTexture", { "atlas": ExtResource("1"), "region": Rect2(${rect.x}, ${rect.y}, ${rect.width}, ${rect.height}) })`;
       });
@@ -82,7 +82,10 @@ export const godotPlugin: ExportPlugin = {
 "name": "${anim.name}",
 "speed": ${fps}.0,
 "loop": true,
-"frames": [${frames.filter(Boolean).map(f => `{ "texture": ${f}, "duration": 1.0 }`).join(', ')}]
+"frames": [${frames
+        .filter(Boolean)
+        .map((f) => `{ "texture": ${f}, "duration": 1.0 }`)
+        .join(', ')}]
 }`;
     });
 
@@ -105,7 +108,7 @@ export const unityPlugin: ExportPlugin = {
         size: { w: metadata.atlasWidth, h: metadata.atlasHeight },
       },
       frames: Object.fromEntries(
-        metadata.frames.map(f => [
+        metadata.frames.map((f) => [
           f.frameName,
           {
             frame: { x: f.x, y: f.y, w: f.width, h: f.height },
@@ -117,15 +120,11 @@ export const unityPlugin: ExportPlugin = {
           },
         ]),
       ),
-      animations: metadata.animations.map(a => ({
+      animations: metadata.animations.map((a) => ({
         name: a.name,
-        fps: Math.round(
-          1000 /
-            (a.keyframes.reduce((s, k) => s + k.duration, 0) /
-              Math.max(a.keyframes.length, 1)),
-        ),
-        frames: a.keyframes.map(kf => {
-          const rect = metadata.frames.find(r => r.frameId === kf.frameId);
+        fps: Math.round(1000 / (a.keyframes.reduce((s, k) => s + k.duration, 0) / Math.max(a.keyframes.length, 1))),
+        frames: a.keyframes.map((kf) => {
+          const rect = metadata.frames.find((r) => r.frameId === kf.frameId);
           return rect?.frameName ?? kf.frameId;
         }),
       })),
@@ -136,11 +135,7 @@ export const unityPlugin: ExportPlugin = {
 
 // ── Plugin registry ──
 
-export const builtinPlugins: ExportPlugin[] = [
-  genericJsonPlugin,
-  godotPlugin,
-  unityPlugin,
-];
+export const builtinPlugins: ExportPlugin[] = [genericJsonPlugin, godotPlugin, unityPlugin];
 
 // ── Python plugin runner ──
 
@@ -149,9 +144,6 @@ export const builtinPlugins: ExportPlugin[] = [
  * The script receives the atlas metadata as JSON on stdin and must
  * write the output format to stdout.
  */
-export async function runPythonPlugin(
-  scriptPath: string,
-  metadata: AtlasMetadata,
-): Promise<string> {
+export async function runPythonPlugin(scriptPath: string, metadata: AtlasMetadata): Promise<string> {
   return exportRunPythonPlugin(scriptPath, JSON.stringify(metadata));
 }

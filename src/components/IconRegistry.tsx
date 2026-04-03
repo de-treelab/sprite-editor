@@ -44,6 +44,14 @@ import {
   LuDownload,
   LuImage,
   LuPackage,
+  LuArrowUpDown,
+  LuPenLine,
+  LuLink,
+  LuLayoutDashboard,
+  LuHand,
+  LuMaximize,
+  LuSquareDashedMousePointer,
+  LuBookOpen,
 } from 'react-icons/lu';
 
 export const IconRegistry = {
@@ -64,6 +72,10 @@ export const IconRegistry = {
   ToolMove: LuMove,
   ToolFlipHorizontal: LuFlipHorizontal2,
   ToolFlipVertical: LuFlipVertical2,
+  ToolPan: LuHand,
+  ToolScale: LuMaximize,
+  ToolRotate: LuRotateCw,
+  ToolTransform: LuSquareDashedMousePointer,
 
   // Playback / Timeline
   Play: LuPlay,
@@ -80,7 +92,7 @@ export const IconRegistry = {
   Delete: LuTrash,
   ArrowUp: LuArrowUp,
   ArrowDown: LuArrowDown,
-  
+
   // Generic
   Folder: LuFolderOpen,
   FolderOpen: LuFolderOpen,
@@ -104,4 +116,9 @@ export const IconRegistry = {
   Download: LuDownload,
   Image: LuImage,
   Package: LuPackage,
+  SwapColors: LuArrowUpDown,
+  Edit: LuPenLine,
+  Link: LuLink,
+  Layout: LuLayoutDashboard,
+  Wiki: LuBookOpen,
 };

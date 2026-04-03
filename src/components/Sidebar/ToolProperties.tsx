@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEditorStore } from '../../store/editorStore';
-import { toolDefinitions, ToolProperty, NumberProperty, SelectProperty, BooleanProperty } from '../../tools/toolDefinitions';
+import { getTool } from '../../tools/toolRegistry';
+import type { ToolProperty, NumberProperty, SelectProperty, BooleanProperty } from '../../tools/toolTypes';
 import { useTranslation } from 'react-i18next';
 import { RangeSlider, Select, Checkbox, SectionPanel, SectionHeader } from '../ui';
 
@@ -33,11 +34,7 @@ const SelectPropertyInput: React.FC<{
   return (
     <div className="flex flex-col gap-1">
       <label className="text-xs text-slate-400">{property.label}</label>
-      <Select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        options={property.options}
-      />
+      <Select value={value} onChange={(e) => onChange(e.target.value)} options={property.options} />
     </div>
   );
 };
@@ -47,13 +44,7 @@ const BooleanPropertyInput: React.FC<{
   value: boolean;
   onChange: (value: boolean) => void;
 }> = ({ property, value, onChange }) => {
-  return (
-    <Checkbox
-      checked={value}
-      onChange={onChange}
-      label={property.label}
-    />
-  );
+  return <Checkbox checked={value} onChange={onChange} label={property.label} />;
 };
 
 const PropertyEditor: React.FC<{
@@ -63,29 +54,11 @@ const PropertyEditor: React.FC<{
 }> = ({ property, value, onChange }) => {
   switch (property.type) {
     case 'number':
-      return (
-        <NumberPropertyInput
-          property={property}
-          value={value as number}
-          onChange={onChange}
-        />
-      );
+      return <NumberPropertyInput property={property} value={value as number} onChange={onChange} />;
     case 'select':
-      return (
-        <SelectPropertyInput
-          property={property}
-          value={value as string}
-          onChange={onChange}
-        />
-      );
+      return <SelectPropertyInput property={property} value={value as string} onChange={onChange} />;
     case 'boolean':
-      return (
-        <BooleanPropertyInput
-          property={property}
-          value={value as boolean}
-          onChange={onChange}
-        />
-      );
+      return <BooleanPropertyInput property={property} value={value as boolean} onChange={onChange} />;
     default:
       return null;
   }
@@ -95,7 +68,7 @@ export const ToolProperties: React.FC = () => {
   const { t } = useTranslation();
   const { activeTool, toolProperties, setToolProperty } = useEditorStore();
 
-  const toolDef = toolDefinitions[activeTool];
+  const toolDef = getTool(activeTool);
   if (!toolDef || toolDef.properties.length === 0) {
     return null;
   }

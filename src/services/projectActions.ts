@@ -1,7 +1,19 @@
 import { useProjectStore } from '../store/projectStore';
 import { useLoadingStore } from '../store/loadingStore';
 import { useSettingsStore } from '../store/settingsStore';
-import { saveProjectV2, gitCommit, gitPush, gitHasRemote, loadProjectV2, gitPull, gitIsRepo, gitInit, gitRemoteSetUrl, gitCurrentBranch } from './backend';
+import { useLayoutStore } from '../store/layoutStore';
+import {
+  saveProjectV2,
+  gitCommit,
+  gitPush,
+  gitHasRemote,
+  loadProjectV2,
+  gitPull,
+  gitIsRepo,
+  gitInit,
+  gitRemoteSetUrl,
+  gitCurrentBranch,
+} from './backend';
 import { buildCommitMessage, buildSaveManifest } from '../store/changeTracker';
 import { toast } from 'react-toastify';
 import i18n from '../i18n';
@@ -23,11 +35,11 @@ export function resolveProjectPath(): string | null {
   // Legacy fallback: search recentProjects in localStorage
   try {
     const recents: string[] = JSON.parse(localStorage.getItem('recentProjects') || '[]');
-    const match = recents.find(
-      (p: string) => p.endsWith(`/${project.name}`) || p.endsWith(`\\${project.name}`),
-    );
+    const match = recents.find((p: string) => p.endsWith(`/${project.name}`) || p.endsWith(`\\${project.name}`));
     if (match) return match;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return null;
 }
 
@@ -35,12 +47,12 @@ export function resolveProjectPath(): string | null {
  * Save the current project to disk using v2 multi-file format,
  * auto-commit with a descriptive message, and push if remote exists.
  */
-export async function saveCurrentProject(): Promise<void> {
+export async function saveCurrentProject(options?: { skipTaskCheck?: boolean }): Promise<void> {
   const { project, changeTracker, resetChangeTracker } = useProjectStore.getState();
   if (!project) return;
 
   // If git is enabled and we're on the main branch, prompt user to start a task first
-  if (isGitEnabled()) {
+  if (!options?.skipTaskCheck && isGitEnabled()) {
     const savePath = resolveProjectPath();
     if (savePath) {
       try {
@@ -115,7 +127,8 @@ export async function saveCurrentProject(): Promise<void> {
  * Pulls latest from remote first if available.
  */
 export async function loadProjectFromDisk(dir: string): Promise<void> {
-  const { setProject, setProjectPath, setActiveSpritesheet, setActiveAnimation, setActiveFrame, setActiveLayer } = useProjectStore.getState();
+  const { setProject, setProjectPath, setActiveSpritesheet, setActiveItem, setActiveFrame, setActiveLayer } =
+    useProjectStore.getState();
   const { setLoading } = useLoadingStore.getState();
 
   setLoading(true, i18n.t('loading.opening', 'Opening project…'));
@@ -161,7 +174,7 @@ export async function loadProjectFromDisk(dir: string): Promise<void> {
       const firstSheet = parsed.spritesheets[0];
       setActiveSpritesheet(firstSheet.id);
       if (firstSheet.animations && firstSheet.animations.length > 0) {
-        setActiveAnimation(firstSheet.animations[0].id);
+        setActiveItem(firstSheet.animations[0].id, 'animation');
       }
       if (firstSheet.frames && firstSheet.frames.length > 0) {
         setActiveFrame(firstSheet.frames[0].id);
@@ -176,12 +189,20 @@ export async function loadProjectFromDisk(dir: string): Promise<void> {
       const recents = JSON.parse(localStorage.getItem('recentProjects') || '[]');
       const updated = [dir, ...recents.filter((p: string) => p !== dir)].slice(0, 5);
       localStorage.setItem('recentProjects', JSON.stringify(updated));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     // Sync task state from git
     if (isGitEnabled()) {
-      useTaskStore.getState().syncFromGit().catch(() => {});
+      useTaskStore
+        .getState()
+        .syncFromGit()
+        .catch(() => {});
     }
+
+    // Restore layout for this project
+    useLayoutStore.getState().loadProjectLayout(dir);
   } finally {
     setLoading(false);
   }

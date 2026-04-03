@@ -7,8 +7,8 @@ import { IconRegistry } from '../components/IconRegistry';
 /** Get sorted keyframes for the active animation. */
 function getActiveKeyframes() {
   const pState = useProjectStore.getState();
-  const sheet = pState.project?.spritesheets.find(s => s.id === pState.activeSpritesheetId);
-  const anim = sheet?.animations.find(a => a.id === pState.activeAnimationId);
+  const sheet = pState.project?.spritesheets.find((s) => s.id === pState.activeSpritesheetId);
+  const anim = sheet?.animations.find((a) => a.id === pState.activeItemId);
   return anim?.keyframes ? [...anim.keyframes].sort((a, b) => a.time - b.time) : [];
 }
 
@@ -46,7 +46,7 @@ export function useTimelineCommands() {
         const kfs = getActiveKeyframes();
         if (kfs.length === 0) return;
         const current = useEditorStore.getState().playbackTime;
-        const next = kfs.find(k => k.time > current + 0.5);
+        const next = kfs.find((k) => k.time > current + 0.5);
         if (next) {
           setPlaybackTime(next.time);
           useProjectStore.getState().setActiveFrame(next.frameId);
@@ -87,7 +87,7 @@ export function useTimelineCommands() {
         const kfs = getActiveKeyframes();
         if (kfs.length === 0) return;
         const current = useEditorStore.getState().playbackTime;
-        const next = kfs.find(k => k.time > current + 0.5);
+        const next = kfs.find((k) => k.time > current + 0.5);
         if (next) {
           setPlaybackTime(next.time);
           useProjectStore.getState().setActiveFrame(next.frameId);
@@ -127,8 +127,13 @@ export function useTimelineCommands() {
 
     return () => {
       for (const key of [
-        'timeline.playPause', 'timeline.stop', 'timeline.nextFrame', 'timeline.prevFrame',
-        'timeline.stepForward', 'timeline.stepBackward', 'timeline.toggleLoopMode',
+        'timeline.playPause',
+        'timeline.stop',
+        'timeline.nextFrame',
+        'timeline.prevFrame',
+        'timeline.stepForward',
+        'timeline.stepBackward',
+        'timeline.toggleLoopMode',
       ]) {
         unregisterCommand(key);
       }

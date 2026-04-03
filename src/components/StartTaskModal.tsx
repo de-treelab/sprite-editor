@@ -2,9 +2,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTaskStore, TaskInfo } from '../store/taskStore';
 import { Modal, ModalFooter, FormField, TextInput } from './ui';
 import { TaskSuggestions } from './Task/TaskSuggestions';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   onClose: () => void;
+  onSkip?: () => void;
 }
 
 /** Simple word-overlap similarity score (0–1) */
@@ -19,7 +21,8 @@ function similarity(a: string, b: string): number {
   return overlap / Math.max(wordsA.size, wordsB.size);
 }
 
-export const StartTaskModal: React.FC<Props> = ({ onClose }) => {
+export const StartTaskModal: React.FC<Props> = ({ onClose, onSkip }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [taskId, setTaskId] = useState('');
   const startTask = useTaskStore((s) => s.startTask);
@@ -41,10 +44,7 @@ export const StartTaskModal: React.FC<Props> = ({ onClose }) => {
     }
   }, [generateNextTaskId, taskId]);
 
-  const finishedTasks = useMemo(
-    () => recentTasks.filter((t) => t.status === 'finished'),
-    [recentTasks],
-  );
+  const finishedTasks = useMemo(() => recentTasks.filter((t) => t.status === 'finished'), [recentTasks]);
 
   // Find similar tasks based on the typed name
   const similarTasks = useMemo(() => {
@@ -92,31 +92,32 @@ export const StartTaskModal: React.FC<Props> = ({ onClose }) => {
     <Modal
       isOpen
       onClose={onClose}
-      title="Start Task"
+      title={t('task.start_title')}
       size="md"
       footer={
         <ModalFooter
-          onCancel={onClose}
+          onCancel={onSkip || onClose}
           onConfirm={handleStart}
-          confirmText="Start New Task"
+          cancelText={onSkip ? t('task.save_without_task') : t('common.cancel')}
+          confirmText={t('task.start_new')}
           confirmDisabled={!name.trim() || !taskId.trim()}
         />
       }
     >
-      <FormField label="Task ID" hint="Unique identifier — sync with your ticket system or use the auto-generated default.">
+      <FormField label={t('task.task_id')} hint={t('task.task_id_hint')}>
         <TextInput
           value={taskId}
           onChange={(e) => setTaskId(e.target.value)}
-          placeholder="e.g. SPRITE-1, GH-42"
+          placeholder={t('task.task_id_placeholder')}
           onKeyDown={handleKeyDown}
         />
       </FormField>
 
-      <FormField label="Task Name" hint="Describe what you're working on (e.g. 'Draw knight walk cycle')">
+      <FormField label={t('task.task_name')} hint={t('task.task_name_hint')}>
         <TextInput
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Enter task name…"
+          placeholder={t('task.task_name_placeholder')}
           onKeyDown={handleKeyDown}
           autoFocus
         />

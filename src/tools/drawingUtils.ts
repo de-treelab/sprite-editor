@@ -14,7 +14,7 @@ export const drawBrush = (
   size: number,
   shape: BrushShape,
   color: string,
-  isEraser: boolean
+  isEraser: boolean,
 ) => {
   const half = Math.floor(size / 2);
 
@@ -43,7 +43,7 @@ const drawFilledCircle = (
   cy: number,
   radius: number,
   _color: string,
-  isEraser: boolean
+  isEraser: boolean,
 ) => {
   if (radius <= 0) {
     if (isEraser) {
@@ -78,7 +78,7 @@ export const drawLine = (
   y1: number,
   color: string,
   thickness: number,
-  brushShape: BrushShape
+  brushShape: BrushShape,
 ) => {
   ctx.fillStyle = color;
 
@@ -92,8 +92,14 @@ export const drawLine = (
     drawBrush(ctx, x0, y0, thickness, brushShape, color, false);
     if (x0 === x1 && y0 === y1) break;
     const e2 = 2 * err;
-    if (e2 > -dy) { err -= dy; x0 += sx; }
-    if (e2 < dx) { err += dx; y0 += sy; }
+    if (e2 > -dy) {
+      err -= dy;
+      x0 += sx;
+    }
+    if (e2 < dx) {
+      err += dx;
+      y0 += sy;
+    }
   }
 };
 
@@ -108,7 +114,7 @@ export const drawRectangle = (
   y1: number,
   color: string,
   filled: boolean,
-  strokeWidth: number
+  strokeWidth: number,
 ) => {
   ctx.fillStyle = color;
 
@@ -163,7 +169,7 @@ export const drawEllipse = (
   y1: number,
   color: string,
   filled: boolean,
-  strokeWidth: number
+  strokeWidth: number,
 ) => {
   ctx.fillStyle = color;
 
@@ -205,9 +211,8 @@ export const drawEllipse = (
           const innerRy = Math.max(0, ry - half - 1);
 
           const outerDist = (x * x) / (outerRx * outerRx) + (y * y) / (outerRy * outerRy);
-          const innerDist = innerRx > 0 && innerRy > 0
-            ? (x * x) / (innerRx * innerRx) + (y * y) / (innerRy * innerRy)
-            : 2; // Force inclusion if inner radius is 0
+          const innerDist =
+            innerRx > 0 && innerRy > 0 ? (x * x) / (innerRx * innerRx) + (y * y) / (innerRy * innerRy) : 2; // Force inclusion if inner radius is 0
 
           if (outerDist <= 1 && innerDist > 1) {
             ctx.fillRect(cx + x, cy + y, 1, 1);
@@ -229,7 +234,7 @@ export const floodFill = (
   tolerance: number,
   contiguous: boolean,
   canvasWidth: number,
-  canvasHeight: number
+  canvasHeight: number,
 ) => {
   const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
   const data = imageData.data;
@@ -313,7 +318,7 @@ export const pickColor = (
   y: number,
   canvasWidth: number,
   canvasHeight: number,
-  _sampleMerged: boolean = false
+  _sampleMerged: boolean = false,
 ): string | null => {
   if (x < 0 || x >= canvasWidth || y < 0 || y >= canvasHeight) return null;
 
@@ -451,7 +456,10 @@ export const getSelectionBounds = (
   width: number,
   height: number,
 ): { minX: number; minY: number; maxX: number; maxY: number } | null => {
-  let minX = width, minY = height, maxX = -1, maxY = -1;
+  let minX = width,
+    minY = height,
+    maxX = -1,
+    maxY = -1;
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -472,9 +480,12 @@ export const getSelectionBounds = (
  * Create a rectangular selection mask.
  */
 export const createRectSelection = (
-  x0: number, y0: number,
-  x1: number, y1: number,
-  width: number, height: number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  width: number,
+  height: number,
 ): Uint8Array => {
   const mask = new Uint8Array(width * height);
   const minX = Math.max(0, Math.min(x0, x1));
@@ -494,9 +505,12 @@ export const createRectSelection = (
  * Create an elliptical selection mask.
  */
 export const createEllipseSelection = (
-  x0: number, y0: number,
-  x1: number, y1: number,
-  width: number, height: number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  width: number,
+  height: number,
 ): Uint8Array => {
   const mask = new Uint8Array(width * height);
   const cx = (x0 + x1) / 2;
@@ -528,17 +542,22 @@ export const createEllipseSelection = (
  */
 export const createMagicWandSelection = (
   ctx: CanvasRenderingContext2D,
-  startX: number, startY: number,
+  startX: number,
+  startY: number,
   tolerance: number,
   contiguous: boolean,
-  width: number, height: number,
+  width: number,
+  height: number,
 ): Uint8Array => {
   const mask = new Uint8Array(width * height);
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
   const idx = (startY * width + startX) * 4;
-  const tR = data[idx], tG = data[idx + 1], tB = data[idx + 2], tA = data[idx + 3];
+  const tR = data[idx],
+    tG = data[idx + 1],
+    tB = data[idx + 2],
+    tA = data[idx + 3];
 
   const matches = (i: number) =>
     Math.abs(data[i] - tR) <= tolerance &&
@@ -604,7 +623,178 @@ export const isSelectionEmpty = (mask: Uint8Array | null): boolean => {
   return true;
 };
 
-// Helper functions
+/**
+ * Move selected pixels by a delta offset.
+ * Clears original positions and writes to new positions.
+ */
+export const movePixels = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  dx: number,
+  dy: number,
+  selectionMask?: Uint8Array | null,
+) => {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const src = new Uint8ClampedArray(imageData.data);
+
+  let minX = 0,
+    minY = 0,
+    maxX = width - 1,
+    maxY = height - 1;
+  let useSelection = false;
+
+  if (selectionMask && selectionMask.length === width * height) {
+    const bounds = getSelectionBounds(selectionMask, width, height);
+    if (!bounds) return;
+    ({ minX, minY, maxX, maxY } = bounds);
+    useSelection = true;
+  }
+
+  // Clear source pixels
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
+      if (useSelection && !selectionMask![y * width + x]) continue;
+      const idx = (y * width + x) * 4;
+      imageData.data[idx] = 0;
+      imageData.data[idx + 1] = 0;
+      imageData.data[idx + 2] = 0;
+      imageData.data[idx + 3] = 0;
+    }
+  }
+
+  // Write to new positions
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
+      if (useSelection && !selectionMask![y * width + x]) continue;
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+      const srcIdx = (y * width + x) * 4;
+      const dstIdx = (ny * width + nx) * 4;
+      imageData.data[dstIdx] = src[srcIdx];
+      imageData.data[dstIdx + 1] = src[srcIdx + 1];
+      imageData.data[dstIdx + 2] = src[srcIdx + 2];
+      imageData.data[dstIdx + 3] = src[srcIdx + 3];
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+};
+
+/**
+ * Scale selected pixels by a factor, centered on the selection bounding box.
+ * Supports nearest-neighbor and bilinear interpolation.
+ */
+export const scalePixels = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  scaleX: number,
+  scaleY: number,
+  interpolation: 'nearest' | 'bilinear' = 'nearest',
+  selectionMask?: Uint8Array | null,
+) => {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const src = new Uint8ClampedArray(imageData.data);
+
+  let minX = 0,
+    minY = 0,
+    maxX = width - 1,
+    maxY = height - 1;
+  let useSelection = false;
+
+  if (selectionMask && selectionMask.length === width * height) {
+    const bounds = getSelectionBounds(selectionMask, width, height);
+    if (!bounds) return;
+    ({ minX, minY, maxX, maxY } = bounds);
+    useSelection = true;
+  }
+
+  const bw = maxX - minX + 1;
+  const bh = maxY - minY + 1;
+  const cx = bw / 2;
+  const cy = bh / 2;
+
+  // Clear source pixels
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
+      if (useSelection && !selectionMask![y * width + x]) continue;
+      const idx = (y * width + x) * 4;
+      imageData.data[idx] = 0;
+      imageData.data[idx + 1] = 0;
+      imageData.data[idx + 2] = 0;
+      imageData.data[idx + 3] = 0;
+    }
+  }
+
+  // For each destination pixel, inverse-scale to find source
+  for (let dy = minY; dy <= maxY; dy++) {
+    for (let dx = minX; dx <= maxX; dx++) {
+      if (useSelection && !selectionMask![dy * width + dx]) continue;
+
+      const relX = dx - minX - cx + 0.5;
+      const relY = dy - minY - cy + 0.5;
+
+      const srcRelX = relX / scaleX;
+      const srcRelY = relY / scaleY;
+
+      const srcXf = srcRelX + cx - 0.5 + minX;
+      const srcYf = srcRelY + cy - 0.5 + minY;
+
+      const dstIdx = (dy * width + dx) * 4;
+
+      if (interpolation === 'bilinear') {
+        const x0 = Math.floor(srcXf);
+        const y0 = Math.floor(srcYf);
+        const x1 = x0 + 1;
+        const y1 = y0 + 1;
+        const fx = srcXf - x0;
+        const fy = srcYf - y0;
+
+        const sample = (sx: number, sy: number): [number, number, number, number] => {
+          if (sx < minX || sx > maxX || sy < minY || sy > maxY) return [0, 0, 0, 0];
+          if (useSelection && !selectionMask![sy * width + sx]) return [0, 0, 0, 0];
+          const i = (sy * width + sx) * 4;
+          return [src[i], src[i + 1], src[i + 2], src[i + 3]];
+        };
+
+        const [r00, g00, b00, a00] = sample(x0, y0);
+        const [r10, g10, b10, a10] = sample(x1, y0);
+        const [r01, g01, b01, a01] = sample(x0, y1);
+        const [r11, g11, b11, a11] = sample(x1, y1);
+
+        imageData.data[dstIdx] = Math.round(
+          r00 * (1 - fx) * (1 - fy) + r10 * fx * (1 - fy) + r01 * (1 - fx) * fy + r11 * fx * fy,
+        );
+        imageData.data[dstIdx + 1] = Math.round(
+          g00 * (1 - fx) * (1 - fy) + g10 * fx * (1 - fy) + g01 * (1 - fx) * fy + g11 * fx * fy,
+        );
+        imageData.data[dstIdx + 2] = Math.round(
+          b00 * (1 - fx) * (1 - fy) + b10 * fx * (1 - fy) + b01 * (1 - fx) * fy + b11 * fx * fy,
+        );
+        imageData.data[dstIdx + 3] = Math.round(
+          a00 * (1 - fx) * (1 - fy) + a10 * fx * (1 - fy) + a01 * (1 - fx) * fy + a11 * fx * fy,
+        );
+      } else {
+        const sx = Math.round(srcXf);
+        const sy = Math.round(srcYf);
+        if (sx < minX || sx > maxX || sy < minY || sy > maxY) continue;
+        if (useSelection && !selectionMask![sy * width + sx]) continue;
+        const srcIdx = (sy * width + sx) * 4;
+        imageData.data[dstIdx] = src[srcIdx];
+        imageData.data[dstIdx + 1] = src[srcIdx + 1];
+        imageData.data[dstIdx + 2] = src[srcIdx + 2];
+        imageData.data[dstIdx + 3] = src[srcIdx + 3];
+      }
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+};
+
+// ───── Helper functions ─────
+
 const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
@@ -617,7 +807,7 @@ const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
 };
 
 const rgbToHex = (r: number, g: number, b: number): string => {
-  return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+  return '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('');
 };
 
 /**
@@ -659,10 +849,33 @@ const rotateByDegrees = (
   degrees: 90 | 180 | 270,
   selectionMask?: Uint8Array | null,
 ) => {
+  rotateByArbitraryAngle(ctx, width, height, degrees, 'nearest', selectionMask);
+};
+
+/**
+ * Rotate pixels by an arbitrary angle (in degrees).
+ * Supports nearest-neighbor and bilinear interpolation.
+ * Operates within the selection bounding box if a mask is provided.
+ */
+export const rotateByArbitraryAngle = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  degrees: number,
+  interpolation: 'nearest' | 'bilinear' = 'nearest',
+  selectionMask?: Uint8Array | null,
+) => {
+  // Normalize angle
+  const angle = ((degrees % 360) + 360) % 360;
+  if (angle === 0) return;
+
   const imageData = ctx.getImageData(0, 0, width, height);
   const src = new Uint8ClampedArray(imageData.data);
 
-  let minX = 0, minY = 0, maxX = width - 1, maxY = height - 1;
+  let minX = 0,
+    minY = 0,
+    maxX = width - 1,
+    maxY = height - 1;
   let useSelection = false;
 
   if (selectionMask && selectionMask.length === width * height) {
@@ -677,68 +890,88 @@ const rotateByDegrees = (
 
   const bw = maxX - minX + 1;
   const bh = maxY - minY + 1;
+  const cx = bw / 2;
+  const cy = bh / 2;
+  const rad = (angle * Math.PI) / 180;
+  const cosA = Math.cos(-rad);
+  const sinA = Math.sin(-rad);
 
-  // Extract source pixels from the bounding box
-  const extractW = bw;
-  const extractH = bh;
-
+  // Clear selected pixels first
   for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++) {
       if (useSelection && !selectionMask![y * width + x]) continue;
+      const idx = (y * width + x) * 4;
+      imageData.data[idx] = 0;
+      imageData.data[idx + 1] = 0;
+      imageData.data[idx + 2] = 0;
+      imageData.data[idx + 3] = 0;
+    }
+  }
 
-      const srcIdx = (y * width + x) * 4;
-      const lx = x - minX;
-      const ly = y - minY;
+  // For each destination pixel, sample from source
+  for (let dy = minY; dy <= maxY; dy++) {
+    for (let dx = minX; dx <= maxX; dx++) {
+      if (useSelection && !selectionMask![dy * width + dx]) continue;
 
-      let dx: number, dy: number;
-      if (degrees === 90) {
-        dx = (extractH - 1 - ly);
-        dy = lx;
-      } else if (degrees === 180) {
-        dx = (extractW - 1 - lx);
-        dy = (extractH - 1 - ly);
-      } else { // 270
-        dx = ly;
-        dy = (extractW - 1 - lx);
-      }
+      // Coordinates relative to center of bounding box
+      const relX = dx - minX - cx + 0.5;
+      const relY = dy - minY - cy + 0.5;
 
-      // Map back to canvas coordinates, centering if dimensions change
-      const targetW = (degrees === 90 || degrees === 270) ? extractH : extractW;
-      const targetH = (degrees === 90 || degrees === 270) ? extractW : extractH;
-      const offsetX = minX + Math.floor((bw - targetW) / 2);
-      const offsetY = minY + Math.floor((bh - targetH) / 2);
+      // Inverse-rotate to find source coordinates
+      const srcRelX = cosA * relX - sinA * relY;
+      const srcRelY = sinA * relX + cosA * relY;
 
-      const tx = offsetX + dx;
-      const ty = offsetY + dy;
+      const srcX = srcRelX + cx - 0.5 + minX;
+      const srcY = srcRelY + cy - 0.5 + minY;
 
-      if (tx >= 0 && tx < width && ty >= 0 && ty < height) {
-        const dstIdx = (ty * width + tx) * 4;
+      const dstIdx = (dy * width + dx) * 4;
+
+      if (interpolation === 'bilinear') {
+        // Bilinear interpolation
+        const x0 = Math.floor(srcX);
+        const y0 = Math.floor(srcY);
+        const x1 = x0 + 1;
+        const y1 = y0 + 1;
+        const fx = srcX - x0;
+        const fy = srcY - y0;
+
+        const sample = (sx: number, sy: number): [number, number, number, number] => {
+          if (sx < minX || sx > maxX || sy < minY || sy > maxY) return [0, 0, 0, 0];
+          if (useSelection && !selectionMask![sy * width + sx]) return [0, 0, 0, 0];
+          const i = (sy * width + sx) * 4;
+          return [src[i], src[i + 1], src[i + 2], src[i + 3]];
+        };
+
+        const [r00, g00, b00, a00] = sample(x0, y0);
+        const [r10, g10, b10, a10] = sample(x1, y0);
+        const [r01, g01, b01, a01] = sample(x0, y1);
+        const [r11, g11, b11, a11] = sample(x1, y1);
+
+        imageData.data[dstIdx] = Math.round(
+          r00 * (1 - fx) * (1 - fy) + r10 * fx * (1 - fy) + r01 * (1 - fx) * fy + r11 * fx * fy,
+        );
+        imageData.data[dstIdx + 1] = Math.round(
+          g00 * (1 - fx) * (1 - fy) + g10 * fx * (1 - fy) + g01 * (1 - fx) * fy + g11 * fx * fy,
+        );
+        imageData.data[dstIdx + 2] = Math.round(
+          b00 * (1 - fx) * (1 - fy) + b10 * fx * (1 - fy) + b01 * (1 - fx) * fy + b11 * fx * fy,
+        );
+        imageData.data[dstIdx + 3] = Math.round(
+          a00 * (1 - fx) * (1 - fy) + a10 * fx * (1 - fy) + a01 * (1 - fx) * fy + a11 * fx * fy,
+        );
+      } else {
+        // Nearest neighbor
+        const sx = Math.round(srcX);
+        const sy = Math.round(srcY);
+
+        if (sx < minX || sx > maxX || sy < minY || sy > maxY) continue;
+        if (useSelection && !selectionMask![sy * width + sx]) continue;
+
+        const srcIdx = (sy * width + sx) * 4;
         imageData.data[dstIdx] = src[srcIdx];
         imageData.data[dstIdx + 1] = src[srcIdx + 1];
         imageData.data[dstIdx + 2] = src[srcIdx + 2];
         imageData.data[dstIdx + 3] = src[srcIdx + 3];
-      }
-    }
-  }
-
-  // Clear original pixels that are not in the rotated area (for selection rotation)
-  if (useSelection) {
-    const targetW = (degrees === 90 || degrees === 270) ? extractH : extractW;
-    const targetH = (degrees === 90 || degrees === 270) ? extractW : extractH;
-    const offsetX = minX + Math.floor((bw - targetW) / 2);
-    const offsetY = minY + Math.floor((bh - targetH) / 2);
-
-    for (let y = minY; y <= maxY; y++) {
-      for (let x = minX; x <= maxX; x++) {
-        if (!selectionMask![y * width + x]) continue;
-        // If this pixel is not within the target rectangle, clear it
-        if (x < offsetX || x >= offsetX + targetW || y < offsetY || y >= offsetY + targetH) {
-          const idx = (y * width + x) * 4;
-          imageData.data[idx] = 0;
-          imageData.data[idx + 1] = 0;
-          imageData.data[idx + 2] = 0;
-          imageData.data[idx + 3] = 0;
-        }
       }
     }
   }

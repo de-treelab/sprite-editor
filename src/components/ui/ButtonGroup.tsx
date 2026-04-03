@@ -18,7 +18,9 @@ export const SpeedButtonGroup: React.FC<SpeedButtonGroupProps> = ({
       className={`
         flex bg-slate-900 rounded-full overflow-hidden border border-slate-700
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
     >
       {speeds.map((speed) => (
         <button
@@ -26,11 +28,10 @@ export const SpeedButtonGroup: React.FC<SpeedButtonGroupProps> = ({
           onClick={() => onChange(speed)}
           className={`
             px-2 py-0.5 text-xs font-bold transition-colors
-            ${value === speed
-              ? 'bg-indigo-600 text-white'
-              : 'text-slate-400 hover:bg-slate-700 hover:text-white'
-            }
-          `.trim().replace(/\s+/g, ' ')}
+            ${value === speed ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-700 hover:text-white'}
+          `
+            .trim()
+            .replace(/\s+/g, ' ')}
         >
           {speed}x
         </button>
@@ -63,7 +64,9 @@ export function ButtonGroup<T extends string | number>({
       className={`
         flex bg-slate-900 rounded-md overflow-hidden border border-slate-700
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
     >
       {options.map((option) => (
         <button
@@ -71,11 +74,12 @@ export function ButtonGroup<T extends string | number>({
           onClick={() => onChange(option.value)}
           className={`
             px-3 py-1 text-xs font-medium transition-colors
-            ${value === option.value
-              ? 'bg-indigo-600 text-white'
-              : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+            ${
+              value === option.value ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-700 hover:text-white'
             }
-          `.trim().replace(/\s+/g, ' ')}
+          `
+            .trim()
+            .replace(/\s+/g, ' ')}
         >
           {option.label}
         </button>

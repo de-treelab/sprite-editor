@@ -4,7 +4,30 @@
     "create": "Create",
     "save": "Save",
     "load": "Load",
-    "error": "Error"
+    "error": "Error",
+    "close": "Close",
+    "delete": "Delete",
+    "browse": "Browse...",
+    "refresh": "Refresh",
+    "loading": "Loading…",
+    "preview": "Preview",
+    "overwrite": "Overwrite",
+    "export": "Export",
+    "exporting": "Exporting...",
+    "rename": "Rename",
+    "restore": "Restore",
+    "restoring": "Restoring...",
+    "abort": "Abort",
+    "continue": "Continue",
+    "amend": "Amend",
+    "project": "Project",
+    "animations": "Animations",
+    "frames": "Frames",
+    "palettes": "Palettes",
+    "layers": "Layers",
+    "zoom": "Zoom",
+    "scale": "Scale",
+    "global": "Global"
   },
   "new_project": {
     "title": "Create New Project",
@@ -25,11 +48,17 @@
     "create_button": "Create New Project"
   },
   "topbar": {
+    "app_title": "SpriteEditor",
     "file": {
       "menu": "File",
       "new": "New Project",
       "open": "Open Project",
-      "save": "Save Project"
+      "open_recent": "Open Recent",
+      "open_failed": "Failed to open project.",
+      "save": "Save Project",
+      "export": "Export...",
+      "close": "Close Project",
+      "no_recent": "No recent projects"
     },
     "edit": {
       "menu": "Edit",
@@ -41,15 +70,192 @@
       "init": "Init Repository",
       "commit": "Commit Changes"
     },
+    "task": {
+      "menu": "Task"
+    },
     "view": {
       "menu": "View",
       "zoom_in": "Zoom In",
       "zoom_out": "Zoom Out",
-      "fit_screen": "Fit to Screen"
+      "fit_screen": "Fit to Screen",
+      "exit_fullscreen": "Exit Fullscreen",
+      "reset_layout": "Reset Layout",
+      "save_layout": "Save Layout...",
+      "manage_layouts": "Manage Layouts..."
     }
   },
   "sidebar": {
-    "layers": "Layers"
+    "layers": "Layers",
+    "project": "Project",
+    "new_spritesheet": "New Spritesheet",
+    "new_item": "New...",
+    "new_layer": "New Layer",
+    "merge_down": "Merge Down",
+    "delete_layer": "Delete Layer",
+    "show_layer": "Show Layer",
+    "hide_layer": "Hide Layer",
+    "lock_layer": "Lock Layer",
+    "unlock_layer": "Unlock Layer",
+    "reference_tooltip": "Reference Layer (Not exported)\nDouble-click to rename",
+    "rename_tooltip": "Double-click to rename",
+    "toggle_reference": "Toggle Reference Mode (Not rendered in export)"
+  },
+  "palette": {
+    "title": "Palette",
+    "empty": "No palettes yet. Create one to get started.",
+    "new_palette": "New Palette",
+    "delete_palette": "Delete Palette",
+    "rename_tooltip": "Double-click to rename",
+    "color_tooltip": "Click: primary, Right-click: secondary",
+    "remove_color": "Remove color",
+    "add_color": "Add current color to palette"
+  },
+  "onion_skin": {
+    "title": "Onion Skin",
+    "before": "Before",
+    "after": "After",
+    "opacity": "Opacity"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "disabled_for_images": "Timeline disabled for reference images",
+    "select_animation": "Select an animation to edit keyframes",
+    "add": "Add",
+    "play": "Play",
+    "pause": "Pause",
+    "snap": "Snap",
+    "loop": "Loop",
+    "one_shot": "One-shot",
+    "ping_pong": "Ping-pong",
+    "snap_none": "None",
+    "snap_10ms": "10ms",
+    "snap_20ms": "20ms",
+    "snap_50ms": "50ms",
+    "snap_100ms": "100ms",
+    "set_loop_start": "Set loop start (A) at playhead",
+    "set_loop_end": "Set loop end (B) at playhead",
+    "clear_ab_loop": "Clear A-B loop"
+  },
+  "canvas": {
+    "select_spritesheet": "Select or create a spritesheet",
+    "select_frame": "Select a frame to edit",
+    "select_frame_preview": "Select a frame to preview"
+  },
+  "preview_view": {
+    "disabled_for_images": "Preview disabled for images",
+    "select_animation": "Select an animation"
+  },
+  "new_item": {
+    "default_animation_name": "New Animation",
+    "default_image_name": "New Image",
+    "default_layer_name": "Background"
+  },
+  "new_spritesheet": {
+    "default_name": "New Spritesheet"
+  },
+  "export_modal": {
+    "title": "Export",
+    "format": "Format",
+    "format_atlas": "Spritesheet Atlas (PNG)",
+    "format_gif": "Animated GIF",
+    "format_metadata": "Metadata Only",
+    "format_custom_script": "Custom Python Script...",
+    "max_width": "Max Width",
+    "max_height": "Max Height",
+    "padding": "Padding (px)",
+    "metadata_format": "Metadata Format",
+    "python_script": "Python Script",
+    "no_script_selected": "No script selected",
+    "gif_warning": "Select an animation in the timeline to export as GIF.",
+    "error_no_spritesheet": "No active spritesheet selected.",
+    "error_no_animation": "Select an animation to export as GIF.",
+    "error_no_script": "Select a Python script first.",
+    "success_metadata": "Metadata exported."
+  },
+  "layout_modal": {
+    "title": "Manage Layouts",
+    "empty": "No saved layouts. Use \"Save Layout\" to create one.",
+    "active_badge": "(active)",
+    "project_badge": "(project)",
+    "load_tooltip": "Load layout",
+    "rename_tooltip": "Rename",
+    "bind_tooltip": "Bind to project",
+    "unbind_tooltip": "Unbind from project",
+    "delete_tooltip": "Delete"
+  },
+  "save_layout_modal": {
+    "title": "Save Layout",
+    "overwrite_existing": "Overwrite existing",
+    "save_as_new": "Or save as new",
+    "placeholder": "My Layout",
+    "bind_to_project": "Bind to current project"
+  },
+  "resize_modal": {
+    "title": "Resize Canvas",
+    "resizing": "Resizing…",
+    "resize": "Resize",
+    "current_size": "Current size:",
+    "frames_modified": "frame(s) will be modified",
+    "mode": "Mode",
+    "crop_pad": "Crop / Pad",
+    "anchor": "Anchor"
+  },
+  "task": {
+    "start_title": "Start Task",
+    "save_without_task": "Save without task",
+    "start_new": "Start New Task",
+    "task_id": "Task ID",
+    "task_id_hint": "Unique identifier — sync with your ticket system or use the auto-generated default.",
+    "task_id_placeholder": "e.g. SPRITE-1, GH-42",
+    "task_name": "Task Name",
+    "task_name_hint": "Describe what you're working on (e.g. 'Draw knight walk cycle')",
+    "task_name_placeholder": "Enter task name…",
+    "finish_error": "Failed to finish task: ",
+    "similar_tasks": "Similar existing tasks — click to amend",
+    "recent_tasks": "Recent tasks — click to amend"
+  },
+  "conflict": {
+    "title": "Resolve Conflicts",
+    "description": "Some files have changes on both your task branch and the main branch. Choose which version to keep for each file.",
+    "keep_all_mine": "Keep All Mine",
+    "keep_all_theirs": "Keep All Theirs",
+    "keep_mine": "Keep Mine",
+    "keep_theirs": "Keep Theirs",
+    "all_resolved": "All conflicts resolved",
+    "click_continue": "Click continue to proceed."
+  },
+  "status": {
+    "working": "Working…"
+  },
+  "command_palette": {
+    "placeholder": "Type a command…",
+    "no_results": "No matching commands"
+  },
+  "git_history": {
+    "title": "Task History",
+    "all_commits": "All commits",
+    "loading": "Loading history…",
+    "not_a_repo": "This project is not a git repository.",
+    "not_a_repo_hint": "Enable git in Settings to get started.",
+    "no_commits": "No commits yet.",
+    "no_commits_hint": "Save your project to create the first commit.",
+    "no_project_path": "No project path found.",
+    "remote_label": "Remote: ",
+    "restore_title": "Restore to Version",
+    "restore_body": "This will restore all project files to the state at commit",
+    "restore_warning": "Any unsaved changes in the current project will be overwritten.",
+    "preview_tooltip": "Preview this version",
+    "restore_tooltip": "Restore to this version"
+  },
+  "version_preview": {
+    "title": "Version Preview",
+    "readonly_badge": "READ-ONLY",
+    "close": "Close Preview",
+    "loading": "Loading version...",
+    "load_error": "Failed to load version: "
+  },
+  "workspace": {
+    "select_spritesheet": "Select or create a new spritesheet to begin"
   },
   "error_boundary": {
     "title": "Something went wrong.",

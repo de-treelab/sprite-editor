@@ -25,6 +25,7 @@ export interface GlobalKeybindings {
 
   // File operations
   saveProject: string;
+  saveProjectWithoutTask: string;
   openProject: string;
   newProject: string;
 
@@ -34,6 +35,14 @@ export interface GlobalKeybindings {
 
   // Command palette
   openCommandPalette: string;
+
+  // Layout management
+  saveLayout: string;
+  manageLayouts: string;
+  resetLayout: string;
+
+  // Wiki
+  openWiki: string;
 }
 
 // Canvas-specific keybindings
@@ -44,6 +53,10 @@ export interface CanvasKeybindings {
   toolFill: string;
   toolPicker: string;
   toolMove: string;
+  toolPan: string;
+  toolScale: string;
+  toolRotate: string;
+  toolTransform: string;
   toolSelection: string;
   toolMagicWand: string;
   toolLine: string;
@@ -66,6 +79,7 @@ export interface CanvasKeybindings {
   toggleCenterLines: string;
   copy: string;
   paste: string;
+  swapColors: string;
 }
 
 // Timeline-specific keybindings (includes keyframe editing)
@@ -81,8 +95,6 @@ export interface TimelineKeybindings {
   deleteKeyframe: string;
   duplicateKeyframe: string;
 }
-
-
 
 // Navigator keybindings
 export interface NavigatorKeybindings {
@@ -116,11 +128,16 @@ export const defaultKeybindings: KeybindingsConfig = {
     fullscreenPreview: 'ctrl+alt+3',
     fullscreenNavigator: 'ctrl+alt+4',
     saveProject: 'ctrl+s',
+    saveProjectWithoutTask: 'ctrl+shift+s',
     openProject: 'ctrl+o',
     newProject: 'ctrl+n',
     undo: 'ctrl+z',
     redo: 'ctrl+shift+z',
     openCommandPalette: 'ctrl+shift+p',
+    saveLayout: 'ctrl+shift+l',
+    manageLayouts: 'ctrl+alt+l',
+    resetLayout: '',
+    openWiki: 'f1',
   },
   canvas: {
     toolPencil: 'b',
@@ -128,6 +145,10 @@ export const defaultKeybindings: KeybindingsConfig = {
     toolFill: 'g',
     toolPicker: 'i',
     toolMove: 'v',
+    toolPan: 'h',
+    toolScale: 's',
+    toolRotate: 'r',
+    toolTransform: 't',
     toolSelection: 'm',
     toolMagicWand: 'w',
     toolLine: 'l',
@@ -145,9 +166,10 @@ export const defaultKeybindings: KeybindingsConfig = {
     fitToScreen: 'ctrl+shift+f',
     zoomToSelection: 'ctrl+shift+e',
     toggleGrid: "ctrl+'",
-    toggleCenterLines: "ctrl+;",
+    toggleCenterLines: 'ctrl+;',
     copy: 'ctrl+c',
     paste: 'ctrl+v',
+    swapColors: 'x',
   },
   timeline: {
     playPause: 'space',

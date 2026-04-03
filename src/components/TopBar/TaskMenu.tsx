@@ -27,12 +27,7 @@ export const TaskMenu: React.FC<TaskMenuProps> = ({
   const { t } = useTranslation();
 
   return (
-    <ControlledDropdown
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      trigger={trigger}
-      menuClassName="w-48"
-    >
+    <ControlledDropdown isOpen={isOpen} onOpenChange={onOpenChange} trigger={trigger} menuClassName="w-48">
       <MenuItem
         icon={IconRegistry.Add}
         label={t('topbar.task.start', 'Start Task')}

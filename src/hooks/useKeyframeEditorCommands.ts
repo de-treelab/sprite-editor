@@ -31,9 +31,7 @@ export function useKeyframeEditorCommands(handlers: {
     });
 
     return () => {
-      for (const key of [
-        'timeline.addKeyframe', 'timeline.deleteKeyframe', 'timeline.duplicateKeyframe',
-      ]) {
+      for (const key of ['timeline.addKeyframe', 'timeline.deleteKeyframe', 'timeline.duplicateKeyframe']) {
         unregisterCommand(key);
       }
     };

@@ -31,12 +31,12 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
   const [initGit, setInitGit] = useState<boolean>(gitEnabled);
   const [remoteUrl, setRemoteUrl] = useState<string>(gitDefaultRemote);
 
-  const setProject = useProjectStore(state => state.setProject);
-  const setProjectPath = useProjectStore(state => state.setProjectPath);
-  const setActiveSpritesheet = useProjectStore(state => state.setActiveSpritesheet);
-  const setActiveAnimation = useProjectStore(state => state.setActiveAnimation);
-  const setActiveFrame = useProjectStore(state => state.setActiveFrame);
-  const setActiveLayer = useProjectStore(state => state.setActiveLayer);
+  const setProject = useProjectStore((state) => state.setProject);
+  const setProjectPath = useProjectStore((state) => state.setProjectPath);
+  const setActiveSpritesheet = useProjectStore((state) => state.setActiveSpritesheet);
+  const setActiveItem = useProjectStore((state) => state.setActiveItem);
+  const setActiveFrame = useProjectStore((state) => state.setActiveFrame);
+  const setActiveLayer = useProjectStore((state) => state.setActiveLayer);
 
   useEffect(() => {
     const savedLocation = localStorage.getItem('defaultProjectLocation');
@@ -50,13 +50,13 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
       if (parentPath && name) {
         try {
           const normalized = normalizeProjectName(name);
-          let sep = parentPath.includes('\\') ? '\\' : '/';
-          let safeParent = parentPath.endsWith(sep) ? parentPath.slice(0, -1) : parentPath;
+          const sep = parentPath.includes('\\') ? '\\' : '/';
+          const safeParent = parentPath.endsWith(sep) ? parentPath.slice(0, -1) : parentPath;
           let newFullPath = `${safeParent}${sep}${normalized}`;
 
           try {
             newFullPath = await join(parentPath, normalized);
-          } catch (e) {
+          } catch {
             // ignore
           }
           setFullPath(newFullPath);
@@ -64,11 +64,11 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
           try {
             const exists = await checkFolderExists(newFullPath);
             setFolderExists(exists);
-          } catch (e) {
+          } catch {
             setFolderExists(false);
           }
-        } catch (e) {
-          console.error(e);
+        } catch (err) {
+          console.error(err);
         }
       } else {
         setFullPath('');
@@ -103,7 +103,7 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
       name,
       defaultCanvasSize: { width: safeWidth, height: safeHeight },
       palettes: [],
-      spritesheets: []
+      spritesheets: [],
     };
 
     const { setLoading } = useLoadingStore.getState();
@@ -128,11 +128,11 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
         localStorage.setItem('defaultProjectLocation', parentPath);
 
         try {
-           const recents = JSON.parse(localStorage.getItem('recentProjects') || '[]');
-           const updated = [fullPath, ...recents.filter((p: string) => p !== fullPath)].slice(0, 5);
-           localStorage.setItem('recentProjects', JSON.stringify(updated));
+          const recents = JSON.parse(localStorage.getItem('recentProjects') || '[]');
+          const updated = [fullPath, ...recents.filter((p: string) => p !== fullPath)].slice(0, 5);
+          localStorage.setItem('recentProjects', JSON.stringify(updated));
         } catch (e) {
-           console.error("Failed to parse recents", e);
+          console.error('Failed to parse recents', e);
         }
 
         // Initialize git repository if requested
@@ -144,12 +144,12 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
             }
             await gitCommit(fullPath, 'Initial commit');
           } catch (gitErr) {
-            console.error("Git initialization failed", gitErr);
+            console.error('Git initialization failed', gitErr);
           }
         }
       } catch (err) {
-        console.error("Failed to save project initially", err);
-        alert(t('new_project.error_save_failed', 'Could not save to the selected folder.') + "\n" + err);
+        console.error('Failed to save project initially', err);
+        alert(t('new_project.error_save_failed', 'Could not save to the selected folder.') + '\n' + err);
         setLoading(false);
         return;
       }
@@ -158,7 +158,7 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
     setProject(newProject);
     setProjectPath(fullPath || null);
     setActiveSpritesheet(null);
-    setActiveAnimation(null);
+    setActiveItem(null);
     setActiveFrame(null);
     setActiveLayer(null);
     setLoading(false);
@@ -182,11 +182,7 @@ export const NewProjectModal: React.FC<Props> = ({ onClose }) => {
       }
     >
       <FormField label={t('new_project.project_name', 'Project Name')}>
-        <TextInput
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+        <TextInput value={name} onChange={(e) => setName(e.target.value)} required />
       </FormField>
 
       <div className="flex space-x-4">

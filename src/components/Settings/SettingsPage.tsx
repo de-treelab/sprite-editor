@@ -23,7 +23,8 @@ export const SettingsPage: React.FC = () => {
     const query = searchQuery.toLowerCase().trim();
     return allSettings.filter((s) => {
       // Category filter: show settings in selected category or its descendants
-      const categoryMatch = !effectiveCategory || s.category === effectiveCategory || s.category.startsWith(effectiveCategory + '.');
+      const categoryMatch =
+        !effectiveCategory || s.category === effectiveCategory || s.category.startsWith(effectiveCategory + '.');
       if (!categoryMatch) return false;
 
       // Search filter
@@ -91,7 +92,10 @@ export const SettingsPage: React.FC = () => {
               <div key={category}>
                 <div className="sticky top-0 z-10 bg-slate-800/90 backdrop-blur px-4 py-2 border-b border-slate-700">
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    {category.split('.').map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(' › ')}
+                    {category
+                      .split('.')
+                      .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+                      .join(' › ')}
                   </span>
                 </div>
                 {settings.map((s) => (

@@ -1,14 +1,16 @@
 import React from 'react';
 import { IconRegistry } from '../IconRegistry';
 import { InlineEditInput } from '../ui';
+import type { ActiveItemType } from '../../types/project';
 
-interface Animation {
+interface ItemData {
   id: string;
   name: string;
 }
 
-interface AnimationListItemProps {
-  animation: Animation;
+interface ItemListEntryProps {
+  item: ItemData;
+  itemType: ActiveItemType;
   sheetId: string;
   isSelected: boolean;
   isEditing: boolean;
@@ -19,8 +21,9 @@ interface AnimationListItemProps {
   onCancelEdit: () => void;
 }
 
-export const AnimationListItem: React.FC<AnimationListItemProps> = ({
-  animation,
+export const ItemListEntry: React.FC<ItemListEntryProps> = ({
+  item,
+  itemType,
   isSelected,
   isEditing,
   className = '',
@@ -31,9 +34,7 @@ export const AnimationListItem: React.FC<AnimationListItemProps> = ({
 }) => (
   <div
     className={`flex items-center p-1 text-xs rounded cursor-pointer ${
-      isSelected
-        ? 'bg-indigo-500/50 text-white'
-        : 'text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+      isSelected ? 'bg-indigo-500/50 text-white' : 'text-slate-400 hover:bg-slate-700 hover:text-slate-200'
     } ${className}`}
     onClick={(e) => {
       e.stopPropagation();
@@ -44,15 +45,15 @@ export const AnimationListItem: React.FC<AnimationListItemProps> = ({
       onStartEdit();
     }}
   >
-    <IconRegistry.Play className="mr-2 text-xs flex-shrink-0" />
-    {isEditing ? (
-      <InlineEditInput
-        value={animation.name}
-        onSave={onSaveEdit}
-        onCancel={onCancelEdit}
-      />
+    {itemType === 'image' ? (
+      <IconRegistry.File className="mr-2 text-xs flex-shrink-0 text-amber-400" />
     ) : (
-      <span className="truncate select-none">{animation.name}</span>
+      <IconRegistry.Play className="mr-2 text-xs flex-shrink-0" />
+    )}
+    {isEditing ? (
+      <InlineEditInput value={item.name} onSave={onSaveEdit} onCancel={onCancelEdit} />
+    ) : (
+      <span className="truncate select-none">{item.name}</span>
     )}
   </div>
 );

@@ -31,7 +31,13 @@ export const PreviewPlayer: React.FC = () => {
 
     syncCanvasSize();
 
-    const drawCheckerboard = (ctx: CanvasRenderingContext2D, cx: number, cy: number, canvasSize: { width: number; height: number }, pxSize: number) => {
+    const drawCheckerboard = (
+      ctx: CanvasRenderingContext2D,
+      cx: number,
+      cy: number,
+      canvasSize: { width: number; height: number },
+      pxSize: number,
+    ) => {
       const halfW = (canvasSize.width * pxSize) / 2;
       const halfH = (canvasSize.height * pxSize) / 2;
       const startX = cx - halfW;
@@ -54,7 +60,7 @@ export const PreviewPlayer: React.FC = () => {
       const edState = useEditorStore.getState();
       const frameId = edState.playbackFrameId || state.activeFrameId;
 
-      const sheet = state.project?.spritesheets.find(s => s.id === state.activeSpritesheetId);
+      const sheet = state.project?.spritesheets.find((s) => s.id === state.activeSpritesheetId);
 
       // Clear to background
       ctx.save();
@@ -70,14 +76,14 @@ export const PreviewPlayer: React.FC = () => {
         return;
       }
 
-      const frame = sheet.frames.find(f => f.id === frameId);
+      const frame = sheet.frames.find((f) => f.id === frameId);
       if (!frame) {
         ctx.restore();
         lastRenderedRef.current = { frameId: null, data: null };
         return;
       }
 
-      const activeAnim = sheet.animations.find(a => a.id === state.activeAnimationId);
+      const activeAnim = sheet.animations.find((a) => a.id === state.activeItemId);
       const canvasSize = activeAnim?.canvasSize || state.project.defaultCanvasSize;
 
       // Compute pixel size to fit the sprite inside the container with padding
@@ -92,12 +98,18 @@ export const PreviewPlayer: React.FC = () => {
 
       // Compute frame data string for dedup
       const frameDataStr = JSON.stringify(
-        frame.layers.map(l => ({
-          id: l.id, data: l.data, visible: l.visible, opacity: l.opacity, blendMode: l.blendMode, isReference: l.isReference,
+        frame.layers.map((l) => ({
+          id: l.id,
+          data: l.data,
+          visible: l.visible,
+          opacity: l.opacity,
+          blendMode: l.blendMode,
+          isReference: l.isReference,
         })),
       );
 
-      const needsFullRender = lastRenderedRef.current.frameId !== frameId || lastRenderedRef.current.data !== frameDataStr;
+      const needsFullRender =
+        lastRenderedRef.current.frameId !== frameId || lastRenderedRef.current.data !== frameDataStr;
       lastRenderedRef.current = { frameId, data: frameDataStr };
 
       // Draw layers
@@ -106,9 +118,9 @@ export const PreviewPlayer: React.FC = () => {
 
       const sortedLayers = [...frame.layers]
         .map((l, idx) => ({ ...l, zIndex: idx }))
-        .filter(l => l.visible && !l.isReference && l.data);
+        .filter((l) => l.visible && !l.isReference && l.data);
 
-      let pending = sortedLayers.length;
+      const pending = sortedLayers.length;
       if (pending === 0) {
         ctx.restore();
         return;

@@ -14,6 +14,8 @@ export interface Command {
   icon?: IconType;
   /** Optional: return false to grey-out in the palette */
   enabled?: () => boolean;
+  /** Optional human-readable display name (overrides key-based derivation) */
+  displayName?: string;
 }
 
 export type CommandProvider = () => Command[];

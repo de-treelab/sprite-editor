@@ -1,5 +1,14 @@
-import { create } from "zustand";
-import { AppProject, Spritesheet, Animation, Layer, ProjectPalette } from "../types/project";
+import { create } from 'zustand';
+import {
+  AppProject,
+  Spritesheet,
+  Animation,
+  Keyframe,
+  ReferenceImage,
+  ActiveItemType,
+  Layer,
+  ProjectPalette,
+} from '../types/project';
 import {
   ChangeTracker,
   createChangeTracker,
@@ -7,14 +16,15 @@ import {
   markAnimationDirty,
   markFrameDirty,
   markLayerDirty,
-} from "./changeTracker";
+} from './changeTracker';
 
 interface ProjectState {
   project: AppProject | null;
   projectPath: string | null;
   changeTracker: ChangeTracker;
   activeSpritesheetId: string | null;
-  activeAnimationId: string | null;
+  activeItemId: string | null;
+  activeItemType: ActiveItemType | null;
   activeFrameId: string | null;
   activeLayerId: string | null;
 
@@ -27,12 +37,20 @@ interface ProjectState {
   addAnimation: (spritesheetId: string, animation: Animation) => void;
   removeAnimation: (spritesheetId: string, animationId: string) => void;
   updateAnimation: (spritesheetId: string, animationId: string, updates: Partial<Animation>) => void;
+  addImage: (spritesheetId: string, image: ReferenceImage) => void;
+  removeImage: (spritesheetId: string, imageId: string) => void;
+  updateImage: (spritesheetId: string, imageId: string, updates: Partial<ReferenceImage>) => void;
   setActiveSpritesheet: (sheetId: string | null) => void;
-  setActiveAnimation: (animId: string | null) => void;
+  setActiveItem: (itemId: string | null, itemType?: ActiveItemType | null) => void;
   setActiveFrame: (frameId: string | null) => void;
   setActiveLayer: (layerId: string | null) => void;
   addKeyframe: (spritesheetId: string, animationId: string, keyframe: import('../types/project').Keyframe) => void;
-  updateKeyframe: (spritesheetId: string, animationId: string, keyframeId: string, updates: Partial<import('../types/project').Keyframe>) => void;
+  updateKeyframe: (
+    spritesheetId: string,
+    animationId: string,
+    keyframeId: string,
+    updates: Partial<import('../types/project').Keyframe>,
+  ) => void;
   removeKeyframe: (spritesheetId: string, animationId: string, keyframeId: string) => void;
   addFrame: (spritesheetId: string, frame: import('../types/project').SpriteFrame) => void;
   addLayer: (spritesheetId: string, frameId: string, layer: Layer) => void;
@@ -51,7 +69,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
   projectPath: null,
   changeTracker: createChangeTracker(true),
   activeSpritesheetId: null,
-  activeAnimationId: null,
+  activeItemId: null,
+  activeItemType: null,
   activeFrameId: null,
   activeLayerId: null,
 
@@ -99,8 +118,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
         changeTracker: { ...tracker },
         project: {
           ...state.project,
-          spritesheets: state.project.spritesheets.map(s => s.id === sheetId ? { ...s, ...updates } : s)
-        }
+          spritesheets: state.project.spritesheets.map((s) => (s.id === sheetId ? { ...s, ...updates } : s)),
+        },
       };
     }),
 
@@ -112,9 +131,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
       const sheetName = state.project.spritesheets.find((s) => s.id === spritesheetId)?.name || spritesheetId;
       tracker.structuralChanges.push(`Add Animation '${animation.name}' to '${sheetName}'`);
       const spritesheets = state.project.spritesheets.map((sheet) =>
-        sheet.id === spritesheetId
-          ? { ...sheet, animations: [...sheet.animations, animation] }
-          : sheet
+        sheet.id === spritesheetId ? { ...sheet, animations: [...sheet.animations, animation] } : sheet,
       );
       return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
     }),
@@ -127,7 +144,9 @@ export const useProjectStore = create<ProjectState>((set) => ({
       markSpritesheetDirty(tracker, spritesheetId);
       const sheet = state.project.spritesheets.find((s) => s.id === spritesheetId);
       const anim = sheet?.animations.find((a) => a.id === animationId);
-      tracker.structuralChanges.push(`Remove Animation '${anim?.name || animationId}' from '${sheet?.name || spritesheetId}'`);
+      tracker.structuralChanges.push(
+        `Remove Animation '${anim?.name || animationId}' from '${sheet?.name || spritesheetId}'`,
+      );
       const spritesheets = state.project.spritesheets.map((s) => {
         if (s.id !== spritesheetId) return s;
         return { ...s, animations: s.animations.filter((a) => a.id !== animationId) };
@@ -142,16 +161,98 @@ export const useProjectStore = create<ProjectState>((set) => ({
       markAnimationDirty(tracker, animationId, spritesheetId);
       const spritesheets = state.project.spritesheets.map((sheet) => {
         if (sheet.id !== spritesheetId) return sheet;
-        const animations = sheet.animations.map((anim) =>
-          anim.id === animationId ? { ...anim, ...updates } : anim
-        );
+        const animations = sheet.animations.map((anim) => (anim.id === animationId ? { ...anim, ...updates } : anim));
         return { ...sheet, animations };
       });
       return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
     }),
 
-  setActiveSpritesheet: (sheetId) => set({ activeSpritesheetId: sheetId, activeAnimationId: null, activeFrameId: null, activeLayerId: null }),
-  setActiveAnimation: (animId) => set({ activeAnimationId: animId, activeFrameId: null, activeLayerId: null }),
+  addImage: (spritesheetId, image) =>
+    set((state) => {
+      if (!state.project) return state;
+      const tracker = state.changeTracker;
+      markSpritesheetDirty(tracker, spritesheetId);
+      tracker.structuralChanges.push(`Add Image '${image.name}'`);
+      const spritesheets = state.project.spritesheets.map((sheet) =>
+        sheet.id === spritesheetId ? { ...sheet, images: [...(sheet.images || []), image] } : sheet,
+      );
+      return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
+    }),
+
+  removeImage: (spritesheetId, imageId) =>
+    set((state) => {
+      if (!state.project) return state;
+      const tracker = state.changeTracker;
+      tracker.deletedImages.set(imageId, spritesheetId);
+      markSpritesheetDirty(tracker, spritesheetId);
+      const sheet = state.project.spritesheets.find((s) => s.id === spritesheetId);
+      const img = (sheet?.images || []).find((i) => i.id === imageId);
+      tracker.structuralChanges.push(`Remove Image '${img?.name || imageId}'`);
+      const spritesheets = state.project.spritesheets.map((s) => {
+        if (s.id !== spritesheetId) return s;
+        return { ...s, images: (s.images || []).filter((i) => i.id !== imageId) };
+      });
+      return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
+    }),
+
+  updateImage: (spritesheetId, imageId, updates) =>
+    set((state) => {
+      if (!state.project) return state;
+      const tracker = state.changeTracker;
+      markSpritesheetDirty(tracker, spritesheetId);
+      const spritesheets = state.project.spritesheets.map((sheet) => {
+        if (sheet.id !== spritesheetId) return sheet;
+        const images = (sheet.images || []).map((img) => (img.id === imageId ? { ...img, ...updates } : img));
+        return { ...sheet, images };
+      });
+      return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
+    }),
+
+  setActiveSpritesheet: (sheetId) =>
+    set({
+      activeSpritesheetId: sheetId,
+      activeItemId: null,
+      activeItemType: null,
+      activeFrameId: null,
+      activeLayerId: null,
+    }),
+  setActiveItem: (itemId, itemType = null) =>
+    set((state) => {
+      const base = {
+        activeItemId: itemId,
+        activeItemType: itemId ? (itemType ?? null) : null,
+        activeFrameId: null as string | null,
+        activeLayerId: null as string | null,
+      };
+      if (!itemId || !state.project) return base;
+
+      const sheet = state.project.spritesheets.find((s) => s.id === state.activeSpritesheetId);
+      if (!sheet) return base;
+
+      let frameId: string | null = null;
+
+      if (itemType === 'animation') {
+        const anim = sheet.animations.find((a) => a.id === itemId);
+        if (anim && anim.keyframes.length > 0) {
+          // Pick the first keyframe by time order
+          const sorted = [...anim.keyframes].sort((a, b) => a.time - b.time);
+          frameId = sorted[0].frameId;
+        }
+      } else if (itemType === 'image') {
+        const img = (sheet.images || []).find((i) => i.id === itemId);
+        if (img) {
+          frameId = img.frameId;
+        }
+      }
+
+      if (frameId) {
+        const frame = sheet.frames.find((f) => f.id === frameId);
+        const layerId = frame?.layers?.[0]?.id ?? null;
+        return { ...base, activeFrameId: frameId, activeLayerId: layerId };
+      }
+
+      return base;
+    }),
   setActiveFrame: (frameId) => set({ activeFrameId: frameId }),
   setActiveLayer: (layerId) => set({ activeLayerId: layerId }),
 
@@ -163,9 +264,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
       const spritesheets = state.project.spritesheets.map((sheet) => {
         if (sheet.id !== spritesheetId) return sheet;
         const animations = sheet.animations.map((anim) =>
-          anim.id === animationId
-            ? { ...anim, keyframes: [...anim.keyframes, keyframe] }
-            : anim
+          anim.id === animationId ? { ...anim, keyframes: [...anim.keyframes, keyframe] } : anim,
         );
         return { ...sheet, animations };
       });
@@ -181,9 +280,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
         if (sheet.id !== spritesheetId) return sheet;
         const animations = sheet.animations.map((anim) => {
           if (anim.id !== animationId) return anim;
-          const keyframes = anim.keyframes.map((k: any) =>
-            k.id === keyframeId ? { ...k, ...updates } : k
-          );
+          const keyframes = anim.keyframes.map((k: Keyframe) => (k.id === keyframeId ? { ...k, ...updates } : k));
           return { ...anim, keyframes };
         });
         return { ...sheet, animations };
@@ -200,7 +297,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
         if (sheet.id !== spritesheetId) return sheet;
         const animations = sheet.animations.map((anim) => {
           if (anim.id !== animationId) return anim;
-          const keyframes = anim.keyframes.filter((k: any) => k.id !== keyframeId);
+          const keyframes = anim.keyframes.filter((k: Keyframe) => k.id !== keyframeId);
           return { ...anim, keyframes };
         });
         return { ...sheet, animations };
@@ -214,7 +311,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
       const tracker = state.changeTracker;
       markFrameDirty(tracker, frame.id, spritesheetId);
       const spritesheets = state.project.spritesheets.map((s) =>
-        s.id === spritesheetId ? { ...s, frames: [...s.frames, frame] } : s
+        s.id === spritesheetId ? { ...s, frames: [...s.frames, frame] } : s,
       );
       return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
     }),
@@ -226,12 +323,12 @@ export const useProjectStore = create<ProjectState>((set) => ({
       markLayerDirty(tracker, newLayer.id, frameId, spritesheetId);
       tracker.structuralChanges.push(`Add Layer '${newLayer.name}'`);
       const spritesheets = state.project.spritesheets.map((sheet) => {
-         if (sheet.id !== spritesheetId) return sheet;
-         const frames = sheet.frames.map((frame) => {
-            if (frame.id !== frameId) return frame;
-            return { ...frame, layers: [...frame.layers, newLayer] };
-         });
-         return { ...sheet, frames };
+        if (sheet.id !== spritesheetId) return sheet;
+        const frames = sheet.frames.map((frame) => {
+          if (frame.id !== frameId) return frame;
+          return { ...frame, layers: [...frame.layers, newLayer] };
+        });
+        return { ...sheet, frames };
       });
       return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
     }),
@@ -247,12 +344,12 @@ export const useProjectStore = create<ProjectState>((set) => ({
       const layer = frame?.layers.find((l) => l.id === layerId);
       tracker.structuralChanges.push(`Remove Layer '${layer?.name || layerId}'`);
       const spritesheets = state.project.spritesheets.map((sheet) => {
-         if (sheet.id !== spritesheetId) return sheet;
-         const frames = sheet.frames.map((frame) => {
-            if (frame.id !== frameId) return frame;
-            return { ...frame, layers: frame.layers.filter((l) => l.id !== layerId) };
-         });
-         return { ...sheet, frames };
+        if (sheet.id !== spritesheetId) return sheet;
+        const frames = sheet.frames.map((frame) => {
+          if (frame.id !== frameId) return frame;
+          return { ...frame, layers: frame.layers.filter((l) => l.id !== layerId) };
+        });
+        return { ...sheet, frames };
       });
       return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
     }),
@@ -263,15 +360,15 @@ export const useProjectStore = create<ProjectState>((set) => ({
       const tracker = state.changeTracker;
       markLayerDirty(tracker, layerId, frameId, spritesheetId);
       const spritesheets = state.project.spritesheets.map((sheet) => {
-         if (sheet.id !== spritesheetId) return sheet;
-         const frames = sheet.frames.map((frame) => {
-             if (frame.id !== frameId) return frame;
-             return {
-                 ...frame,
-                 layers: frame.layers.map((l) => l.id === layerId ? { ...l, ...updates } : l)
-             };
-         });
-         return { ...sheet, frames };
+        if (sheet.id !== spritesheetId) return sheet;
+        const frames = sheet.frames.map((frame) => {
+          if (frame.id !== frameId) return frame;
+          return {
+            ...frame,
+            layers: frame.layers.map((l) => (l.id === layerId ? { ...l, ...updates } : l)),
+          };
+        });
+        return { ...sheet, frames };
       });
       return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
     }),
@@ -282,15 +379,15 @@ export const useProjectStore = create<ProjectState>((set) => ({
       const tracker = state.changeTracker;
       markFrameDirty(tracker, frameId, spritesheetId);
       const spritesheets = state.project.spritesheets.map((sheet) => {
-         if (sheet.id !== spritesheetId) return sheet;
-         const frames = sheet.frames.map((frame) => {
-            if (frame.id !== frameId) return frame;
-            const newLayers = Array.from(frame.layers);
-            const [moved] = newLayers.splice(fromIndex, 1);
-            newLayers.splice(toIndex, 0, moved);
-            return { ...frame, layers: newLayers };
-         });
-         return { ...sheet, frames };
+        if (sheet.id !== spritesheetId) return sheet;
+        const frames = sheet.frames.map((frame) => {
+          if (frame.id !== frameId) return frame;
+          const newLayers = Array.from(frame.layers);
+          const [moved] = newLayers.splice(fromIndex, 1);
+          newLayers.splice(toIndex, 0, moved);
+          return { ...frame, layers: newLayers };
+        });
+        return { ...sheet, frames };
       });
       return { changeTracker: { ...tracker }, project: { ...state.project, spritesheets } };
     }),
@@ -310,11 +407,11 @@ export const useProjectStore = create<ProjectState>((set) => ({
     set((state) => {
       if (!state.project) return state;
       const tracker = state.changeTracker;
-      const pal = state.project.palettes.find(p => p.id === paletteId);
+      const pal = state.project.palettes.find((p) => p.id === paletteId);
       tracker.structuralChanges.push(`Remove Palette '${pal?.name || paletteId}'`);
       return {
         changeTracker: { ...tracker },
-        project: { ...state.project, palettes: state.project.palettes.filter(p => p.id !== paletteId) },
+        project: { ...state.project, palettes: state.project.palettes.filter((p) => p.id !== paletteId) },
       };
     }),
 
@@ -327,7 +424,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
         changeTracker: { ...tracker },
         project: {
           ...state.project,
-          palettes: state.project.palettes.map(p => p.id === paletteId ? { ...p, ...updates } : p),
+          palettes: state.project.palettes.map((p) => (p.id === paletteId ? { ...p, ...updates } : p)),
         },
       };
     }),
@@ -341,8 +438,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
         changeTracker: { ...tracker },
         project: {
           ...state.project,
-          palettes: state.project.palettes.map(p =>
-            p.id === paletteId ? { ...p, colors: [...p.colors, color] } : p
+          palettes: state.project.palettes.map((p) =>
+            p.id === paletteId ? { ...p, colors: [...p.colors, color] } : p,
           ),
         },
       };
@@ -357,10 +454,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
         changeTracker: { ...tracker },
         project: {
           ...state.project,
-          palettes: state.project.palettes.map(p =>
-            p.id === paletteId
-              ? { ...p, colors: p.colors.filter((_, i) => i !== colorIndex) }
-              : p
+          palettes: state.project.palettes.map((p) =>
+            p.id === paletteId ? { ...p, colors: p.colors.filter((_, i) => i !== colorIndex) } : p,
           ),
         },
       };

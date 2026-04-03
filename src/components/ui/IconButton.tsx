@@ -35,15 +35,11 @@ export const IconButton: React.FC<IconButtonProps> = ({
 
     switch (variant) {
       case 'active':
-        return isActive
-          ? 'bg-indigo-500 text-white'
-          : 'text-slate-400 hover:bg-slate-700 hover:text-slate-200';
+        return isActive ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:bg-slate-700 hover:text-slate-200';
       case 'danger':
         return 'text-slate-400 hover:bg-red-900/50 hover:text-red-400';
       case 'toggle':
-        return isActive
-          ? 'text-indigo-400'
-          : 'text-slate-500 hover:bg-slate-600';
+        return isActive ? 'text-indigo-400' : 'text-slate-500 hover:bg-slate-600';
       default:
         return 'text-slate-400 hover:bg-slate-700 hover:text-white';
     }
@@ -56,7 +52,9 @@ export const IconButton: React.FC<IconButtonProps> = ({
         ${sizeStyles[size].button}
         ${getVariantStyles()}
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, ' ')}
       title={label}
       disabled={disabled}
       {...props}

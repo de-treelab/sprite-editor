@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GitLogEntry, TaskGroup } from './gitLogUtils';
-
 
 interface CommitRowProps {
   entry: GitLogEntry;
@@ -9,39 +9,48 @@ interface CommitRowProps {
   onRestore?: (entry: GitLogEntry) => void;
 }
 
-export const CommitRow: React.FC<CommitRowProps> = ({ entry, showClean = false, onPreview, onRestore }) => (
-  <div className="relative flex items-start gap-4 py-2 pl-8 group">
-    <div className="absolute left-[7px] top-[12px] w-[9px] h-[9px] rounded-full border-2 border-slate-600 bg-slate-800 group-hover:border-indigo-500 transition-colors" />
-    <div className="flex-1 min-w-0">
-      <p className="text-sm text-slate-200 truncate">{showClean ? entry.cleanMessage : entry.message}</p>
-      <div className="flex items-center gap-3 mt-0.5">
-        <span className="text-xs font-mono text-indigo-400/80">{entry.hash}</span>
-        <span className="text-xs text-slate-500">{entry.relativeDate}</span>
-        <span className="text-xs text-slate-600">{entry.author}</span>
-        <div className="hidden group-hover:flex items-center gap-1 ml-auto">
-          {onPreview && (
-            <button
-              className="text-xs text-slate-400 hover:text-indigo-400 px-2 py-0.5 rounded bg-slate-700/50 hover:bg-slate-700 transition-colors"
-              onClick={(e) => { e.stopPropagation(); onPreview(entry); }}
-              title="Preview this version"
-            >
-              Preview
-            </button>
-          )}
-          {onRestore && (
-            <button
-              className="text-xs text-slate-400 hover:text-orange-400 px-2 py-0.5 rounded bg-slate-700/50 hover:bg-slate-700 transition-colors"
-              onClick={(e) => { e.stopPropagation(); onRestore(entry); }}
-              title="Restore to this version"
-            >
-              Restore
-            </button>
-          )}
+export const CommitRow: React.FC<CommitRowProps> = ({ entry, showClean = false, onPreview, onRestore }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="relative flex items-start gap-4 py-2 pl-8 group">
+      <div className="absolute left-[7px] top-[12px] w-[9px] h-[9px] rounded-full border-2 border-slate-600 bg-slate-800 group-hover:border-indigo-500 transition-colors" />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm text-slate-200 truncate">{showClean ? entry.cleanMessage : entry.message}</p>
+        <div className="flex items-center gap-3 mt-0.5">
+          <span className="text-xs font-mono text-indigo-400/80">{entry.hash}</span>
+          <span className="text-xs text-slate-500">{entry.relativeDate}</span>
+          <span className="text-xs text-slate-600">{entry.author}</span>
+          <div className="hidden group-hover:flex items-center gap-1 ml-auto">
+            {onPreview && (
+              <button
+                className="text-xs text-slate-400 hover:text-indigo-400 px-2 py-0.5 rounded bg-slate-700/50 hover:bg-slate-700 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPreview(entry);
+                }}
+                title={t('git_history.preview_tooltip')}
+              >
+                {t('common.preview')}
+              </button>
+            )}
+            {onRestore && (
+              <button
+                className="text-xs text-slate-400 hover:text-orange-400 px-2 py-0.5 rounded bg-slate-700/50 hover:bg-slate-700 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRestore(entry);
+                }}
+                title={t('git_history.restore_tooltip')}
+              >
+                {t('common.restore')}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 interface TaskGroupRowProps {
   group: TaskGroup;
@@ -70,15 +79,11 @@ export const TaskGroupRow: React.FC<TaskGroupRowProps> = ({ group, onPreview, on
             <span className="text-sm text-slate-200 truncate">
               {group.entries.length} commit{group.entries.length !== 1 ? 's' : ''}
             </span>
-            <span className="text-xs text-slate-500 ml-auto flex-shrink-0">
-              {expanded ? '▾' : '▸'}
-            </span>
+            <span className="text-xs text-slate-500 ml-auto flex-shrink-0">{expanded ? '▾' : '▸'}</span>
           </div>
           <div className="flex items-center gap-3 mt-0.5">
             <span className="text-xs text-slate-500">{first.relativeDate}</span>
-            {group.entries.length > 1 && (
-              <span className="text-xs text-slate-600">— {last.relativeDate}</span>
-            )}
+            {group.entries.length > 1 && <span className="text-xs text-slate-600">— {last.relativeDate}</span>}
             <span className="text-xs text-slate-600">{first.author}</span>
           </div>
         </div>

@@ -7,20 +7,20 @@ import { IconButton, SectionHeader, InlineEditInput, useInlineEdit } from '../ui
 
 export const ColorPalettePanel: React.FC = () => {
   const { t } = useTranslation();
-  const project = useProjectStore(s => s.project);
-  const addPalette = useProjectStore(s => s.addPalette);
-  const removePalette = useProjectStore(s => s.removePalette);
-  const updatePalette = useProjectStore(s => s.updatePalette);
-  const addColorToPalette = useProjectStore(s => s.addColorToPalette);
-  const removeColorFromPalette = useProjectStore(s => s.removeColorFromPalette);
-  const primaryColor = useEditorStore(s => s.primaryColor);
-  const setPrimaryColor = useEditorStore(s => s.setPrimaryColor);
-  const setSecondaryColor = useEditorStore(s => s.setSecondaryColor);
+  const project = useProjectStore((s) => s.project);
+  const addPalette = useProjectStore((s) => s.addPalette);
+  const removePalette = useProjectStore((s) => s.removePalette);
+  const updatePalette = useProjectStore((s) => s.updatePalette);
+  const addColorToPalette = useProjectStore((s) => s.addColorToPalette);
+  const removeColorFromPalette = useProjectStore((s) => s.removeColorFromPalette);
+  const primaryColor = useEditorStore((s) => s.primaryColor);
+  const setPrimaryColor = useEditorStore((s) => s.setPrimaryColor);
+  const setSecondaryColor = useEditorStore((s) => s.setSecondaryColor);
 
   const [activePaletteId, setActivePaletteId] = useState<string | null>(null);
   const inlineEdit = useInlineEdit();
   const palettes = project?.palettes ?? [];
-  const activePalette = palettes.find(p => p.id === activePaletteId) ?? palettes[0] ?? null;
+  const activePalette = palettes.find((p) => p.id === activePaletteId) ?? palettes[0] ?? null;
 
   // Auto-select first palette
   if (activePalette && activePaletteId !== activePalette.id) {
@@ -68,11 +68,18 @@ export const ColorPalettePanel: React.FC = () => {
   return (
     <div className="border-b border-slate-700">
       <SectionHeader
-        title={t('sidebar.palette', 'Palette')}
+        title={t('palette.title')}
         actions={
           <div className="flex gap-1">
-            <IconButton icon={IconRegistry.Add} size="sm" onClick={handleAddPalette} label="New Palette" />
-            <IconButton icon={IconRegistry.Delete} size="sm" variant="danger" onClick={handleDeletePalette} disabled={!activePalette} label="Delete Palette" />
+            <IconButton icon={IconRegistry.Add} size="sm" onClick={handleAddPalette} label={t('palette.new_palette')} />
+            <IconButton
+              icon={IconRegistry.Delete}
+              size="sm"
+              variant="danger"
+              onClick={handleDeletePalette}
+              disabled={!activePalette}
+              label={t('palette.delete_palette')}
+            />
           </div>
         }
       />
@@ -84,8 +91,10 @@ export const ColorPalettePanel: React.FC = () => {
             value={activePalette?.id ?? ''}
             onChange={(e) => setActivePaletteId(e.target.value)}
           >
-            {palettes.map(p => (
-              <option key={p.id} value={p.id}>{p.name}</option>
+            {palettes.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
             ))}
           </select>
         </div>
@@ -106,7 +115,7 @@ export const ColorPalettePanel: React.FC = () => {
               <span
                 className="text-xs text-slate-300 cursor-pointer hover:text-white"
                 onDoubleClick={() => inlineEdit.startEditing(activePalette.id)}
-                title="Double-click to rename"
+                title={t('palette.rename_tooltip')}
               >
                 {activePalette.name}
               </span>
@@ -117,22 +126,26 @@ export const ColorPalettePanel: React.FC = () => {
           <div className="px-2 pb-2">
             <div className="flex flex-wrap gap-1">
               {activePalette.colors.map((color, idx) => (
-                <div
-                  key={`${color}-${idx}`}
-                  className="relative group"
-                >
+                <div key={`${color}-${idx}`} className="relative group">
                   <div
                     className="w-5 h-5 rounded-sm border border-slate-600 cursor-pointer hover:border-white hover:scale-110 transition-transform"
                     style={{ backgroundColor: color }}
                     onClick={(e) => handleColorClick(color, e)}
-                    onContextMenu={(e) => { e.preventDefault(); handleColorClick(color, e); }}
-                    title={`${color} — Click: primary, Right-click: secondary`}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      handleColorClick(color, e);
+                    }}
+                    title={t('palette.color_tooltip', {
+                      defaultValue: `${color} — Click: primary, Right-click: secondary`,
+                    })}
                   />
                   <button
                     className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 text-white text-[8px] rounded-full hidden group-hover:flex items-center justify-center leading-none"
                     onClick={() => handleRemoveColor(idx)}
-                    title="Remove color"
-                  >×</button>
+                    title={t('palette.remove_color')}
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
 
@@ -140,18 +153,16 @@ export const ColorPalettePanel: React.FC = () => {
               <div
                 className="w-5 h-5 rounded-sm border border-dashed border-slate-500 cursor-pointer hover:border-slate-300 flex items-center justify-center text-slate-500 hover:text-slate-300 text-xs"
                 onClick={handleAddColor}
-                title="Add current color to palette"
-              >+</div>
+                title={t('palette.add_color')}
+              >
+                +
+              </div>
             </div>
           </div>
         </>
       )}
 
-      {palettes.length === 0 && (
-        <div className="px-2 pb-2 text-xs text-slate-500 italic">
-          {t('sidebar.palette.empty', 'No palettes yet. Create one to get started.')}
-        </div>
-      )}
+      {palettes.length === 0 && <div className="px-2 pb-2 text-xs text-slate-500 italic">{t('palette.empty')}</div>}
     </div>
   );
 };

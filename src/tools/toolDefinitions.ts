@@ -54,6 +54,10 @@ export type ToolId =
   | 'selection'
   | 'magicWand'
   | 'move'
+  | 'pan'
+  | 'scale'
+  | 'rotate'
+  | 'transform'
   | 'flipHorizontal'
   | 'flipVertical';
 
@@ -329,6 +333,104 @@ export const toolDefinitions: Record<ToolId, ToolDefinition> = {
     ],
   },
 
+  pan: {
+    id: 'pan',
+    labelKey: 'sidebar.tools.pan',
+    defaultLabel: 'Pan',
+    icon: IconRegistry.ToolPan,
+    category: 'utility',
+    cursor: 'grab',
+    properties: [],
+  },
+
+  scale: {
+    id: 'scale',
+    labelKey: 'sidebar.tools.scale',
+    defaultLabel: 'Scale',
+    icon: IconRegistry.ToolScale,
+    category: 'transform',
+    cursor: 'nwse-resize',
+    properties: [
+      {
+        key: 'scaleMode',
+        label: 'Scale',
+        type: 'select',
+        options: [
+          { value: 'selection', label: 'Selection' },
+          { value: 'layer', label: 'Layer' },
+        ],
+        default: 'selection',
+      },
+      {
+        key: 'maintainAspect',
+        label: 'Lock Aspect Ratio',
+        type: 'boolean',
+        default: true,
+      },
+      {
+        key: 'interpolation',
+        label: 'Interpolation',
+        type: 'select',
+        options: [
+          { value: 'nearest', label: 'Nearest Neighbor' },
+          { value: 'bilinear', label: 'Bilinear' },
+        ],
+        default: 'nearest',
+      },
+    ],
+  },
+
+  rotate: {
+    id: 'rotate',
+    labelKey: 'sidebar.tools.rotate',
+    defaultLabel: 'Rotate',
+    icon: IconRegistry.ToolRotate,
+    category: 'transform',
+    cursor: 'crosshair',
+    properties: [
+      {
+        key: 'rotateAngle',
+        label: 'Angle (°)',
+        type: 'number',
+        min: -360,
+        max: 360,
+        step: 1,
+        default: 0,
+      },
+      {
+        key: 'interpolation',
+        label: 'Interpolation',
+        type: 'select',
+        options: [
+          { value: 'nearest', label: 'Nearest Neighbor' },
+          { value: 'bilinear', label: 'Bilinear' },
+        ],
+        default: 'nearest',
+      },
+    ],
+  },
+
+  transform: {
+    id: 'transform',
+    labelKey: 'sidebar.tools.transform',
+    defaultLabel: 'Transform',
+    icon: IconRegistry.ToolTransform,
+    category: 'transform',
+    cursor: 'default',
+    properties: [
+      {
+        key: 'interpolation',
+        label: 'Interpolation',
+        type: 'select',
+        options: [
+          { value: 'nearest', label: 'Nearest Neighbor' },
+          { value: 'bilinear', label: 'Bilinear' },
+        ],
+        default: 'nearest',
+      },
+    ],
+  },
+
   flipHorizontal: {
     id: 'flipHorizontal',
     labelKey: 'sidebar.tools.flipHorizontal',
@@ -372,7 +474,7 @@ export const toolDefinitions: Record<ToolId, ToolDefinition> = {
 
 // Helper to get tools by category
 export const getToolsByCategory = (category: ToolDefinition['category']): ToolDefinition[] => {
-  return Object.values(toolDefinitions).filter(t => t.category === category);
+  return Object.values(toolDefinitions).filter((t) => t.category === category);
 };
 
 // Helper to get all tool ids

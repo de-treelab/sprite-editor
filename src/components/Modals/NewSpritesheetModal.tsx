@@ -6,10 +6,10 @@ import { Modal, ModalFooter, FormField, TextInput } from '../ui';
 
 export const NewSpritesheetModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { t } = useTranslation();
-  const addSpritesheet = useProjectStore(state => state.addSpritesheet);
-  const setActiveSpritesheet = useProjectStore(state => state.setActiveSpritesheet);
+  const addSpritesheet = useProjectStore((state) => state.addSpritesheet);
+  const setActiveSpritesheet = useProjectStore((state) => state.setActiveSpritesheet);
 
-  const [name, setName] = useState('New Spritesheet');
+  const [name, setName] = useState(t('new_spritesheet.default_name'));
 
   const handleCreate = () => {
     const id = generate_id();
@@ -17,7 +17,8 @@ export const NewSpritesheetModal: React.FC<{ onClose: () => void }> = ({ onClose
       id,
       name,
       animations: [],
-      frames: []
+      images: [],
+      frames: [],
     });
     setActiveSpritesheet(id);
     onClose();
@@ -39,11 +40,7 @@ export const NewSpritesheetModal: React.FC<{ onClose: () => void }> = ({ onClose
       }
     >
       <FormField label={t('modal.new_spritesheet.name', 'Spritesheet Name')}>
-        <TextInput
-          autoFocus
-          value={name}
-          onChange={e => setName(e.target.value)}
-        />
+        <TextInput autoFocus value={name} onChange={(e) => setName(e.target.value)} />
       </FormField>
     </Modal>
   );

@@ -26,18 +26,19 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   canUndo: false,
   canRedo: false,
 
-  push: (action) => set((state) => {
-    const newStack = [...state.undoStack, action];
-    if (newStack.length > state.maxDepth) {
-      newStack.shift();
-    }
-    return {
-      undoStack: newStack,
-      redoStack: [],
-      canUndo: true,
-      canRedo: false,
-    };
-  }),
+  push: (action) =>
+    set((state) => {
+      const newStack = [...state.undoStack, action];
+      if (newStack.length > state.maxDepth) {
+        newStack.shift();
+      }
+      return {
+        undoStack: newStack,
+        redoStack: [],
+        canUndo: true,
+        canRedo: false,
+      };
+    }),
 
   undo: () => {
     const { undoStack, redoStack } = get();
@@ -69,10 +70,11 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
     });
   },
 
-  clear: () => set({
-    undoStack: [],
-    redoStack: [],
-    canUndo: false,
-    canRedo: false,
-  }),
+  clear: () =>
+    set({
+      undoStack: [],
+      redoStack: [],
+      canUndo: false,
+      canRedo: false,
+    }),
 }));
