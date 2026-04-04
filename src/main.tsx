@@ -7,6 +7,16 @@ import './i18n';
 import './styles/globals.css';
 import { registerBuiltinViews } from './layouts/registerViews';
 
+// Expose stores for e2e test access in dev mode
+if (import.meta.env.DEV) {
+  import('./store/projectStore').then((m) => {
+    (window as { __zustand_projectStore?: typeof m.useProjectStore }).__zustand_projectStore = m.useProjectStore;
+  });
+  import('./store/editorStore').then((m) => {
+    (window as { __zustand_editorStore?: typeof m.useEditorStore }).__zustand_editorStore = m.useEditorStore;
+  });
+}
+
 registerBuiltinViews();
 
 // Opt-in OverlayScrollbars: only elements with [data-os-scrollbar] get wrapped.

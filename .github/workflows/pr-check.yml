@@ -151,6 +151,9 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
 
+      - name: Run Vitest unit tests
+        run: npm test
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
