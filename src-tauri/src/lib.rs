@@ -1,9 +1,9 @@
-mod export;
-mod git;
-mod image_utils;
-mod project;
-mod types;
-mod wiki;
+pub mod export;
+pub mod git;
+pub mod image_utils;
+pub mod project;
+pub mod types;
+pub mod wiki;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
